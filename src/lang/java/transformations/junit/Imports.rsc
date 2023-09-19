@@ -1,17 +1,21 @@
 module lang::java::transformations::junit::Imports
 
 import ParseTree;
-import lang::java::\syntax::Java18; 
+import lang::java::\syntax::Java18;
 
 public CompilationUnit executeImportsTransformation(CompilationUnit unit) {
-	if(verifyImports(unit)) {
-		unit = top-down visit(unit) {
-			case (Imports)`<ImportDeclaration* imports>` => updateImports(imports)
-			case (MethodInvocation) `Assert.<Identifier methodName>(<ArgumentList argumentList>)` => (MethodInvocation) `Assertions.<Identifier methodName>(<ArgumentList argumentList>)`
-		}	
-	}
+    unit = top-down visit(unit) {
+	   	case (MethodInvocation) `Executors.newCachedThreadPool()` => updateBlockStatement()
+       	case (ClassInstanceCreationExpression) `new Thread(<ArgumentList args>)` => (ClassInstanceCreationExpression) `new Car(<ArgumentList args>)`
+    }
 	return unit;
 }
+
+private MethodInvocation updateBlockStatement() {
+    // insert(`ThreadFactory threadFactory =Thread.ofVirtual().factory();`);
+	return (MethodInvocation)  `Executors.newFixedThreadPool()`;
+}
+
 
 private Imports updateImports(ImportDeclaration* imports) {
 	imports = top-down visit(imports) {
@@ -33,29 +37,5 @@ private Imports updateImports(ImportDeclaration* imports) {
 		case (ImportDeclaration) `import static org.junit.Assert.fail;` => (ImportDeclaration) `import static org.junit.jupiter.api.Assertions.fail;`
 		case (ImportDeclaration) `import static org.junit.Assert.*;` => (ImportDeclaration) `import static org.junit.jupiter.api.Assertions.*;`
 	}
-
 	return parse(#Imports, unparse(imports));
-}
-
-public bool verifyImports(CompilationUnit cu) {
-	top-down-break visit(cu) {
-		case (ImportDeclaration) `import org.junit.*;`: return true;
-		case (ImportDeclaration) `import org.junit.Test;`: return true;
-		case (ImportDeclaration) `import org.junit.BeforeClass;`: return true;
-		case (ImportDeclaration) `import org.junit.Before;`: return true;
-		case (ImportDeclaration) `import org.junit.After;`: return true;
-		case (ImportDeclaration) `import org.junit.AfterClass;`: return true;
-		case (ImportDeclaration) `import org.junit.Ignore;`: return true;
-		case (ImportDeclaration) `import static org.junit.Assert.assertArrayEquals;`: return true;
-		case (ImportDeclaration) `import static org.junit.Assert.assertEquals;`: return true;
-		case (ImportDeclaration) `import static org.junit.Assert.assertFalse;`: return true;
-		case (ImportDeclaration) `import static org.junit.Assert.assertNotNull;`: return true;
-		case (ImportDeclaration) `import static org.junit.Assert.assertNotSame;`: return true;
-		case (ImportDeclaration) `import static org.junit.Assert.assertNull;`: return true;
-		case (ImportDeclaration) `import static org.junit.Assert.assertSame;`: return true;
-		case (ImportDeclaration) `import static org.junit.Assert.assertTrue;`: return true;
-		case (ImportDeclaration) `import static org.junit.Assert.fail;`: return true;
-		case (ImportDeclaration) `import static org.junit.Assert.*;`: return true;
-	}
-	return false; 
 }

@@ -16,5 +16,5 @@ developers to migrate JUnit 4 test cases to JUnit 5.
    * Execute the `driver.py` script:
 
 ```shell
-$ python3 driver.py -i <PATH_TO_GIT_REPOSITORY> -m <MAX_NUMBER_OF_FILES>
+$ python3 driver.py 
 ```

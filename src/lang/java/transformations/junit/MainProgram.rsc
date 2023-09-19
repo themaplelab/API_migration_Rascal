@@ -10,45 +10,22 @@ import Set;
 import util::IOUtil;
 
 import lang::java::\syntax::Java18;
-import lang::java::transformations::junit::AssertAll;
-import lang::java::transformations::junit::ConditionalAssertion;
-import lang::java::transformations::junit::ExpectedException;
-import lang::java::transformations::junit::ExpectedTimeout;
-import lang::java::transformations::junit::ParameterizedTest;
-import lang::java::transformations::junit::RepeatedTest;
-import lang::java::transformations::junit::SimpleAnnotations;
-import lang::java::transformations::junit::TempDir;
 import lang::java::transformations::junit::Imports;
 
 data Transformation = transformation(str name, CompilationUnit (CompilationUnit) function);
 
-public void main(str path = "", str maxFilesOpt = "", str transformationsToApply = "all") {
+public void main(str path = "") {
     loc base = |file:///| + path; 
 
     if( (path == "") || (! exists(base)) || (! isDirectory(base)) ) {
        println("Invalid path <path>"); 
        return; 
     }
-
-    int maxFiles = 0;
-
-    if(maxFilesOpt != "") {
-		maxFiles = toInt(maxFilesOpt);     
-    } 
-
 	list[loc] allFiles = findAllTestFiles(base, "java", false); 
 
 	int errors = 0; 
 
   list[Transformation] transformations = [
-    transformation("ExpectedException", expectedExceptionTransform),
-    transformation("ExpectedTimeout", expectedTimeoutTransform),
-    transformation("AssertAll", executeAssertAllTransformation),
-    transformation("ConditionalAssertion", executeConditionalAssertionTransformation),
-    transformation("ParameterizedTest", executeParameterizedTestTransformation),
-    transformation("RepeatedTest", executeRepeatedTestTransformation),
-    transformation("TempDir", executeTempDirTransformation),
-    transformation("SimpleAnnotations", simpleAnnotationTransform),
     transformation("Imports", importsTransform)
   ];
 
@@ -66,21 +43,18 @@ public void main(str path = "", str maxFilesOpt = "", str transformationsToApply
             transformationCount,
             transformations
           );
-      writeFile(f, transformedUnit); 
-
-        if( (maxFiles) > 0 && (totalTransformationCount >= maxFiles) ) {
-          break; 
-        } 
+      writeFile(f, transformedUnit);
       }
-  }catch:{
+  } catch:{
     errors = errors + 1;
+
   }
 
 	for(str transformationName <- transformationCount) {
     println("<transformationName> rule: <transformationCount[transformationName]> transformation(s)");
   }
 
-	println("Total transformations applied: <totalTransformationCount>");	
+	println("Total transformations applied: <totalTransformationCount>");
 	println("Files with error: <errors>");	
 	println("Number of files: <size(allFiles)>");  
 }
@@ -126,6 +100,6 @@ private CompilationUnit simpleAnnotationTransform(CompilationUnit c) {
 }
 
 private CompilationUnit importsTransform(CompilationUnit c) {
-  if(verifyImports(c)) c = executeImportsTransformation(c);
+  c = executeImportsTransformation(c);
   return c;
 }

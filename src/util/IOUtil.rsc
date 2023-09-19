@@ -56,21 +56,23 @@ list[loc] findAllTestFiles(loc location, str ext, bool isTestFolder) {
 
   if (isSrcFolder) {
     for(loc l <- allFiles) {
-      if(isDirectory(l) && endsWith(l.path, "/src/test")) {
-        res = res + (findAllTestFiles(l, ext, true));
+      if(isDirectory(l)) {
+        res = res + (findAllTestFiles(l, ext, false));
       }
     };
   } else {
     for(loc l <- allFiles) {
       if(isDirectory(l)) {
-        res = res + (findAllTestFiles(l, ext, isTestFolder));
+        res = res + (findAllTestFiles(l, ext, false));
       }
       else {
-        if(l.extension == ext && isTestFolder) {
+        if(l.extension == ext && !isTestFolder) {
           res = l + res;
         };
       };
     };
   }
+  println("Number of files: <res>");  
+
   return res; 
 }

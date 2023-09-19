@@ -2,9 +2,9 @@
 
 import sys, os, getopt
 import logging 
-import git
+# import git
 from datetime import datetime
-import pomMigration
+# import pomMigration
 
 currentDateAndTime = datetime.now()
 
@@ -15,7 +15,8 @@ branch = 'junit5-migration'
 
 def main(argv):
     cwd = os.getcwd()
-    input_dir = ''
+    # path to the directory with thread usages
+    input_dir = 'D:\Alberta\Thesis\codebases\CogniCryptDemoProject\CoffeeCogniProject\src'
     max_files = '0'
 
     opts, args = getopt.getopt(argv, "hi:m:", ["input_dir=", "max_files="])
@@ -42,19 +43,21 @@ def main(argv):
     logging.info("Executing the migrations")
     currentTime = currentDateAndTime.strftime("%y%m%d%H%M%S")
 
-    os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::junit::MainProgram -path {input_dir} -maxFilesOpt {max_files} > output/log-{currentTime}")
+    os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::junit::MainProgram -path {input_dir}")
+
+    logging.info("Formatting the source code")
 
     os.chdir(input_dir)
 
-    logging.info("Formating the source code")
+    logging.info("Formatting the source code")
 
     os.system(f"git config --global --add safe.directory '*' ")
 
     os.system(f"git diff -U0 HEAD^ | {cwd}/google-java-format-diff.py -p1 -i --google-java-format-jar {cwd}/google-format.jar")
 
     
-    pom_path = "-i "+input_dir+"pom.xml"
-    pomMigration.main(argv=[pom_path])
+    # pom_path = "-i "+input_dir+"pom.xml"
+    # pomMigration.main(argv=[pom_path])
     
     logging.info("done")
 
