@@ -101,6 +101,5 @@ private CompilationUnit simpleAnnotationTransform(CompilationUnit c) {
 
 private CompilationUnit importsTransform(CompilationUnit c) {
   c = executeImportsTransformation(c);
-  println("Number of files: <c>");  
   return c;
 }
