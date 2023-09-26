@@ -13,22 +13,23 @@ import lang::java::\syntax::Java18;
 
 data Argument = argument(str argType, Expression expression);
 map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
+list[BlockStatement] refactoredStatements = [];
 
 public CompilationUnit executeImportsTransformation(CompilationUnit unit) {
-	unit = extractMethodBody(unit);
+	unit = extractMethodsAndPatterns(unit);
 	return unit;
 }
 
-public CompilationUnit extractMethodBody(CompilationUnit unit) {
+public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
   unit = top-down visit(unit) {
 	case MethodDeclaration b : {
+		refactoredStatements = [];
 		variableNameTypeMap = ( );
 		b = top-down visit(b) {
 			case MethodHeader h: {
 				h = top-down visit(h) {
 					case MethodDeclarator md: {
 						md = top-down visit(md) {
-							// case Identifier i : println("identifier1 : <i>");
 							case FormalParameter f : { 
 								UnannType vType;
 								VariableDeclaratorId name;
@@ -70,9 +71,7 @@ public CompilationUnit extractMethodBody(CompilationUnit unit) {
 		top-down visit(exp) {
 			case ArgumentList argList : argumentList += argList; 
 		}
-		list[list[Argument]] invocationArgs = [];
 		for(ArgumentList argList <- argumentList) {
-			list[Argument] argsListArguments = [];
 			top-down visit(argList) {
 				case Expression e : {
 					bool isTypeFound = false;
@@ -108,8 +107,26 @@ public CompilationUnit extractMethodBody(CompilationUnit unit) {
 			}
 		}
 		insert(replacingExpression);
-	}	
-    // case MethodBody b => extractBlockStmts(b)
+	}
+	case MethodBody b: {
+		bool isThreadFacAdded = false;
+		b = top-down visit(b) {
+			case (Statement) `<LeftHandSide id> = Executors.newCachedThreadPool();`: {
+				isThreadFacAdded = true;
+				insert((Statement) `<LeftHandSide id> = Executors.newCachedThreadPool(threadFactory);`);
+			}
+		}
+		BlockStatement statementToBeAdded = (BlockStatement) `ThreadFactory threadFactory = Thread.ofVirtual().factory();`;
+		if (isThreadFacAdded) {
+			str unparsedMethodBody = unparse(b);
+			unparsedMethodBody = replaceFirst(unparsedMethodBody, "{", "");
+			unparsedMethodBody = replaceLast(unparsedMethodBody, "}", "");
+			str methodBody = "{\n" + unparse(statementToBeAdded) + "\n" + unparsedMethodBody +  "}";
+			// println("NewmethodBody: <methodBody>");
+			MethodBody newBody = parse(#MethodBody, methodBody);
+			insert(newBody);
+  		}
+	}
   }
   return unit;
 }

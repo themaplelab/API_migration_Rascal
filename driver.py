@@ -46,12 +46,15 @@ def main(argv):
     os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::junit::MainProgram -path {input_dir}")
 
     logging.info("Formatting the source code")
-
+    print("here")
     os.chdir(input_dir)
+    print("here1")
 
     logging.info("Formatting the source code")
 
     os.system(f"git config --global --add safe.directory '*' ")
+
+    print(cwd)
 
     os.system(f"git diff -U0 HEAD^ | {cwd}/google-java-format-diff.py -p1 -i --google-java-format-jar {cwd}/google-format.jar")
 
