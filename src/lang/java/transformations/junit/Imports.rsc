@@ -110,11 +110,28 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 	}
 	case MethodBody b: {
 		bool isThreadFacAdded = false;
+		str variableNameForThreadFac = "threadFactory";
+		for(VariableDeclaratorId vId <- variableNameTypeMap) {
+			if (variableNameForThreadFac == unparse(vId)) {
+				variableNameForThreadFac = "threadFactory1";
+			}
+		}
+		ArgumentList threadFactoryArgs = parse(#ArgumentList, variableNameForThreadFac);
+
 		b = top-down visit(b) {
 			case (Statement) `<LeftHandSide id> = Executors.newCachedThreadPool();`: {
 				isThreadFacAdded = true;
-				insert((Statement) `<LeftHandSide id> = Executors.newCachedThreadPool(threadFactory);`);
+				insert((Statement) `<LeftHandSide id> = Executors.newCachedThreadPool(<ArgumentList threadFactoryArgs>);`);
 			}
+			case (MethodInvocation) `Executors.newCachedThreadPool()`: {
+				isThreadFacAdded = true;
+				insert((MethodInvocation) `Executors.newCachedThreadPool(<ArgumentList threadFactoryArgs>)`);
+			}
+			// case (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`: {
+			// 	isThreadFacAdded = true;
+			// 	insert((MethodInvocation) `Executors.newCachedThreadPool(threadFactory)`);
+			// }
+			case (MethodInvocation) `Thread.currentThread().getId()` => (MethodInvocation) `Thread.currentThread().threadId()` 
 		}
 		BlockStatement statementToBeAdded = (BlockStatement) `ThreadFactory threadFactory = Thread.ofVirtual().factory();`;
 		if (isThreadFacAdded) {
@@ -122,7 +139,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 			unparsedMethodBody = replaceFirst(unparsedMethodBody, "{", "");
 			unparsedMethodBody = replaceLast(unparsedMethodBody, "}", "");
 			str methodBody = "{\n" + unparse(statementToBeAdded) + "\n" + unparsedMethodBody +  "}";
-			// println("NewmethodBody: <methodBody>");
 			MethodBody newBody = parse(#MethodBody, methodBody);
 			insert(newBody);
   		}
