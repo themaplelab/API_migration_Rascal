@@ -71,27 +71,20 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 		top-down visit(exp) {
 			case ArgumentList argList : argumentList += argList; 
 		}
-		for(ArgumentList argList <- argumentList) {
-			top-down visit(argList) {
-				case Expression e : {
-					bool isTypeFound = false;
-					for(VariableDeclaratorId vId <- variableNameTypeMap) {
-						if (trim(unparse(vId)) == trim(unparse(e))) {
-							isTypeFound = true;
-							typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
-						}
-					}
-					if (isTypeFound == false) {
-						println("type not Found: <e>");
-					}
-				}
-			}
-		}
+		typesOfArguments = getTypesOfArguments(argumentList);
 		int numberOfArguments = size(typesOfArguments);
 		list[str] types = toList(typesOfArguments<0>);
 		int numberOfTypes = size(types);
 		StatementExpression replacingExpression;
-		if (numberOfTypes == 2) {
+		if (numberOfTypes == 1) {
+			if (types[0] == "Runnable") {
+				Expression argument0 = typesOfArguments["Runnable"];
+				str assertAllInvocationArguments = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
+			}
+		}
+		else if (numberOfTypes == 2) {
 			if (types[0] == "ThreadGroup" && types[1] == "Runnable") {
 				for(str tId <- typesOfArguments) {
 					if (tId == "Runnable") {
@@ -127,10 +120,21 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 				isThreadFacAdded = true;
 				insert((MethodInvocation) `Executors.newCachedThreadPool(<ArgumentList threadFactoryArgs>)`);
 			}
-			// case (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`: {
-			// 	isThreadFacAdded = true;
-			// 	insert((MethodInvocation) `Executors.newCachedThreadPool(threadFactory)`);
-			// }
+			case (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`: {
+				MethodInvocation methodInv =  (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`;
+				isThreadFacAdded = true;
+				list[ArgumentList] argumentList = [];
+				top-down visit(methodInv) {
+					case ArgumentList argList : argumentList += argList; 
+				}
+				int numberOfArguments = getCountOfArguments(argumentList);
+				
+				if (numberOfArguments == 1 ) {
+					str argumentsForNewMethodInv = unparse(args) + "," + variableNameForThreadFac;
+					ArgumentList threadFactoryArgs = parse(#ArgumentList, argumentsForNewMethodInv);
+					insert((MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList threadFactoryArgs>)`);
+				}
+			}
 			case (MethodInvocation) `Thread.currentThread().getId()` => (MethodInvocation) `Thread.currentThread().threadId()` 
 		}
 		BlockStatement statementToBeAdded = (BlockStatement) `ThreadFactory threadFactory = Thread.ofVirtual().factory();`;
@@ -145,5 +149,38 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 	}
   }
   return unit;
+}
+
+public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList) {
+	map[str, Expression] typesOfArguments = ( );
+	for(ArgumentList argList <- argumentList) {
+			top-down visit(argList) {
+				case Expression e : {
+					bool isTypeFound = false;
+					for(VariableDeclaratorId vId <- variableNameTypeMap) {
+						if (trim(unparse(vId)) == trim(unparse(e))) {
+							isTypeFound = true;
+							typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
+						}
+					}
+					if (isTypeFound == false) {
+						println("type not Found: <e>");
+					}
+				}
+			}
+		}
+		return typesOfArguments;
+}
+
+public int getCountOfArguments(list[ArgumentList] argumentList) {
+	int count = 0;
+	for(ArgumentList argList <- argumentList) {
+			top-down visit(argList) {
+				case Expression e : {
+					count += 1;
+				}
+			}
+		}
+	return count;
 }
 
