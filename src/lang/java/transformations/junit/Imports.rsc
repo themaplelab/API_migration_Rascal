@@ -25,6 +25,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 	case MethodDeclaration b : {
 		refactoredStatements = [];
 		variableNameTypeMap = ( );
+		println("method_declaration: <b>");
 		b = top-down visit(b) {
 			case MethodHeader h: {
 				h = top-down visit(h) {
@@ -60,6 +61,83 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 				}
 				variableNameTypeMap += (name : vType);
 			}
+		}
+	}
+	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);` : {
+		BlockStatement blockstatementExp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);`;
+		map[str, Expression] typesOfArguments = ( );
+
+		list[ArgumentList] argumentList = [];
+		top-down visit(blockstatementExp) {
+			case ArgumentList argList : argumentList += argList; 
+		}
+		
+		typesOfArguments = getTypesOfArguments(argumentList);
+		int numberOfArguments = size(typesOfArguments);
+		list[str] types = toList(typesOfArguments<0>);
+		int numberOfTypes = size(types);
+		// println("blockstatement: found, numberOfArguments: <numberOfTypes>");
+		BlockStatement replacingExpression;
+		bool isReplacement = false;
+		if (numberOfTypes == 1) {
+			if (types[0] == "Runnable") {
+				Expression argument0 = typesOfArguments["Runnable"];
+				str assertAllInvocationArguments = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				isReplacement = true;
+			}
+		}
+		else if (numberOfTypes == 2) {
+			if ((types[0] == "ThreadGroup" && types[1] == "Runnable") || (types[0] == "Runnable" && types[1] == "ThreadGroup")) {
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						str assertAllInvocationArguments = unparse(argument0);
+						ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+						replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+						isReplacement = true;
+						break;
+					}
+				}
+			} else if ((types[0] == "Runnable" && types[1] == "String") || (types[0] == "String" && types[1] == "Runnable")) {
+				str runnableArguments = "";
+				str nameArguments = "";
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						runnableArguments = unparse(argument0);
+					}
+					if (tId == "String") {
+						Expression argument0 = typesOfArguments[tId];
+						nameArguments = unparse(argument0);
+					}
+				}
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+				isReplacement = true;
+			}
+		} else if (numberOfTypes == 3) {
+			str runnableArguments = "";
+			str nameArguments = "";
+			for(str tId <- typesOfArguments) {
+				if (tId == "Runnable") {
+					Expression argument0 = typesOfArguments[tId];
+					runnableArguments = unparse(argument0);
+				}
+				if (tId == "String") {
+					Expression argument0 = typesOfArguments[tId];
+					nameArguments = unparse(argument0);
+				}
+			}
+			ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+			ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+			replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+		    isReplacement = true;
+		}
+		if (isReplacement == true) {
+			insert(replacingExpression);
 		}
 	}
 	case (StatementExpression) `<LeftHandSide id> = new Thread(<ArgumentList args>)` : {
@@ -157,7 +235,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 			}
 			case (MethodInvocation) `Thread.currentThread().getId()` => (MethodInvocation) `Thread.currentThread().threadId()` 
 		}
-		BlockStatement statementToBeAdded = (BlockStatement) `ThreadFactory threadFactory = Thread.ofVirtual().factory();`;
+		VariableDeclaratorId vId = parse(#VariableDeclaratorId, variableNameForThreadFac);
+		BlockStatement statementToBeAdded = (BlockStatement) `ThreadFactory <VariableDeclaratorId vId> = Thread.ofVirtual().factory();`;
 		if (isThreadFacAdded) {
 			str unparsedMethodBody = unparse(b);
 			unparsedMethodBody = replaceFirst(unparsedMethodBody, "{", "");
