@@ -92,8 +92,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
 			}
-		}
-		else if (numberOfTypes == 2) {
+		} else if (numberOfTypes == 2) {
 			if ((types[0] == "ThreadGroup" && types[1] == "Runnable") || (types[0] == "Runnable" && types[1] == "ThreadGroup")) {
 				for(str tId <- typesOfArguments) {
 					if (tId == "Runnable") {
@@ -145,6 +144,81 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 			insert(replacingExpression);
 		}
 	}
+	case (ReturnStatement) `return new Thread(<ArgumentList args>);` : {
+		ReturnStatement returnSte = (ReturnStatement) `return new Thread(<ArgumentList args>);`;
+		map[str, Expression] typesOfArguments = ( );
+
+		list[ArgumentList] argumentList = [];
+		top-down visit(returnSte) {
+			case ArgumentList argList : argumentList += argList; 
+		}
+		typesOfArguments = getTypesOfArguments(argumentList);
+		int numberOfArguments = size(typesOfArguments);
+		list[str] types = toList(typesOfArguments<0>);
+		int numberOfTypes = size(types);
+		ReturnStatement replacingExpression;
+		bool isReplacement = false;
+		if (numberOfTypes == 1) {
+			if (types[0] == "Runnable") {
+				Expression argument0 = typesOfArguments["Runnable"];
+				str assertAllInvocationArguments = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				isReplacement = true;
+			}
+		}
+		else if (numberOfTypes == 2) {
+			if ((types[0] == "ThreadGroup" && types[1] == "Runnable") || (types[0] == "Runnable" && types[1] == "ThreadGroup")) {
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						str assertAllInvocationArguments = unparse(argument0);
+						ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+						replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+						isReplacement = true;
+						break;
+					}
+				}
+			} else if ((types[0] == "Runnable" && types[1] == "String") || (types[0] == "String" && types[1] == "Runnable")) {
+				str runnableArguments = "";
+				str nameArguments = "";
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						runnableArguments = unparse(argument0);
+					}
+					if (tId == "String") {
+						Expression argument0 = typesOfArguments[tId];
+						nameArguments = unparse(argument0);
+					}
+				}
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+				isReplacement = true;
+			}
+		} else if (numberOfTypes == 3) {
+			str runnableArguments = "";
+			str nameArguments = "";
+			for(str tId <- typesOfArguments) {
+				if (tId == "Runnable") {
+					Expression argument0 = typesOfArguments[tId];
+					runnableArguments = unparse(argument0);
+				}
+				if (tId == "String") {
+					Expression argument0 = typesOfArguments[tId];
+					nameArguments = unparse(argument0);
+				}
+			}
+			ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+			ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+			replacingExpression = (ReturnStatement) `return Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+		    isReplacement = true;
+		}
+		if (isReplacement == true) {
+			insert(replacingExpression);
+		}
+	}
 	case (StatementExpression) `<LeftHandSide id> = new Thread(<ArgumentList args>)` : {
 		StatementExpression exp = (StatementExpression) `<LeftHandSide id> = new Thread(<ArgumentList args>)`;
 	
@@ -181,6 +255,23 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 						break;
 					}
 				}
+			} else if ((types[0] == "Runnable" && types[1] == "String") || (types[0] == "String" && types[1] == "Runnable")) {
+				str runnableArguments = "";
+				str nameArguments = "";
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						runnableArguments = unparse(argument0);
+					}
+					if (tId == "String") {
+						Expression argument0 = typesOfArguments[tId];
+						nameArguments = unparse(argument0);
+					}
+				}
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+				isReplacement = true;
 			}
 		} else if (numberOfTypes == 3) {
 			str runnableArguments = "";
