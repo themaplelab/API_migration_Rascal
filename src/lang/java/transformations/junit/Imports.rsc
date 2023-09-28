@@ -13,7 +13,6 @@ import lang::java::\syntax::Java18;
 
 data Argument = argument(str argType, Expression expression);
 map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
-list[BlockStatement] refactoredStatements = [];
 
 public CompilationUnit executeImportsTransformation(CompilationUnit unit) {
 	unit = extractMethodsAndPatterns(unit);
@@ -21,11 +20,16 @@ public CompilationUnit executeImportsTransformation(CompilationUnit unit) {
 }
 
 public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
+  MethodDeclaration previousMethodDeclaration; 
+  int count = 0;
   unit = top-down visit(unit) {
 	case MethodDeclaration b : {
-		refactoredStatements = [];
-		variableNameTypeMap = ( );
-		println("method_declaration: <b>");
+		count += 1;
+		if (count > 1 && contains(unparse(previousMethodDeclaration), unparse(b))) {
+			println("inner method found");
+		} else {
+			variableNameTypeMap = ( );
+		}
 		b = top-down visit(b) {
 			case MethodHeader h: {
 				h = top-down visit(h) {
@@ -62,6 +66,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 				variableNameTypeMap += (name : vType);
 			}
 		}
+		previousMethodDeclaration = b;
 	}
 	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);` : {
 		BlockStatement blockstatementExp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);`;
