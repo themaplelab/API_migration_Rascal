@@ -76,30 +76,50 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 		list[str] types = toList(typesOfArguments<0>);
 		int numberOfTypes = size(types);
 		StatementExpression replacingExpression;
+		bool isReplacement = false;
 		if (numberOfTypes == 1) {
 			if (types[0] == "Runnable") {
 				Expression argument0 = typesOfArguments["Runnable"];
 				str assertAllInvocationArguments = unparse(argument0);
 				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
 				replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
+				isReplacement = true;
 			}
 		}
 		else if (numberOfTypes == 2) {
-			if (types[0] == "ThreadGroup" && types[1] == "Runnable") {
+			if ((types[0] == "ThreadGroup" && types[1] == "Runnable") || (types[0] == "Runnable" && types[1] == "ThreadGroup")) {
 				for(str tId <- typesOfArguments) {
 					if (tId == "Runnable") {
 						Expression argument0 = typesOfArguments[tId];
 						str assertAllInvocationArguments = unparse(argument0);
 						ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
 						replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
-						println("replacingExpression : <replacingExpression>");
+						isReplacement = true;
 						break;
 					}
 				}
-	
 			}
+		} else if (numberOfTypes == 3) {
+			str runnableArguments = "";
+			str nameArguments = "";
+			for(str tId <- typesOfArguments) {
+				if (tId == "Runnable") {
+					Expression argument0 = typesOfArguments[tId];
+					runnableArguments = unparse(argument0);
+				}
+				if (tId == "String") {
+					Expression argument0 = typesOfArguments[tId];
+					nameArguments = unparse(argument0);
+				}
+			}
+			ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+			ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+			replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+		    isReplacement = true;
 		}
-		insert(replacingExpression);
+		if (isReplacement == true) {
+			insert(replacingExpression);
+		}
 	}
 	case MethodBody b: {
 		bool isThreadFacAdded = false;
@@ -122,7 +142,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 			}
 			case (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`: {
 				MethodInvocation methodInv =  (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`;
-				isThreadFacAdded = true;
 				list[ArgumentList] argumentList = [];
 				top-down visit(methodInv) {
 					case ArgumentList argList : argumentList += argList; 
@@ -130,6 +149,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 				int numberOfArguments = getCountOfArguments(argumentList);
 				
 				if (numberOfArguments == 1 ) {
+					isThreadFacAdded = true;
 					str argumentsForNewMethodInv = unparse(args) + "," + variableNameForThreadFac;
 					ArgumentList threadFactoryArgs = parse(#ArgumentList, argumentsForNewMethodInv);
 					insert((MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList threadFactoryArgs>)`);
@@ -164,7 +184,26 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 						}
 					}
 					if (isTypeFound == false) {
-						println("type not Found: <e>");
+						top-down visit(e) {
+							case IntegerLiteral i : { 
+								if(equalUnparsed(e, i)) {
+									typesOfArguments += ("int" : e); 
+									isTypeFound = true;
+								}
+							}
+							case StringLiteral s : { 
+								if(equalUnparsed(e, s)) {
+									typesOfArguments += ("String" : e); 
+									isTypeFound = true;
+								} 
+							}
+							case BooleanLiteral b : { 
+								if(equalUnparsed(e, b)) {
+									typesOfArguments += ("boolean" : e);
+									isTypeFound = true;
+								} 
+							}
+						}
 					}
 				}
 			}
@@ -184,3 +223,6 @@ public int getCountOfArguments(list[ArgumentList] argumentList) {
 	return count;
 }
 
+private bool equalUnparsed(&A argument, &B literal) {
+  return unparse(argument) == unparse(literal);
+}
