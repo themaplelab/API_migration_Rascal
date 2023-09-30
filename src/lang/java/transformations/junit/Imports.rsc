@@ -13,6 +13,7 @@ import lang::java::\syntax::Java18;
 
 data Argument = argument(str argType, Expression expression);
 map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
+map[VariableDeclaratorId, UnannType] classVariableNameTypeMap = ( );
 
 public CompilationUnit executeImportsTransformation(CompilationUnit unit) {
 	unit = extractMethodsAndPatterns(unit);
@@ -23,12 +24,28 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
   MethodDeclaration previousMethodDeclaration; 
   int count = 0;
   unit = top-down visit(unit) {
+	case FieldDeclaration f: {
+		UnannType vType;
+		VariableDeclaratorId name;
+		f = top-down visit(f) {
+			case UnannType s: { 
+				vType = s;
+			}
+			case VariableDeclaratorId s: {
+				name = s;
+			}
+		}
+		classVariableNameTypeMap += (name : vType);
+		for(VariableDeclaratorId vId <- classVariableNameTypeMap) {
+			println("classVariableNameTypeMap: <vId> : <classVariableNameTypeMap[vId]>");
+		}
+	}
 	case MethodDeclaration b : {
 		count += 1;
 		if (count > 1 && contains(unparse(previousMethodDeclaration), unparse(b))) {
 			println("inner method found");
 		} else {
-			variableNameTypeMap = ( );
+			variableNameTypeMap = classVariableNameTypeMap;
 		}
 		b = top-down visit(b) {
 			case MethodHeader h: {
