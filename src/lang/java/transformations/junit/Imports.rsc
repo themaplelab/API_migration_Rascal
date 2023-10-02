@@ -36,9 +36,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 			}
 		}
 		classVariableNameTypeMap += (name : vType);
-		for(VariableDeclaratorId vId <- classVariableNameTypeMap) {
-			println("classVariableNameTypeMap: <vId> : <classVariableNameTypeMap[vId]>");
-		}
 	}
 	case MethodDeclaration b : {
 		count += 1;
@@ -98,7 +95,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 		int numberOfArguments = size(typesOfArguments);
 		list[str] types = toList(typesOfArguments<0>);
 		int numberOfTypes = size(types);
-		// println("blockstatement: found, numberOfArguments: <numberOfTypes>");
 		BlockStatement replacingExpression;
 		bool isReplacement = false;
 		if (numberOfTypes == 1) {
@@ -312,6 +308,28 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 			insert(replacingExpression);
 		}
 	}
+	case (MethodInvocation) `<ExpressionName exp>.getId()` : {
+		MethodInvocation mi = (MethodInvocation) `<ExpressionName exp>.getId()`;
+		MethodInvocation mi2 = (MethodInvocation) `<ExpressionName exp>.threadId()`;
+		bool threadIdUseFound = false;
+		top-down visit(mi) {
+			case ExpressionName exp: {
+				for(VariableDeclaratorId vId <- variableNameTypeMap) {
+					if (trim(unparse(vId)) == trim(unparse(exp))) {
+						if (trim(unparse(variableNameTypeMap[vId])) == "Thread") {
+							threadIdUseFound = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+		if (threadIdUseFound) {
+			println("getId_invo2 found: <mi2>");
+			insert((MethodInvocation) `<ExpressionName exp>.threadId()`);
+		}	
+	}
+	case (MethodInvocation) `Thread.currentThread().getId()` => (MethodInvocation) `Thread.currentThread().threadId()` 
 	case MethodBody b: {
 		bool isThreadFacAdded = false;
 		str variableNameForThreadFac = "threadFactory";
@@ -346,7 +364,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 					insert((MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList threadFactoryArgs>)`);
 				}
 			}
-			case (MethodInvocation) `Thread.currentThread().getId()` => (MethodInvocation) `Thread.currentThread().threadId()` 
 		}
 		VariableDeclaratorId vId = parse(#VariableDeclaratorId, variableNameForThreadFac);
 		BlockStatement statementToBeAdded = (BlockStatement) `ThreadFactory <VariableDeclaratorId vId> = Thread.ofVirtual().factory();`;
