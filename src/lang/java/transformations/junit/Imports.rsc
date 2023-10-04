@@ -1,41 +1,515 @@
 module lang::java::transformations::junit::Imports
-
+import IO;
 import ParseTree;
+import util::Maybe;
+import util::MaybeManipulation;
+import Map;
+extend Type;
+extend Message;
+extend List;
+import Set;
+import String;
 import lang::java::\syntax::Java18;
 
+data Argument = argument(str argType, Expression expression);
+map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
+map[VariableDeclaratorId, UnannType] classVariableNameTypeMap = ( );
+
 public CompilationUnit executeImportsTransformation(CompilationUnit unit) {
-    unit = top-down visit(unit) {
-	   	case (MethodInvocation) `Executors.newCachedThreadPool()` => updateBlockStatement()
-       	case (ClassInstanceCreationExpression) `new Thread(<ArgumentList args>)` => (ClassInstanceCreationExpression) `new Car(<ArgumentList args>)`
-    }
+	unit = extractMethodsAndPatterns(unit);
 	return unit;
 }
 
-private MethodInvocation updateBlockStatement() {
-    // insert(`ThreadFactory threadFactory =Thread.ofVirtual().factory();`);
-	return (MethodInvocation)  `Executors.newFixedThreadPool()`;
-}
+public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
+  MethodDeclaration previousMethodDeclaration; 
+  int count = 0;
+  unit = top-down visit(unit) {
+	case FieldDeclaration f: {
+		UnannType vType;
+		VariableDeclaratorId name;
+		f = top-down visit(f) {
+			case UnannType s: { 
+				vType = s;
+			}
+			case VariableDeclaratorId s: {
+				name = s;
+			}
+		}
+		classVariableNameTypeMap += (name : vType);
+	}
+	case MethodDeclaration b : {
+		count += 1;
+		if (count > 1 && contains(unparse(previousMethodDeclaration), unparse(b))) {
+			println("inner method found");
+		} else {
+			variableNameTypeMap = classVariableNameTypeMap;
+		}
+		b = top-down visit(b) {
+			case MethodHeader h: {
+				h = top-down visit(h) {
+					case MethodDeclarator md: {
+						md = top-down visit(md) {
+							case FormalParameter f : { 
+								UnannType vType;
+								VariableDeclaratorId name;
+								f = top-down visit(f) {
+									case UnannType s: { 
+										vType = s;
+									}
+									case VariableDeclaratorId s: {
+										name = s;
+									}
+								}
+								variableNameTypeMap += (name : vType);
+							}
+						}
+					}
+				}
+			}
+			case LocalVariableDeclaration lvd: { 
+				UnannType vType;
+				VariableDeclaratorId name;
+				lvd = top-down visit(lvd) {
+					case UnannType s: { 
+						vType = s;
+					}
+					case VariableDeclaratorId s: {
+						name = s;
+					}
+				}
+				variableNameTypeMap += (name : vType);
+			}
+		}
+		previousMethodDeclaration = b;
+	}
+	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);` : {
+		BlockStatement blockstatementExp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);`;
+		map[str, Expression] typesOfArguments = ( );
 
+		list[ArgumentList] argumentList = [];
+		top-down visit(blockstatementExp) {
+			case ArgumentList argList : argumentList += argList; 
+		}
+		
+		typesOfArguments = getTypesOfArguments(argumentList);
+		int numberOfArguments = size(typesOfArguments);
+		list[str] types = toList(typesOfArguments<0>);
+		int numberOfTypes = size(types);
+		BlockStatement replacingExpression;
+		bool isReplacement = false;
+		if (numberOfTypes == 1) {
+			if (types[0] == "Runnable") {
+				Expression argument0 = typesOfArguments["Runnable"];
+				str assertAllInvocationArguments = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				isReplacement = true;
+			}
+		} else if (numberOfTypes == 2) {
+			if ((types[0] == "ThreadGroup" && types[1] == "Runnable") || (types[0] == "Runnable" && types[1] == "ThreadGroup")) {
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						str assertAllInvocationArguments = unparse(argument0);
+						ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+						replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+						isReplacement = true;
+						break;
+					}
+				}
+			} else if ((types[0] == "Runnable" && types[1] == "String") || (types[0] == "String" && types[1] == "Runnable")) {
+				str runnableArguments = "";
+				str nameArguments = "";
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						runnableArguments = unparse(argument0);
+					}
+					if (tId == "String") {
+						Expression argument0 = typesOfArguments[tId];
+						nameArguments = unparse(argument0);
+					}
+				}
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+				isReplacement = true;
+			}
+		} else if (numberOfTypes == 3) {
+			str runnableArguments = "";
+			str nameArguments = "";
+			for(str tId <- typesOfArguments) {
+				if (tId == "Runnable") {
+					Expression argument0 = typesOfArguments[tId];
+					runnableArguments = unparse(argument0);
+				}
+				if (tId == "String") {
+					Expression argument0 = typesOfArguments[tId];
+					nameArguments = unparse(argument0);
+				}
+			}
+			ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+			ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+			replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+		    isReplacement = true;
+		}
+		if (isReplacement == true) {
+			insert(replacingExpression);
+		}
+	}
+	case (ReturnStatement) `return new Thread(<ArgumentList args>);` : {
+		ReturnStatement returnSte = (ReturnStatement) `return new Thread(<ArgumentList args>);`;
+		map[str, Expression] typesOfArguments = ( );
+
+		list[ArgumentList] argumentList = [];
+		top-down visit(returnSte) {
+			case ArgumentList argList : argumentList += argList; 
+		}
+		typesOfArguments = getTypesOfArguments(argumentList);
+		int numberOfArguments = size(typesOfArguments);
+		list[str] types = toList(typesOfArguments<0>);
+		int numberOfTypes = size(types);
+		ReturnStatement replacingExpression;
+		bool isReplacement = false;
+		if (numberOfTypes == 1) {
+			if (types[0] == "Runnable") {
+				Expression argument0 = typesOfArguments["Runnable"];
+				str assertAllInvocationArguments = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				isReplacement = true;
+			}
+		}
+		else if (numberOfTypes == 2) {
+			if ((types[0] == "ThreadGroup" && types[1] == "Runnable") || (types[0] == "Runnable" && types[1] == "ThreadGroup")) {
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						str assertAllInvocationArguments = unparse(argument0);
+						ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+						replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+						isReplacement = true;
+						break;
+					}
+				}
+			} else if ((types[0] == "Runnable" && types[1] == "String") || (types[0] == "String" && types[1] == "Runnable")) {
+				str runnableArguments = "";
+				str nameArguments = "";
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						runnableArguments = unparse(argument0);
+					}
+					if (tId == "String") {
+						Expression argument0 = typesOfArguments[tId];
+						nameArguments = unparse(argument0);
+					}
+				}
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+				isReplacement = true;
+			}
+		} else if (numberOfTypes == 3) {
+			str runnableArguments = "";
+			str nameArguments = "";
+			for(str tId <- typesOfArguments) {
+				if (tId == "Runnable") {
+					Expression argument0 = typesOfArguments[tId];
+					runnableArguments = unparse(argument0);
+				}
+				if (tId == "String") {
+					Expression argument0 = typesOfArguments[tId];
+					nameArguments = unparse(argument0);
+				}
+			}
+			ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+			ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+			replacingExpression = (ReturnStatement) `return Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+		    isReplacement = true;
+		}
+		if (isReplacement == true) {
+			insert(replacingExpression);
+		}
+	}
+	case (StatementExpression) `<LeftHandSide id> = new Thread(<ArgumentList args>)` : {
+		StatementExpression exp = (StatementExpression) `<LeftHandSide id> = new Thread(<ArgumentList args>)`;
+	
+		map[str, Expression] typesOfArguments = ( );
+
+		list[ArgumentList] argumentList = [];
+		top-down visit(exp) {
+			case ArgumentList argList : argumentList += argList; 
+		}
+		typesOfArguments = getTypesOfArguments(argumentList);
+		int numberOfArguments = size(typesOfArguments);
+		list[str] types = toList(typesOfArguments<0>);
+		int numberOfTypes = size(types);
+		StatementExpression replacingExpression;
+		bool isReplacement = false;
+		if (numberOfTypes == 1) {
+			if (types[0] == "Runnable") {
+				Expression argument0 = typesOfArguments["Runnable"];
+				str assertAllInvocationArguments = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
+				isReplacement = true;
+			}
+		}
+		else if (numberOfTypes == 2) {
+			if ((types[0] == "ThreadGroup" && types[1] == "Runnable") || (types[0] == "Runnable" && types[1] == "ThreadGroup")) {
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						str assertAllInvocationArguments = unparse(argument0);
+						ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+						replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
+						isReplacement = true;
+						break;
+					}
+				}
+			} else if ((types[0] == "Runnable" && types[1] == "String") || (types[0] == "String" && types[1] == "Runnable")) {
+				str runnableArguments = "";
+				str nameArguments = "";
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						runnableArguments = unparse(argument0);
+					}
+					if (tId == "String") {
+						Expression argument0 = typesOfArguments[tId];
+						nameArguments = unparse(argument0);
+					}
+				}
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+				isReplacement = true;
+			}
+		} else if (numberOfTypes == 3) {
+			str runnableArguments = "";
+			str nameArguments = "";
+			for(str tId <- typesOfArguments) {
+				if (tId == "Runnable") {
+					Expression argument0 = typesOfArguments[tId];
+					runnableArguments = unparse(argument0);
+				}
+				if (tId == "String") {
+					Expression argument0 = typesOfArguments[tId];
+					nameArguments = unparse(argument0);
+				}
+			}
+			ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+			ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+			replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+		    isReplacement = true;
+		}
+		if (isReplacement == true) {
+			insert(replacingExpression);
+		}
+	}
+	case (MethodInvocation) `<ExpressionName exp>.getId()` : {
+		MethodInvocation mi = (MethodInvocation) `<ExpressionName exp>.getId()`;
+		MethodInvocation mi2 = (MethodInvocation) `<ExpressionName exp>.threadId()`;
+		bool threadIdUseFound = false;
+		top-down visit(mi) {
+			case ExpressionName exp: {
+				for(VariableDeclaratorId vId <- variableNameTypeMap) {
+					if (trim(unparse(vId)) == trim(unparse(exp))) {
+						if (trim(unparse(variableNameTypeMap[vId])) == "Thread") {
+							threadIdUseFound = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+		if (threadIdUseFound) {
+			println("getId_invo2 found: <mi2>");
+			insert((MethodInvocation) `<ExpressionName exp>.threadId()`);
+		}	
+	}
+	case (MethodInvocation) `Thread.currentThread().getId()` => (MethodInvocation) `Thread.currentThread().threadId()` 
+	case MethodBody b: {
+		bool isThreadFacAdded = false;
+		str variableNameForThreadFac = "threadFactory";
+		for(VariableDeclaratorId vId <- variableNameTypeMap) {
+			if (variableNameForThreadFac == unparse(vId)) {
+				variableNameForThreadFac = "threadFactory1";
+			}
+		}
+		ArgumentList threadFactoryArgs = parse(#ArgumentList, variableNameForThreadFac);
+
+		b = top-down visit(b) {
+			case (Statement) `<LeftHandSide id> = Executors.newCachedThreadPool();`: {
+				isThreadFacAdded = true;
+				insert((Statement) `<LeftHandSide id> = Executors.newCachedThreadPool(<ArgumentList threadFactoryArgs>);`);
+			}
+			case (MethodInvocation) `Executors.newCachedThreadPool()`: {
+				isThreadFacAdded = true;
+				insert((MethodInvocation) `Executors.newCachedThreadPool(<ArgumentList threadFactoryArgs>)`);
+			}
+			case (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`: {
+				MethodInvocation methodInv =  (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`;
+				list[ArgumentList] argumentList = [];
+				top-down visit(methodInv) {
+					case ArgumentList argList : argumentList += argList; 
+				}
+				int numberOfArguments = getCountOfArguments(argumentList);
+				
+				if (numberOfArguments == 1 ) {
+					isThreadFacAdded = true;
+					str argumentsForNewMethodInv = unparse(args) + "," + variableNameForThreadFac;
+					ArgumentList threadFactoryArgs = parse(#ArgumentList, argumentsForNewMethodInv);
+					insert((MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList threadFactoryArgs>)`);
+				}
+			}
+		}
+		VariableDeclaratorId vId = parse(#VariableDeclaratorId, variableNameForThreadFac);
+		BlockStatement statementToBeAdded = (BlockStatement) `ThreadFactory <VariableDeclaratorId vId> = Thread.ofVirtual().factory();`;
+		if (isThreadFacAdded) {
+			str unparsedMethodBody = unparse(b);
+			unparsedMethodBody = replaceFirst(unparsedMethodBody, "{", "");
+			unparsedMethodBody = replaceLastCurlyBrace(unparsedMethodBody);
+			str methodBody = "{\n" + unparse(statementToBeAdded) + "\n" + insertLastCurlyBrace(unparsedMethodBody);
+			MethodBody newBody = parse(#MethodBody, methodBody);
+			insert(newBody);
+  		}
+	}
+	case (Imports)`<ImportDeclaration* imports>` => updateImports(imports)
+  }
+  return unit;
+}
 
 private Imports updateImports(ImportDeclaration* imports) {
 	imports = top-down visit(imports) {
-		case (ImportDeclaration) `import org.junit.*;` => (ImportDeclaration) `import org.junit.jupiter.api.*;`
-		case (ImportDeclaration) `import org.junit.Test;` => (ImportDeclaration) `import org.junit.jupiter.api.Test;`
-		case (ImportDeclaration) `import org.junit.BeforeClass;` => (ImportDeclaration) `import org.junit.jupiter.api.BeforeAll;`
-		case (ImportDeclaration) `import org.junit.Before;` => (ImportDeclaration) `import org.junit.jupiter.api.BeforeEach;`
-		case (ImportDeclaration) `import org.junit.After;` => (ImportDeclaration) `import org.junit.jupiter.api.AfterEach;`
-		case (ImportDeclaration) `import org.junit.AfterClass;` => (ImportDeclaration) `import org.junit.jupiter.api.AfterAll;`
-		case (ImportDeclaration) `import org.junit.Ignore;` => (ImportDeclaration) `import org.junit.jupiter.api.Disabled;`
-		case (ImportDeclaration) `import static org.junit.Assert.assertArrayEquals;` => (ImportDeclaration) `import static org.junit.jupiter.api.Assertions.assertArrayEquals;`
-		case (ImportDeclaration) `import static org.junit.Assert.assertEquals;` => (ImportDeclaration) `import static org.junit.jupiter.api.Assertions.assertEquals;`
-		case (ImportDeclaration) `import static org.junit.Assert.assertFalse;` => (ImportDeclaration) `import static org.junit.jupiter.api.Assertions.assertFalse;`
-		case (ImportDeclaration) `import static org.junit.Assert.assertNotNull;` => (ImportDeclaration) `import static org.junit.jupiter.api.Assertions.assertNotNull;`
-		case (ImportDeclaration) `import static org.junit.Assert.assertNotSame;` => (ImportDeclaration) `import static org.junit.jupiter.api.Assertions.assertNotSame;`
-		case (ImportDeclaration) `import static org.junit.Assert.assertNull;` => (ImportDeclaration) `import static org.junit.jupiter.api.Assertions.assertNull;`
-		case (ImportDeclaration) `import static org.junit.Assert.assertSame;` => (ImportDeclaration) `import static org.junit.jupiter.api.Assertions.assertSame;`
-		case (ImportDeclaration) `import static org.junit.Assert.assertTrue;` => (ImportDeclaration) `import static org.junit.jupiter.api.Assertions.assertTrue;`
-		case (ImportDeclaration) `import static org.junit.Assert.fail;` => (ImportDeclaration) `import static org.junit.jupiter.api.Assertions.fail;`
-		case (ImportDeclaration) `import static org.junit.Assert.*;` => (ImportDeclaration) `import static org.junit.jupiter.api.Assertions.*;`
+		case (ImportDeclaration) `import java.util.concurrent.ThreadFactory;`: {
+			return parse(#Imports, unparse(imports));
+		}
 	}
-	return parse(#Imports, unparse(imports));
+	str importString = unparse(imports);
+	importString += ("\n" + "import java.util.concurrent.ThreadFactory;");
+	
+	println("imports: <importString>");
+	return parse(#Imports, importString);
+}
+
+public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList) {
+	map[str, Expression] typesOfArguments = ( );
+	for(ArgumentList argList <- argumentList) {
+			top-down visit(argList) {
+				case Expression e : {
+					bool isTypeFound = false;
+					for(VariableDeclaratorId vId <- variableNameTypeMap) {
+						if (trim(unparse(vId)) == trim(unparse(e))) {
+							isTypeFound = true;
+							typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
+						}
+					}
+					if (isTypeFound == false) {
+						top-down visit(e) {
+							case IntegerLiteral i : { 
+								if(equalUnparsed(e, i)) {
+									typesOfArguments += ("int" : e); 
+									isTypeFound = true;
+								}
+							}
+							case StringLiteral s : { 
+								if(equalUnparsed(e, s)) {
+									typesOfArguments += ("String" : e); 
+									isTypeFound = true;
+								} 
+							}
+							case BooleanLiteral b : { 
+								if(equalUnparsed(e, b)) {
+									typesOfArguments += ("boolean" : e);
+									isTypeFound = true;
+								} 
+							}
+						}
+					}
+				}
+			}
+		}
+		return typesOfArguments;
+}
+
+public int getCountOfArguments(list[ArgumentList] argumentList) {
+	int count = 0;
+	for(ArgumentList argList <- argumentList) {
+			top-down visit(argList) {
+				case Expression e : {
+					count += 1;
+				}
+			}
+		}
+	return count;
+}
+
+private bool equalUnparsed(&A argument, &B literal) {
+  return unparse(argument) == unparse(literal);
+}
+
+private str replaceLastCurlyBrace(str methodBody) {
+	list[str] lines = split("\n", methodBody);
+	bool isComment = false;
+	bool commentStarted = false;
+	str newMethodBody = "";
+	list[str] reversedLines = [];
+	bool isReplaced = false;
+	for(str line <- reverse(lines)) {
+		println("lineFound: <line>");
+		if (startsWith(trim(line), "\\")) {
+			isComment = true;
+		} else if (endsWith(trim(line), "*/")) {
+			isComment = true;
+			commentStarted = true;
+		} else if (startsWith(trim(line), "/*") || startsWith(trim(line), "/**")) {
+			isComment = true;
+			commentStarted = false;
+		} else if (startsWith(trim(line), "*") && commentStarted) {
+			isComment = true;
+		} else if (contains(line, "}") && !isReplaced) {
+			line = replaceLast(line, "}", "");
+			isReplaced = true;
+		}
+		reversedLines += line;
+	}
+	for (str line <- reverse(reversedLines)) {
+		newMethodBody += (line + "\n");
+	}
+	println("newMethodBody: <newMethodBody>");
+	return newMethodBody;
+}
+
+private str insertLastCurlyBrace(str methodBody) {
+	list[str] lines = split("\n", methodBody);
+	bool isComment = false;
+	bool commentStarted = false;
+	str newMethodBody = "";
+	list[str] reversedLines = [];
+	bool isReplaced = false;
+	for(str line <- reverse(lines)) {
+		println("lineFound: <line>");
+		if (startsWith(trim(line), "\\")) {
+			isComment = true;
+		} else if (endsWith(trim(line), "*/")) {
+			isComment = true;
+			commentStarted = true;
+		} else if (startsWith(trim(line), "/*") || startsWith(trim(line), "/**")) {
+			isComment = true;
+			commentStarted = false;
+		} else if (startsWith(trim(line), "*") && commentStarted) {
+			isComment = true;
+		} else if (!isReplaced && trim(line) != "") {
+			line += "}";
+			isReplaced = true;
+		}
+		reversedLines += line;
+	}
+	for (str line <- reverse(reversedLines)) {
+		newMethodBody += (line + "\n");
+	}
+	println("newMethodBody: <newMethodBody>");
+	return newMethodBody;
 }

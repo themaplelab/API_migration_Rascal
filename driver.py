@@ -16,7 +16,8 @@ branch = 'junit5-migration'
 def main(argv):
     cwd = os.getcwd()
     # path to the directory with thread usages
-    input_dir = 'D:\Alberta\Thesis\codebases\CogniCryptDemoProject\CoffeeCogniProject\src'
+    # D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/io.openliberty.org.jboss.resteasy.mprestclient/src
+    input_dir = 'D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/io.openliberty.org.jboss.resteasy.mprestclient/src'
     max_files = '0'
 
     opts, args = getopt.getopt(argv, "hi:m:", ["input_dir=", "max_files="])
@@ -46,12 +47,15 @@ def main(argv):
     os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::junit::MainProgram -path {input_dir}")
 
     logging.info("Formatting the source code")
-
+    print("here")
     os.chdir(input_dir)
+    print("here1")
 
     logging.info("Formatting the source code")
 
     os.system(f"git config --global --add safe.directory '*' ")
+
+    print(cwd)
 
     os.system(f"git diff -U0 HEAD^ | {cwd}/google-java-format-diff.py -p1 -i --google-java-format-jar {cwd}/google-format.jar")
 

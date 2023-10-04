@@ -8,13 +8,15 @@ import Map;
 import Set;
 
 import util::IOUtil;
-
+import util::Benchmark;
 import lang::java::\syntax::Java18;
 import lang::java::transformations::junit::Imports;
 
 data Transformation = transformation(str name, CompilationUnit (CompilationUnit) function);
 
 public void main(str path = "") {
+  int startedTime = realTime();
+  println("startedTime: <startedTime>");
     loc base = |file:///| + path; 
 
     if( (path == "") || (! exists(base)) || (! isDirectory(base)) ) {
@@ -57,6 +59,8 @@ public void main(str path = "") {
 	println("Total transformations applied: <totalTransformationCount>");
 	println("Files with error: <errors>");	
 	println("Number of files: <size(allFiles)>");  
+  int endTime = realTime();
+  println("endTime: <endTime>");
 }
 
 public map[str, int] initTransformationsCount(list[Transformation] transformations) {
