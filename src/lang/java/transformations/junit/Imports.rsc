@@ -325,7 +325,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 			}
 		}
 		if (threadIdUseFound) {
-			println("getId_invo2 found: <mi2>");
 			insert((MethodInvocation) `<ExpressionName exp>.threadId()`);
 		}	
 	}
@@ -376,21 +375,23 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 			insert(newBody);
   		}
 	}
-	case (Imports)`<ImportDeclaration* imports>` => updateImports(imports)
+	case Imports imports => updateImports(imports)
   }
   return unit;
 }
 
-private Imports updateImports(ImportDeclaration* imports) {
+private Imports updateImports(Imports imports) {
 	imports = top-down visit(imports) {
 		case (ImportDeclaration) `import java.util.concurrent.ThreadFactory;`: {
 			return parse(#Imports, unparse(imports));
 		}
 	}
 	str importString = unparse(imports);
-	importString += ("\n" + "import java.util.concurrent.ThreadFactory;");
-	
-	println("imports: <importString>");
+	if (importString == "") {
+		importString = "import java.util.concurrent.ThreadFactory;";
+	} else {
+		importString += ("\n" + "import java.util.concurrent.ThreadFactory;");
+	}
 	return parse(#Imports, importString);
 }
 
@@ -458,7 +459,6 @@ private str replaceLastCurlyBrace(str methodBody) {
 	list[str] reversedLines = [];
 	bool isReplaced = false;
 	for(str line <- reverse(lines)) {
-		println("lineFound: <line>");
 		if (startsWith(trim(line), "\\")) {
 			isComment = true;
 		} else if (endsWith(trim(line), "*/")) {
@@ -478,7 +478,6 @@ private str replaceLastCurlyBrace(str methodBody) {
 	for (str line <- reverse(reversedLines)) {
 		newMethodBody += (line + "\n");
 	}
-	println("newMethodBody: <newMethodBody>");
 	return newMethodBody;
 }
 
@@ -490,7 +489,6 @@ private str insertLastCurlyBrace(str methodBody) {
 	list[str] reversedLines = [];
 	bool isReplaced = false;
 	for(str line <- reverse(lines)) {
-		println("lineFound: <line>");
 		if (startsWith(trim(line), "\\")) {
 			isComment = true;
 		} else if (endsWith(trim(line), "*/")) {
@@ -510,6 +508,7 @@ private str insertLastCurlyBrace(str methodBody) {
 	for (str line <- reverse(reversedLines)) {
 		newMethodBody += (line + "\n");
 	}
-	println("newMethodBody: <newMethodBody>");
 	return newMethodBody;
 }
+
+//todo:optimize imports and format code
