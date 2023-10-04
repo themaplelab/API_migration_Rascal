@@ -37,6 +37,120 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 		}
 		classVariableNameTypeMap += (name : vType);
 	}
+	case (NormalClassDeclaration) s: {
+		bool isThreadSuperClass = false;
+		bool isThreadSuperInvo = false;
+		s = top-down visit(s) {
+			case Superclass superclass: {
+				if (trim(unparse(superclass)) == "extends Thread") {
+					isThreadSuperClass = true;
+				}
+			}
+			case ConstructorDeclaration s: {
+				s = top-down visit(s) {
+					case ConstructorDeclarator dec: {
+						dec = top-down visit(dec) {
+							case FormalParameter f : { 
+								UnannType vType;
+								VariableDeclaratorId name;
+								f = top-down visit(f) {
+									case UnannType s: { 
+										vType = s;
+									}
+									case VariableDeclaratorId s: {
+										name = s;
+									}
+								}
+								variableNameTypeMap += (name : vType);
+							}
+						}
+					}
+					case ConstructorBody con: {
+						ExplicitConstructorInvocation consInvo;
+						StatementExpression replacingExpression;
+						con = top-down visit(con) {
+							case ExplicitConstructorInvocation ex: {
+								if (isThreadSuperClass){
+									isThreadSuperInvo = true;
+									consInvo = ex;
+									list[ArgumentList] argumentList = [];
+									top-down visit(ex) {
+										case ArgumentList argList : argumentList += argList; 
+									}
+									typesOfArguments = getTypesOfArguments(argumentList);
+									int numberOfArguments = size(typesOfArguments);
+									list[str] types = toList(typesOfArguments<0>);
+									int numberOfTypes = size(types);
+									if (numberOfTypes == 1) {
+										if (types[0] == "Runnable") {
+											Expression argument0 = typesOfArguments["Runnable"];
+											str assertAllInvocationArguments = unparse(argument0);
+											ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+											replacingExpression = (StatementExpression) `Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
+										}
+									}
+									else if (numberOfTypes == 2) {
+										if ((types[0] == "ThreadGroup" && types[1] == "Runnable") || (types[0] == "Runnable" && types[1] == "ThreadGroup")) {
+											for(str tId <- typesOfArguments) {
+												if (tId == "Runnable") {
+													Expression argument0 = typesOfArguments[tId];
+													str assertAllInvocationArguments = unparse(argument0);
+													ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+													replacingExpression = (StatementExpression) `Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
+													break;
+												}
+											}
+										} else if ((types[0] == "Runnable" && types[1] == "String") || (types[0] == "String" && types[1] == "Runnable")) {
+											str runnableArguments = "";
+											str nameArguments = "";
+											for(str tId <- typesOfArguments) {
+												if (tId == "Runnable") {
+													Expression argument0 = typesOfArguments[tId];
+													runnableArguments = unparse(argument0);
+												}
+												if (tId == "String") {
+													Expression argument0 = typesOfArguments[tId];
+													nameArguments = unparse(argument0);
+												}
+											}
+											ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+											ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+											replacingExpression = (StatementExpression) `Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+										}
+									} else if (numberOfTypes == 3) {
+										str runnableArguments = "";
+										str nameArguments = "";
+										for(str tId <- typesOfArguments) {
+											if (tId == "Runnable") {
+												Expression argument0 = typesOfArguments[tId];
+												runnableArguments = unparse(argument0);
+											}
+											if (tId == "String") {
+												Expression argument0 = typesOfArguments[tId];
+												nameArguments = unparse(argument0);
+											}
+										}
+										ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+										ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+										replacingExpression = (StatementExpression) `Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+									}
+		
+								}
+
+							}
+						}
+						if (isThreadSuperInvo) {
+							str unparsedMethodBody = unparse(con);
+							unparsedMethodBody = replaceFirst(unparsedMethodBody, unparse(consInvo), "<unparse(replacingExpression)>;");
+							println("unparsedMethodBody: <unparsedMethodBody>");
+							ConstructorBody newBody = parse(#ConstructorBody, unparsedMethodBody);
+							insert(newBody);
+						}
+					}
+				}
+			}
+		}
+	}
 	case MethodDeclaration b : {
 		count += 1;
 		if (count > 1 && contains(unparse(previousMethodDeclaration), unparse(b))) {
