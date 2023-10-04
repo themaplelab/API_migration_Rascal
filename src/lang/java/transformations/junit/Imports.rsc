@@ -370,14 +370,28 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 		if (isThreadFacAdded) {
 			str unparsedMethodBody = unparse(b);
 			unparsedMethodBody = replaceFirst(unparsedMethodBody, "{", "");
-			unparsedMethodBody = replaceLast(unparsedMethodBody, "}", "");
-			str methodBody = "{\n" + unparse(statementToBeAdded) + "\n" + unparsedMethodBody +  "}";
+			unparsedMethodBody = replaceLastCurlyBrace(unparsedMethodBody);
+			str methodBody = "{\n" + unparse(statementToBeAdded) + "\n" + insertLastCurlyBrace(unparsedMethodBody);
 			MethodBody newBody = parse(#MethodBody, methodBody);
 			insert(newBody);
   		}
 	}
+	case (Imports)`<ImportDeclaration* imports>` => updateImports(imports)
   }
   return unit;
+}
+
+private Imports updateImports(ImportDeclaration* imports) {
+	imports = top-down visit(imports) {
+		case (ImportDeclaration) `import java.util.concurrent.ThreadFactory;`: {
+			return parse(#Imports, unparse(imports));
+		}
+	}
+	str importString = unparse(imports);
+	importString += ("\n" + "import java.util.concurrent.ThreadFactory;");
+	
+	println("imports: <importString>");
+	return parse(#Imports, importString);
 }
 
 public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList) {
@@ -434,4 +448,68 @@ public int getCountOfArguments(list[ArgumentList] argumentList) {
 
 private bool equalUnparsed(&A argument, &B literal) {
   return unparse(argument) == unparse(literal);
+}
+
+private str replaceLastCurlyBrace(str methodBody) {
+	list[str] lines = split("\n", methodBody);
+	bool isComment = false;
+	bool commentStarted = false;
+	str newMethodBody = "";
+	list[str] reversedLines = [];
+	bool isReplaced = false;
+	for(str line <- reverse(lines)) {
+		println("lineFound: <line>");
+		if (startsWith(trim(line), "\\")) {
+			isComment = true;
+		} else if (endsWith(trim(line), "*/")) {
+			isComment = true;
+			commentStarted = true;
+		} else if (startsWith(trim(line), "/*") || startsWith(trim(line), "/**")) {
+			isComment = true;
+			commentStarted = false;
+		} else if (startsWith(trim(line), "*") && commentStarted) {
+			isComment = true;
+		} else if (contains(line, "}") && !isReplaced) {
+			line = replaceLast(line, "}", "");
+			isReplaced = true;
+		}
+		reversedLines += line;
+	}
+	for (str line <- reverse(reversedLines)) {
+		newMethodBody += (line + "\n");
+	}
+	println("newMethodBody: <newMethodBody>");
+	return newMethodBody;
+}
+
+private str insertLastCurlyBrace(str methodBody) {
+	list[str] lines = split("\n", methodBody);
+	bool isComment = false;
+	bool commentStarted = false;
+	str newMethodBody = "";
+	list[str] reversedLines = [];
+	bool isReplaced = false;
+	for(str line <- reverse(lines)) {
+		println("lineFound: <line>");
+		if (startsWith(trim(line), "\\")) {
+			isComment = true;
+		} else if (endsWith(trim(line), "*/")) {
+			isComment = true;
+			commentStarted = true;
+		} else if (startsWith(trim(line), "/*") || startsWith(trim(line), "/**")) {
+			isComment = true;
+			commentStarted = false;
+		} else if (startsWith(trim(line), "*") && commentStarted) {
+			isComment = true;
+		} else if (!isReplaced && trim(line) != "") {
+			line += "}";
+			isReplaced = true;
+		}
+		reversedLines += line;
+	}
+	for (str line <- reverse(reversedLines)) {
+		newMethodBody += (line + "\n");
+	}
+	println("newMethodBody: <newMethodBody>");
+	return newMethodBody;
 }

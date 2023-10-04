@@ -58,7 +58,11 @@ list[loc] findAllTestFiles(loc location, str ext, bool isTestFolder) {
     for(loc l <- allFiles) {
       if(isDirectory(l)) {
         res = res + (findAllTestFiles(l, ext, false));
-      }
+      }else {
+        if(l.extension == ext && !isTestFolder && l.file != "package-info.java") {
+          res = l + res;
+        };
+      };
     };
   } else {
     for(loc l <- allFiles) {
@@ -66,7 +70,7 @@ list[loc] findAllTestFiles(loc location, str ext, bool isTestFolder) {
         res = res + (findAllTestFiles(l, ext, false));
       }
       else {
-        if(l.extension == ext && !isTestFolder) {
+        if(l.extension == ext && !isTestFolder && l.file != "package-info.java" ) {
           res = l + res;
         };
       };
