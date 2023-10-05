@@ -16,8 +16,9 @@ branch = 'junit5-migration'
 def main(argv):
     cwd = os.getcwd()
     # path to the directory with thread usages
+    # D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/com.ibm.ws.channelfw/src
     # D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/io.openliberty.org.jboss.resteasy.mprestclient/src
-    input_dir = 'D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/io.openliberty.org.jboss.resteasy.mprestclient/src'
+    input_dir = 'D:\Alberta\Thesis\codebases\CogniCryptDemoProject\CoffeeCogniProject\src'
     max_files = '0'
 
     opts, args = getopt.getopt(argv, "hi:m:", ["input_dir=", "max_files="])

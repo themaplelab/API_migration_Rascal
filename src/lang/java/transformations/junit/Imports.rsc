@@ -117,6 +117,18 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 						break;
 					}
 				}
+			} else if (types[0] == "ThreadGroup" && (types[1] != "String" && types[1] != "Runnable")) {
+				Expression argument0 = typesOfArguments[types[1]];
+				str assertAllInvocationArguments = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				isReplacement = true;
+			} else if (types[1] == "ThreadGroup" && (types[0] != "String" && types[0] != "Runnable")) {
+				Expression argument0 = typesOfArguments[types[0]];
+				str assertAllInvocationArguments = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				isReplacement = true;
 			} else if ((types[0] == "Runnable" && types[1] == "String") || (types[0] == "String" && types[1] == "Runnable")) {
 				str runnableArguments = "";
 				str nameArguments = "";
@@ -192,6 +204,18 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 						break;
 					}
 				}
+			} else if (types[0] == "ThreadGroup" && (types[1] != "String" && types[1] != "Runnable")) {
+				Expression argument0 = typesOfArguments[types[1]];
+				str assertAllInvocationArguments = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				isReplacement = true;
+			} else if (types[1] == "ThreadGroup" && (types[0] != "String" && types[0] != "Runnable")) {
+				Expression argument0 = typesOfArguments[types[0]];
+				str assertAllInvocationArguments = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				isReplacement = true;
 			} else if ((types[0] == "Runnable" && types[1] == "String") || (types[0] == "String" && types[1] == "Runnable")) {
 				str runnableArguments = "";
 				str nameArguments = "";
@@ -268,6 +292,18 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit) {
 						break;
 					}
 				}
+			} else if (types[0] == "ThreadGroup" && (types[1] != "String" && types[1] != "Runnable")) {
+				Expression argument0 = typesOfArguments[types[1]];
+				str assertAllInvocationArguments = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
+				isReplacement = true;
+			} else if (types[1] == "ThreadGroup" && (types[0] != "String" && types[0] != "Runnable")) {
+				Expression argument0 = typesOfArguments[types[0]];
+				str assertAllInvocationArguments = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
+				isReplacement = true;
 			} else if ((types[0] == "Runnable" && types[1] == "String") || (types[0] == "String" && types[1] == "Runnable")) {
 				str runnableArguments = "";
 				str nameArguments = "";
@@ -402,7 +438,11 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 				case Expression e : {
 					bool isTypeFound = false;
 					for(VariableDeclaratorId vId <- variableNameTypeMap) {
-						if (trim(unparse(vId)) == trim(unparse(e))) {
+						str unparsedExp = unparse(e);
+						if (startsWith(unparsedExp, "this.")) {
+							unparsedExp = substring(unparsedExp, 5);
+						}
+						if (trim(unparse(vId)) == trim(unparsedExp)) {
 							isTypeFound = true;
 							typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
 						}
