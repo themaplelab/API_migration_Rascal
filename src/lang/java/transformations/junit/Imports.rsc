@@ -18,6 +18,7 @@ map[VariableDeclaratorId, UnannType] classVariableNameTypeMap = ( );
 public CompilationUnit executeImportsTransformation(CompilationUnit unit, loc file) {
 	classVariableNameTypeMap = ( );
 	variableNameTypeMap = ( );
+	println("transformation started: <file>");
 	unit = extractMethodsAndPatterns(unit, file);
 	return unit;
 }
@@ -193,6 +194,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		int numberOfArguments = size(typesOfArguments);
 		list[str] types = toList(typesOfArguments<0>);
 		int numberOfTypes = size(types);
+		println("types_found: <types[0]> :<types[1]>");
 		ReturnStatement replacingExpression;
 		bool isReplacement = false;
 		if (numberOfTypes == 1) {
@@ -215,7 +217,26 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			}
 		}
 		else if (numberOfTypes == 2) {
-			if ((types[0] == "ThreadGroup" && types[1] == "Runnable") || (types[0] == "Runnable" && types[1] == "ThreadGroup")) {
+			str type0 = types[0];
+			str type1 = types[1];
+			if ((type0 != "String" && type0 != "Runnable" && type0 != "ThreadGroup")) {
+					str typeOfArg = findTypeOfArg(unit, type0, file, "");
+					println("typeOfArgFinal6: <typeOfArg>");
+					Expression exp = typesOfArguments[type0];
+					delete(typesOfArguments, type0);
+					type0 = typeOfArg;
+					typesOfArguments += (typeOfArg: exp);
+
+			}
+			if ((type1 != "String" && type1 != "Runnable" && type1 != "ThreadGroup")) {
+					str typeOfArg = findTypeOfArg(unit, type1, file, "");
+					println("typeOfArgFinal7: <typeOfArg>");
+					Expression exp = typesOfArguments[type1];
+					delete(typesOfArguments, type1);
+					type1 = typeOfArg;
+					typesOfArguments += (typeOfArg: exp);
+			}
+			if ((type0 == "ThreadGroup" && type1 == "Runnable") || (type0 == "Runnable" && type1 == "ThreadGroup")) {
 				for(str tId <- typesOfArguments) {
 					if (tId == "Runnable") {
 						Expression argument0 = typesOfArguments[tId];
@@ -226,19 +247,19 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						break;
 					}
 				}
-			} else if (types[0] == "ThreadGroup" && (types[1] != "String" && types[1] != "Runnable")) {
-				Expression argument0 = typesOfArguments[types[1]];
+			} else if (type0 == "ThreadGroup" && (type1 != "String" && type1 != "Runnable")) {
+				Expression argument0 = typesOfArguments[type1];
 				str assertAllInvocationArguments = unparse(argument0);
 				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
 				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
-			} else if (types[1] == "ThreadGroup" && (types[0] != "String" && types[0] != "Runnable")) {
-				Expression argument0 = typesOfArguments[types[0]];
+			} else if (type1 == "ThreadGroup" && (type0 != "String" && type0 != "Runnable")) {
+				Expression argument0 = typesOfArguments[type0];
 				str assertAllInvocationArguments = unparse(argument0);
 				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
 				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
-			} else if ((types[0] == "Runnable" && types[1] == "String") || (types[0] == "String" && types[1] == "Runnable")) {
+			} else if ((type0 == "Runnable" && type1 == "String") || (type0 == "String" && type1 == "Runnable")) {
 				str runnableArguments = "";
 				str nameArguments = "";
 				for(str tId <- typesOfArguments) {
@@ -673,3 +694,4 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 
 //todo:optimize imports and format code
 // assumed Class types can be found within the package
+// unparseable files to compilationUnits, ignored

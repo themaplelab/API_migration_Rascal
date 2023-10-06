@@ -38,7 +38,7 @@ public void main(str path = "") {
       CompilationUnit transformedUnit;
       for(loc f <- allFiles) {
         str content = readFile(f);  
-        println("ffffff: <f>");
+        println("ffffff: <f>: <transformationCount> : <totalTransformationCount>: <transformations>");
         file = f;
         <transformedUnit, totalTransformationCount, transformationCount> = applyTransformations(
             content, 
@@ -46,7 +46,9 @@ public void main(str path = "") {
             transformationCount,
             transformations
           );
-      writeFile(f, transformedUnit);
+        if (unparse(transformedUnit) != "") {
+          writeFile(f, transformedUnit);
+        }
       }
   } catch:{
     errors = errors + 1;
@@ -74,7 +76,16 @@ public tuple[CompilationUnit, int, map[str, int]] applyTransformations(
     map[str, int] transformationCount,
     list[Transformation] transformations
   ) {
-  CompilationUnit unit = parse(#CompilationUnit, code);
+  println("applyTransformations_started");  
+  CompilationUnit unit;
+  try{
+    unit = parse(#CompilationUnit, code);
+  }
+  catch: {
+    unit = parse(#CompilationUnit, "");
+    println("caughtException: <unit>");
+    return <unit, totalTransformationCount, transformationCount>;
+  }
   println("importsTransformFile: ");
 
   for(Transformation transformation <- transformations) {
