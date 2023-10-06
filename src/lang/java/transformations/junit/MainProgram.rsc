@@ -13,7 +13,7 @@ import lang::java::\syntax::Java18;
 import lang::java::transformations::junit::Imports;
 
 data Transformation = transformation(str name, CompilationUnit (CompilationUnit) function);
-
+loc file;
 public void main(str path = "") {
   int startedTime = realTime();
   println("startedTime: <startedTime>");
@@ -38,7 +38,8 @@ public void main(str path = "") {
       CompilationUnit transformedUnit;
       for(loc f <- allFiles) {
         str content = readFile(f);  
-        println(f);
+        println("ffffff: <f>");
+        file = f;
         <transformedUnit, totalTransformationCount, transformationCount> = applyTransformations(
             content, 
             totalTransformationCount, 
@@ -74,6 +75,7 @@ public tuple[CompilationUnit, int, map[str, int]] applyTransformations(
     list[Transformation] transformations
   ) {
   CompilationUnit unit = parse(#CompilationUnit, code);
+  println("importsTransformFile: ");
 
   for(Transformation transformation <- transformations) {
     CompilationUnit transformedUnit = transformation.function(unit);
@@ -88,22 +90,8 @@ public tuple[CompilationUnit, int, map[str, int]] applyTransformations(
   return <unit, totalTransformationCount, transformationCount>;
 }
 
-private CompilationUnit expectedExceptionTransform(CompilationUnit c) {
-  if(verifyExpectedException(c)) c = executeExpectedExceptionTransformation(c); 
-  return c;
-}
-
-private CompilationUnit expectedTimeoutTransform(CompilationUnit c) {
-  if(verifyTimeOut(c)) c = executeExpectedTimeoutTransformation(c); 
-  return c;
-}
-
-private CompilationUnit simpleAnnotationTransform(CompilationUnit c) {
-  if(verifySimpleAnnotations(c)) c = executeSimpleAnnotationsTransformation(c); 
-  return c;
-}
-
 private CompilationUnit importsTransform(CompilationUnit c) {
-  c = executeImportsTransformation(c);
+  println("fileFound: <file>");
+  c = executeImportsTransformation(c, file);
   return c;
 }

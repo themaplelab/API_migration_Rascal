@@ -76,7 +76,5 @@ list[loc] findAllTestFiles(loc location, str ext, bool isTestFolder) {
       };
     };
   }
-  println("Number of files: <res>");  
-
   return res; 
 }
