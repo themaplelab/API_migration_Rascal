@@ -41,7 +41,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		classVariableNameTypeMap += (name : vType);
 	}
 	case MethodDeclaration b : {
-		count += 1;
+				count += 1;
 		if (count > 1 && contains(unparse(previousMethodDeclaration), unparse(b))) {
 			println("inner method found");
 		} else {
@@ -461,6 +461,52 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			unparsedMethodBody = replaceLastCurlyBrace(unparsedMethodBody);
 			str methodBody = "{\n" + unparse(statementToBeAdded) + "\n" + insertLastCurlyBrace(unparsedMethodBody);
 			MethodBody newBody = parse(#MethodBody, methodBody);
+			insert(newBody);
+  		}
+	}
+	case ConstructorBody b: {
+		bool isThreadFacAdded = false;
+		str variableNameForThreadFac = "threadFactory";
+		for(VariableDeclaratorId vId <- variableNameTypeMap) {
+			if (variableNameForThreadFac == unparse(vId)) {
+				variableNameForThreadFac = "threadFactory1";
+			}
+		}
+		ArgumentList threadFactoryArgs = parse(#ArgumentList, variableNameForThreadFac);
+
+		b = top-down visit(b) {
+			case (Statement) `<LeftHandSide id> = Executors.newCachedThreadPool();`: {
+				isThreadFacAdded = true;
+				insert((Statement) `<LeftHandSide id> = Executors.newCachedThreadPool(<ArgumentList threadFactoryArgs>);`);
+			}
+			case (MethodInvocation) `Executors.newCachedThreadPool()`: {
+				isThreadFacAdded = true;
+				insert((MethodInvocation) `Executors.newCachedThreadPool(<ArgumentList threadFactoryArgs>)`);
+			}
+			case (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`: {
+				MethodInvocation methodInv =  (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`;
+				list[ArgumentList] argumentList = [];
+				top-down visit(methodInv) {
+					case ArgumentList argList : argumentList += argList; 
+				}
+				int numberOfArguments = getCountOfArguments(argumentList);
+				
+				if (numberOfArguments == 1 ) {
+					isThreadFacAdded = true;
+					str argumentsForNewMethodInv = unparse(args) + "," + variableNameForThreadFac;
+					ArgumentList threadFactoryArgs = parse(#ArgumentList, argumentsForNewMethodInv);
+					insert((MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList threadFactoryArgs>)`);
+				}
+			}
+		}
+		VariableDeclaratorId vId = parse(#VariableDeclaratorId, variableNameForThreadFac);
+		BlockStatement statementToBeAdded = (BlockStatement) `ThreadFactory <VariableDeclaratorId vId> = Thread.ofVirtual().factory();`;
+		if (isThreadFacAdded) {
+			str unparsedMethodBody = unparse(b);
+			unparsedMethodBody = replaceFirst(unparsedMethodBody, "{", "");
+			unparsedMethodBody = replaceLastCurlyBrace(unparsedMethodBody);
+			str methodBody = "{\n" + unparse(statementToBeAdded) + "\n" + insertLastCurlyBrace(unparsedMethodBody);
+			ConstructorBody newBody = parse(#ConstructorBody, methodBody);
 			insert(newBody);
   		}
 	}
