@@ -14,12 +14,17 @@ import lang::java::\syntax::Java18;
 data Argument = argument(str argType, Expression expression);
 map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
 map[VariableDeclaratorId, UnannType] classVariableNameTypeMap = ( );
+bool isThreadFacImportNeeded = false;
 
 public CompilationUnit executeImportsTransformation(CompilationUnit unit, loc file) {
 	classVariableNameTypeMap = ( );
 	variableNameTypeMap = ( );
 	println("transformation started: <file>");
+	isThreadFacImportNeeded = false;
 	unit = extractMethodsAndPatterns(unit, file);
+	if (isThreadFacImportNeeded) {
+		unit = updateImports(unit);
+	}
 	return unit;
 }
 
@@ -41,7 +46,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		classVariableNameTypeMap += (name : vType);
 	}
 	case MethodDeclaration b : {
-				count += 1;
+		count += 1;
 		if (count > 1 && contains(unparse(previousMethodDeclaration), unparse(b))) {
 			println("inner method found");
 		} else {
@@ -404,7 +409,11 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		top-down visit(mi) {
 			case ExpressionName exp: {
 				for(VariableDeclaratorId vId <- variableNameTypeMap) {
-					if (trim(unparse(vId)) == trim(unparse(exp))) {
+					str unparsedExp = trim(unparse(exp));
+					if (startsWith(unparsedExp, "this.")) {
+							unparsedExp = substring(unparsedExp, 5);
+						}
+					if (trim(unparse(vId)) == unparsedExp) {
 						if (trim(unparse(variableNameTypeMap[vId])) == "Thread") {
 							threadIdUseFound = true;
 							break;
@@ -456,6 +465,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		VariableDeclaratorId vId = parse(#VariableDeclaratorId, variableNameForThreadFac);
 		BlockStatement statementToBeAdded = (BlockStatement) `ThreadFactory <VariableDeclaratorId vId> = Thread.ofVirtual().factory();`;
 		if (isThreadFacAdded) {
+			isThreadFacImportNeeded = true;
 			str unparsedMethodBody = unparse(b);
 			unparsedMethodBody = replaceFirst(unparsedMethodBody, "{", "");
 			unparsedMethodBody = replaceLastCurlyBrace(unparsedMethodBody);
@@ -467,6 +477,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 	case ConstructorBody b: {
 		bool isThreadFacAdded = false;
 		str variableNameForThreadFac = "threadFactory";
+		variableNameTypeMap = classVariableNameTypeMap;
 		for(VariableDeclaratorId vId <- variableNameTypeMap) {
 			if (variableNameForThreadFac == unparse(vId)) {
 				variableNameForThreadFac = "threadFactory1";
@@ -502,6 +513,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		VariableDeclaratorId vId = parse(#VariableDeclaratorId, variableNameForThreadFac);
 		BlockStatement statementToBeAdded = (BlockStatement) `ThreadFactory <VariableDeclaratorId vId> = Thread.ofVirtual().factory();`;
 		if (isThreadFacAdded) {
+			isThreadFacImportNeeded = true;
 			str unparsedMethodBody = unparse(b);
 			unparsedMethodBody = replaceFirst(unparsedMethodBody, "{", "");
 			unparsedMethodBody = replaceLastCurlyBrace(unparsedMethodBody);
@@ -510,24 +522,28 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			insert(newBody);
   		}
 	}
-	case Imports imports => updateImports(imports)
   }
   return unit;
 }
 
-private Imports updateImports(Imports imports) {
-	imports = top-down visit(imports) {
-		case (ImportDeclaration) `import java.util.concurrent.ThreadFactory;`: {
-			return parse(#Imports, unparse(imports));
+private CompilationUnit updateImports(CompilationUnit unit) {
+	unit = top-down visit(unit) {
+		case Imports imports : {
+			imports = top-down visit(imports) {
+				case (ImportDeclaration) `import java.util.concurrent.ThreadFactory;`: {
+					insert parse(#Imports, unparse(imports));
+				}
+			}
+			str importString = unparse(imports);
+			if (importString == "") {
+				importString = "import java.util.concurrent.ThreadFactory;";
+			} else {
+				importString += ("\n" + "import java.util.concurrent.ThreadFactory;");
+			}
+			insert parse(#Imports, importString);
 		}
 	}
-	str importString = unparse(imports);
-	if (importString == "") {
-		importString = "import java.util.concurrent.ThreadFactory;";
-	} else {
-		importString += ("\n" + "import java.util.concurrent.ThreadFactory;");
-	}
-	return parse(#Imports, importString);
+	return unit;
 }
 
 public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList) {
