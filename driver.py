@@ -21,31 +21,31 @@ def main(argv):
     # D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/io.openliberty.org.jboss.resteasy.mprestclient/src
     root_dir = 'D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/'
 
-    # for filename in glob.iglob(root_dir + '**/**', recursive=True):
-    #     try:
-    #         if os.path.isdir(filename) and ("_fat" not in filename) and os.path.basename(filename) == "src":
-    #             print(filename)
-    #             input_dir = filename
-    #             max_files = '0'
+    for filename in glob.iglob(root_dir + '**/**', recursive=True):
+        try:
+            if os.path.isdir(filename) and ("_fat" not in filename) and os.path.basename(filename) == "src":
+                print(filename)
+                input_dir = filename
+                max_files = '0'
 
-    #             logging.info("Executing the migrations")
-    #             currentTime = currentDateAndTime.strftime("%y%m%d%H%M%S")
+                logging.info("Executing the migrations")
+                currentTime = currentDateAndTime.strftime("%y%m%d%H%M%S")
 
-    #             os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::junit::MainProgram -path {input_dir}")
+                os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::junit::MainProgram -path {input_dir}")
 
-    #             logging.info("Formatting the source code")
+                logging.info("Formatting the source code")
 
                 
-    #             logging.info("done")
-    #     except FileNotFoundError:
-    #         continue
-    input_dir = 'D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/com.ibm.ws.channelfw/src'
-    max_files = '0'
+                logging.info("done")
+        except FileNotFoundError:
+            continue
+    # input_dir = 'D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/com.ibm.ws.install/src'
+    # max_files = '0'
 
-    logging.info("Executing the migrations")
-    currentTime = currentDateAndTime.strftime("%y%m%d%H%M%S")
+    # logging.info("Executing the migrations")
+    # currentTime = currentDateAndTime.strftime("%y%m%d%H%M%S")
 
-    os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::junit::MainProgram -path {input_dir}")
+    # os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::junit::MainProgram -path {input_dir}")
 if __name__ == "__main__":
     main(sys.argv[1:])
 
