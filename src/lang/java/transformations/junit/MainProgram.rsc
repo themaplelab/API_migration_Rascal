@@ -37,17 +37,22 @@ public void main(str path = "") {
   try{
       CompilationUnit transformedUnit;
       for(loc f <- allFiles) {
-        str content = readFile(f);  
-        println("ffffff: <f>: <transformationCount> : <totalTransformationCount>: <transformations>");
-        file = f;
-        <transformedUnit, totalTransformationCount, transformationCount> = applyTransformations(
-            content, 
-            totalTransformationCount, 
-            transformationCount,
-            transformations
-          );
-        if (unparse(transformedUnit) != "") {
-          writeFile(f, transformedUnit);
+        try {
+          str content = readFile(f);  
+          println("ffffff: <f>: <transformationCount> : <totalTransformationCount>: <transformations>");
+          file = f;
+          <transformedUnit, totalTransformationCount, transformationCount> = applyTransformations(
+              content, 
+              totalTransformationCount, 
+              transformationCount,
+              transformations
+            );
+          if (unparse(transformedUnit) != "") {
+            writeFile(f, transformedUnit);
+          }
+        }
+        catch: {
+          continue;
         }
       }
   } catch:{
