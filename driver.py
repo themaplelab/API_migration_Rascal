@@ -5,8 +5,9 @@ import logging
 # import git
 from datetime import datetime
 # import pomMigration
-
+import pathlib
 currentDateAndTime = datetime.now()
+import glob
 
 
 usage = 'migrate.py -i <input_dir> '
@@ -16,55 +17,35 @@ branch = 'junit5-migration'
 def main(argv):
     cwd = os.getcwd()
     # path to the directory with thread usages
+    # D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/com.ibm.ws.channelfw/src
     # D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/io.openliberty.org.jboss.resteasy.mprestclient/src
-    input_dir = 'D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/io.openliberty.org.jboss.resteasy.mprestclient/src'
-    max_files = '0'
+    root_dir = 'D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/'
 
-    opts, args = getopt.getopt(argv, "hi:m:", ["input_dir=", "max_files="])
+    for filename in glob.iglob(root_dir + '**/**', recursive=True):
+        try:
+            if os.path.isdir(filename) and ("_fat" not in filename) and os.path.basename(filename) == "src":
+                print(filename)
+                input_dir = filename
+                max_files = '0'
 
-    for opt, arg in opts:
-        if opt == '-h':
-            print(usage)
-        elif opt in ('-i', '--input_dir'):
-            input_dir = arg
-        elif opt in ('-m', '--max_files'):
-            max_files = arg
-        else:
-            print(usage)
-    
-    logging.info(f"Loading and checking the {input_dir} git repository")
+                logging.info("Executing the migrations")
+                currentTime = currentDateAndTime.strftime("%y%m%d%H%M%S")
 
-    # repo = git.Repo(input_dir)
+                os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::junit::MainProgram -path {input_dir}")
 
-    # if not (branch in [r.name for r in repo.references]):
-    #     repo.git.branch(branch)
-        
-    # repo.git.checkout(branch)
+                logging.info("Formatting the source code")
 
-    logging.info("Executing the migrations")
-    currentTime = currentDateAndTime.strftime("%y%m%d%H%M%S")
+                
+                logging.info("done")
+        except FileNotFoundError:
+            continue
+    # input_dir = 'D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/com.ibm.ws.install/src'
+    # max_files = '0'
 
-    os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::junit::MainProgram -path {input_dir}")
+    # logging.info("Executing the migrations")
+    # currentTime = currentDateAndTime.strftime("%y%m%d%H%M%S")
 
-    logging.info("Formatting the source code")
-    print("here")
-    os.chdir(input_dir)
-    print("here1")
-
-    logging.info("Formatting the source code")
-
-    os.system(f"git config --global --add safe.directory '*' ")
-
-    print(cwd)
-
-    os.system(f"git diff -U0 HEAD^ | {cwd}/google-java-format-diff.py -p1 -i --google-java-format-jar {cwd}/google-format.jar")
-
-    
-    # pom_path = "-i "+input_dir+"pom.xml"
-    # pomMigration.main(argv=[pom_path])
-    
-    logging.info("done")
-
+    # os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::junit::MainProgram -path {input_dir}")
 if __name__ == "__main__":
     main(sys.argv[1:])
 
