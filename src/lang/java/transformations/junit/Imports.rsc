@@ -440,11 +440,11 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		b = top-down visit(b) {
 			case (Statement) `<LeftHandSide id> = Executors.newCachedThreadPool();`: {
 				isThreadFacAdded = true;
-				insert((Statement) `<LeftHandSide id> = Executors.newCachedThreadPool(<ArgumentList threadFactoryArgs>);`);
+				insert((Statement) `<LeftHandSide id> = Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>);`);
 			}
 			case (MethodInvocation) `Executors.newCachedThreadPool()`: {
 				isThreadFacAdded = true;
-				insert((MethodInvocation) `Executors.newCachedThreadPool(<ArgumentList threadFactoryArgs>)`);
+				insert((MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`);
 			}
 			case (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`: {
 				MethodInvocation methodInv =  (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`;
@@ -456,9 +456,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				
 				if (numberOfArguments == 1 ) {
 					isThreadFacAdded = true;
-					str argumentsForNewMethodInv = unparse(args) + "," + variableNameForThreadFac;
+					str argumentsForNewMethodInv = variableNameForThreadFac;
 					ArgumentList threadFactoryArgs = parse(#ArgumentList, argumentsForNewMethodInv);
-					insert((MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList threadFactoryArgs>)`);
+					insert((MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`);
 				}
 			}
 		}
@@ -488,11 +488,11 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		b = top-down visit(b) {
 			case (Statement) `<LeftHandSide id> = Executors.newCachedThreadPool();`: {
 				isThreadFacAdded = true;
-				insert((Statement) `<LeftHandSide id> = Executors.newCachedThreadPool(<ArgumentList threadFactoryArgs>);`);
+				insert((Statement) `<LeftHandSide id> = Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>);`);
 			}
 			case (MethodInvocation) `Executors.newCachedThreadPool()`: {
 				isThreadFacAdded = true;
-				insert((MethodInvocation) `Executors.newCachedThreadPool(<ArgumentList threadFactoryArgs>)`);
+				insert((MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`);
 			}
 			case (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`: {
 				MethodInvocation methodInv =  (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`;
@@ -504,9 +504,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				
 				if (numberOfArguments == 1 ) {
 					isThreadFacAdded = true;
-					str argumentsForNewMethodInv = unparse(args) + "," + variableNameForThreadFac;
+					str argumentsForNewMethodInv = variableNameForThreadFac;
 					ArgumentList threadFactoryArgs = parse(#ArgumentList, argumentsForNewMethodInv);
-					insert((MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList threadFactoryArgs>)`);
+					insert((MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`);
 				}
 			}
 		}
