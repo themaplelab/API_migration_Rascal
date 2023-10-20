@@ -147,7 +147,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
 				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
-			} else if ((types[0] == "Runnable" && types[1] == "String") || (types[0] == "String" && types[1] == "Runnable")) {
+			} else if ((types[0] == "Runnable" && (types[1] == "String" || types[1] == "StringBuffer")) || ((types[0] == "String" || types[0] == "StringBuffer") && types[1] == "Runnable")) {
 				str runnableArguments = "";
 				str nameArguments = "";
 				for(str tId <- typesOfArguments) {
@@ -155,7 +155,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						Expression argument0 = typesOfArguments[tId];
 						runnableArguments = unparse(argument0);
 					}
-					if (tId == "String") {
+					if (tId == "String" || tId == "StringBuffer") {
 						Expression argument0 = typesOfArguments[tId];
 						nameArguments = unparse(argument0);
 					}
@@ -173,7 +173,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					Expression argument0 = typesOfArguments[tId];
 					runnableArguments = unparse(argument0);
 				}
-				if (tId == "String") {
+				if (tId == "String" || tId == "StringBuffer") {
 					Expression argument0 = typesOfArguments[tId];
 					nameArguments = unparse(argument0);
 				}
@@ -264,7 +264,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
 				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
-			} else if ((type0 == "Runnable" && type1 == "String") || (type0 == "String" && type1 == "Runnable")) {
+			} else if ((type0 == "Runnable" && ( type1 == "String" || type1 == "StringBuffer" )) || ((type0 == "String" || type0 == "StringBuffer") && type1 == "Runnable")) {
 				str runnableArguments = "";
 				str nameArguments = "";
 				for(str tId <- typesOfArguments) {
@@ -272,7 +272,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						Expression argument0 = typesOfArguments[tId];
 						runnableArguments = unparse(argument0);
 					}
-					if (tId == "String") {
+					if (tId == "String" || tId == "StringBuffer") {
 						Expression argument0 = typesOfArguments[tId];
 						nameArguments = unparse(argument0);
 					}
@@ -290,7 +290,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					Expression argument0 = typesOfArguments[tId];
 					runnableArguments = unparse(argument0);
 				}
-				if (tId == "String") {
+				if (tId == "String" || tId == "StringBuffer") {
 					Expression argument0 = typesOfArguments[tId];
 					nameArguments = unparse(argument0);
 				}
@@ -362,7 +362,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
 				replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
 				isReplacement = true;
-			} else if ((types[0] == "Runnable" && types[1] == "String") || (types[0] == "String" && types[1] == "Runnable")) {
+			} else if ((types[0] == "Runnable" && (types[1] == "String" || types[1] == "StringBuffer")) || ((types[0] == "String" || types[0] == "StringBuffer") && types[1] == "Runnable")) {
 				str runnableArguments = "";
 				str nameArguments = "";
 				for(str tId <- typesOfArguments) {
@@ -370,7 +370,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						Expression argument0 = typesOfArguments[tId];
 						runnableArguments = unparse(argument0);
 					}
-					if (tId == "String") {
+					if (tId == "String" || tId == "StringBuffer") {
 						Expression argument0 = typesOfArguments[tId];
 						nameArguments = unparse(argument0);
 					}
@@ -388,7 +388,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					Expression argument0 = typesOfArguments[tId];
 					runnableArguments = unparse(argument0);
 				}
-				if (tId == "String") {
+				if (tId == "String" || tId == "StringBuffer") {
 					Expression argument0 = typesOfArguments[tId];
 					nameArguments = unparse(argument0);
 				}
@@ -531,7 +531,7 @@ private CompilationUnit updateImports(CompilationUnit unit) {
 		case Imports imports : {
 			imports = top-down visit(imports) {
 				case (ImportDeclaration) `import java.util.concurrent.ThreadFactory;`: {
-					insert parse(#Imports, unparse(imports));
+					insert parse(#ImportDeclaration, unparse(imports));
 				}
 			}
 			str importString = unparse(imports);
@@ -558,8 +558,14 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 						if (startsWith(unparsedExp, "this.")) {
 							unparsedExp = substring(unparsedExp, 5);
 						}
+						if (endsWith(unparsedExp, ".toString()")) {
+							unparsedExp = replaceLast(unparsedExp, ".toString()", "");
+						}
 						if (startsWith(variableId, "this.")) {
 							variableId = substring(variableId, 5);
+						}
+						if (endsWith(variableId, ".toString()")) {
+							variableId = replaceLast(variableId, ".toString()", "");
 						}
 						if (variableId == trim(unparsedExp)) {
 							isTypeFound = true;
