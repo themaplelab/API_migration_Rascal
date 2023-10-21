@@ -31,7 +31,7 @@ def main(argv):
             if filename in listOfFiles:
                 break
             listOfFiles.append(filename)
-            if os.path.isdir(filename) and ("_fat" not in filename) and os.path.basename(filename) == "src":
+            if os.path.isdir(filename) and ("_fat" not in filename) and ("/test/" not in filename) and os.path.basename(filename) == "src":
                 print(filename)
                 input_dir = filename
 
