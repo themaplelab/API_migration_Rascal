@@ -565,7 +565,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 							typesOfArguments += ("String" : e); 
 							isTypeFound = true;
 						}
-						if (variableId == trim(unparsedExp) && && (isTypeFound == false)) {
+						if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 							isTypeFound = true;
 							typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
 						}
