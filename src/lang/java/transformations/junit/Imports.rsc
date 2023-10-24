@@ -14,11 +14,13 @@ import lang::java::\syntax::Java18;
 data Argument = argument(str argType, Expression expression);
 map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
 map[VariableDeclaratorId, UnannType] classVariableNameTypeMap = ( );
+map[str, str] methodTypeMap = ( );
 bool isThreadFacImportNeeded = false;
 
 public CompilationUnit executeImportsTransformation(CompilationUnit unit, loc file) {
 	classVariableNameTypeMap = ( );
 	variableNameTypeMap = ( );
+	methodTypeMap = ( );
 	println("transformation started: <file>");
 	isThreadFacImportNeeded = false;
 	unit = extractMethodsAndPatterns(unit, file);
@@ -52,6 +54,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		} else {
 			variableNameTypeMap = classVariableNameTypeMap;
 		}
+		methodName="";
+		returnType="";
 		b = top-down visit(b) {
 			case MethodHeader h: {
 				h = top-down visit(h) {
@@ -70,9 +74,16 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 								}
 								variableNameTypeMap += (name : vType);
 							}
+							case Identifier i: {
+								methodName = unparse(i);
+							}
 						}
 					}
+					case Result r: {
+						returnType = unparse(r);
+					}
 				}
+				methodTypeMap += (methodName : returnType );
 			}
 			case LocalVariableDeclaration lvd: { 
 				UnannType vType;
@@ -612,6 +623,20 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 							}
 						}
 					}
+					if (isTypeFound == false) {
+						variableName = unparse(e);
+						if (endsWith(variableName, "()") || endsWith(variableName, ")")) {
+							indexVal = findFirst(variableName, "(");
+							variableNameExt = substring(variableName, 0, indexVal);
+							for (str methodName <- methodTypeMap) {
+								print("methodTypeMap: <methodName> : <methodTypeMap[methodName]>: <variableNameExt>");
+								if (trim(methodName) == trim(variableNameExt)) {
+									isTypeFound = true;
+									typesOfArguments += (trim(unparse(methodTypeMap[methodName])): e);
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -762,6 +787,5 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 } 
 
 
-//todo:optimize imports and format code
 // assumed Class types can be found within the package
 // unparseable files to compilationUnits, ignored

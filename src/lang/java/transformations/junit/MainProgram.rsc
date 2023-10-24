@@ -39,7 +39,6 @@ public void main(str path = "") {
       for(loc f <- allFiles) {
         try {
           str content = readFile(f);  
-          println("ffffff: <f>: <transformationCount> : <totalTransformationCount>: <transformations>");
           file = f;
           <transformedUnit, totalTransformationCount, transformationCount> = applyTransformations(
               content, 
