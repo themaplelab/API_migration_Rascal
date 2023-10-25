@@ -560,11 +560,20 @@ private CompilationUnit updateImports(CompilationUnit unit) {
 public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList) {
 	map[str, Expression] typesOfArguments = ( );
 	for(ArgumentList argList <- argumentList) {
+			bool isConcatOfArgs = false;
 			top-down visit(argList) {
 				case Expression e : {
+					str unparsedExp = unparse(e);
 					bool isTypeFound = false;
+					if (contains(unparsedExp, "+")) {
+						list[str] args = split(unparsedExp, "+");
+						for (str arg01 <- tail(args)) {
+							unparsedExp = trim(arg01);
+							isConcatOfArgs = true;
+							break;
+						}
+					}
 					for(VariableDeclaratorId vId <- variableNameTypeMap) {
-						str unparsedExp = unparse(e);
 						str variableId = trim(unparse(vId));
 						if (startsWith(unparsedExp, "this.")) {
 							unparsedExp = substring(unparsedExp, 5);
@@ -583,7 +592,6 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 					}
 					if (isTypeFound == false) {
 						for(VariableDeclaratorId vId <- classVariableNameTypeMap) {
-							str unparsedExp = unparse(e);
 							str variableId = trim(unparse(vId));
 							if (startsWith(unparsedExp, "this.")) {
 								unparsedExp = substring(unparsedExp, 5);
@@ -624,10 +632,9 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 						}
 					}
 					if (isTypeFound == false) {
-						variableName = unparse(e);
-						if (endsWith(variableName, "()") || endsWith(variableName, ")")) {
-							indexVal = findFirst(variableName, "(");
-							variableNameExt = substring(variableName, 0, indexVal);
+						if (endsWith(unparsedExp, "()") || endsWith(unparsedExp, ")")) {
+							indexVal = findFirst(unparsedExp, "(");
+							variableNameExt = substring(unparsedExp, 0, indexVal);
 							for (str methodName <- methodTypeMap) {
 								print("methodTypeMap: <methodName> : <methodTypeMap[methodName]>: <variableNameExt>");
 								if (trim(methodName) == trim(variableNameExt)) {
