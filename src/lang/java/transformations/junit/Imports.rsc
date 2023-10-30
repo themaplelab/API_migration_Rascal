@@ -141,6 +141,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				}
 			}
 		} else if (numberOfTypes == 2) {
+			println("numberOfTypes44 :<types[0]>");
+		    println("numberOfTypes66 :<types[1]>");
+
 			str type0 = types[0];
 			str type1 = types[1];
 			if ((type0 != "String" && type0 != "Runnable" && type0 != "ThreadGroup")) {
@@ -858,6 +861,7 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 	bool isSubClassPresentInPackage = false;
 	bool isImportedType = false;
 	str typeOfArg = typeOfArgument;
+	int count = 0;
 	while ( typeOfArg == "" ) {
 			top-down visit(unit) {
 				case NormalClassDeclaration classDec: {
@@ -912,6 +916,10 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 				CompilationUnit unit2 = parse(#CompilationUnit, content);
 				unit = unit2;
 				file = subClassLocation;
+			}
+			count += 1;
+			if (count == 5) {
+				break;
 			}
 	}
 	
