@@ -10,6 +10,7 @@ extend List;
 import Set;
 import String;
 import lang::java::\syntax::Java18;
+import DateTime;
 
 data Argument = argument(str argType, Expression expression);
 map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
@@ -18,8 +19,11 @@ map[str, str] methodTypeMap = ( );
 bool isThreadFacImportNeeded = false;
 CompilationUnit compilationUnit;
 loc locFile;
+datetime startedTIme;
 
 public CompilationUnit executeImportsTransformation(CompilationUnit unit, loc file) {
+	startedTIme = now();
+	println("startedTIme: <startedTIme>");
 	classVariableNameTypeMap = ( );
 	variableNameTypeMap = ( );
 	methodTypeMap = ( );
@@ -35,6 +39,8 @@ public CompilationUnit executeImportsTransformation(CompilationUnit unit, loc fi
 }
 
 public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file) {
+  datetime methodTime = now();
+  println("class file extraction started: <methodTime>");
   MethodDeclaration previousMethodDeclaration; 
   int count = 0;
   unit = top-down visit(unit) {
@@ -80,6 +86,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 							}
 							case Identifier i: {
 								methodName = unparse(i);
+								println("analyzing method: <methodName>");
 							}
 						}
 					}
@@ -108,6 +115,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);` : {
 		BlockStatement blockstatementExp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);`;
 		println("bb: <blockstatementExp>");
+		datetime detectedTime = now();
+  		println("blockStatement : <blockstatementExp> detected : <detectedTime>");
 		map[str, Expression] typesOfArguments = ( );
 
 		list[ArgumentList] argumentList = [];
@@ -224,10 +233,14 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		if (isReplacement == true) {
 			insert(replacingExpression);
+			datetime transformedTime = now();
+  			println("blockStatement : <replacingExpression> transformed : <transformedTime>");
 		}
 	}
 	case (ReturnStatement) `return new Thread(<ArgumentList args>);` : {
 		ReturnStatement returnSte = (ReturnStatement) `return new Thread(<ArgumentList args>);`;
+		datetime detectedTime = now();
+  		println("returnStatement : <returnSte> detected : <detectedTime>");
 		map[str, Expression] typesOfArguments = ( );
 
 		list[ArgumentList] argumentList = [];
@@ -341,11 +354,14 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		if (isReplacement == true) {
 			insert(replacingExpression);
+			datetime transformedTime = now();
+  			println("returnStatement : <replacingExpression> transformed : <transformedTime>");
 		}
 	}
 	case (StatementExpression) `<LeftHandSide id> = new Thread(<ArgumentList args>)` : {
 		StatementExpression exp = (StatementExpression) `<LeftHandSide id> = new Thread(<ArgumentList args>)`;
-	
+		datetime detectedTime = now();
+  		println("statementExpr : <exp> detected : <detectedTime>");
 		map[str, Expression] typesOfArguments = ( );
 
 		list[ArgumentList] argumentList = [];
@@ -439,11 +455,15 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		if (isReplacement == true) {
 			insert(replacingExpression);
+			datetime transformedTime = now();
+  			println("returnStatement : <replacingExpression> transformed : <transformedTime>");
 		}
 	}
 	case (MethodInvocation) `<ExpressionName exp>.getId()` : {
 		MethodInvocation mi = (MethodInvocation) `<ExpressionName exp>.getId()`;
 		MethodInvocation mi2 = (MethodInvocation) `<ExpressionName exp>.threadId()`;
+		datetime detectedTime = now();
+  		println("methodInvocation : <mi> detected : <detectedTime>");
 		bool threadIdUseFound = false;
 		top-down visit(mi) {
 			case ExpressionName exp: {
@@ -463,9 +483,17 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		if (threadIdUseFound) {
 			insert((MethodInvocation) `<ExpressionName exp>.threadId()`);
+			datetime transformedTime = now();
+  			println("methodInvocation : <mi2> transformed : <transformedTime>");
 		}	
 	}
-	case (MethodInvocation) `Thread.currentThread().getId()` => (MethodInvocation) `Thread.currentThread().threadId()` 
+	case (MethodInvocation) `Thread.currentThread().getId()` : { 
+		datetime detectedTime = now();
+  		println("methodInvocation : detected : <detectedTime>");
+		insert((MethodInvocation) `Thread.currentThread().threadId()`);
+		datetime transformedTime = now();
+  		println("methodInvocation : transformed : <transformedTime>"); 
+	}
 	case MethodBody b: {
 		bool isThreadFacAdded = false;
 		str variableNameForThreadFac = "threadFactory";
@@ -478,12 +506,24 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 
 		b = top-down visit(b) {
 			case (Statement) `<LeftHandSide id> = Executors.newCachedThreadPool();`: {
+				Statement ste = (Statement) `<LeftHandSide id> = Executors.newCachedThreadPool();`;
+				datetime detectedTime = now();
+  				println("statement : <ste> detected : <detectedTime>");
 				isThreadFacAdded = true;
-				insert((Statement) `<LeftHandSide id> = Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>);`);
+				Statement replacingExpression = (Statement) `<LeftHandSide id> = Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>);`;
+				insert(replacingExpression);
+				datetime transformedTime = now();
+  				println("statement : <replacingExpression> transformed : <transformedTime>");
 			}
 			case (MethodInvocation) `Executors.newCachedThreadPool()`: {
+				MethodInvocation detection = (MethodInvocation) `Executors.newCachedThreadPool()`;
+				datetime detectedTime = now();
+  				println("methodInvocation : <detection> detected : <detectedTime>");
 				isThreadFacAdded = true;
-				insert((MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`);
+				MethodInvocation replacingExpression = (MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`;
+				insert(replacingExpression);
+				datetime transformedTime = now();
+  				println("statement : <replacingExpression> transformed : <transformedTime>");
 			}
 			case (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`: {
 				MethodInvocation methodInv =  (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`;
@@ -495,9 +535,14 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				
 				if (numberOfArguments == 1 ) {
 					isThreadFacAdded = true;
+					datetime detectedTime = now();
+  					println("methodInvocation : <methodInv> detected : <detectedTime>");
 					str argumentsForNewMethodInv = variableNameForThreadFac;
 					ArgumentList threadFactoryArgs = parse(#ArgumentList, argumentsForNewMethodInv);
-					insert((MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`);
+					MethodInvocation replacingExpression = (MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`;
+					insert(replacingExpression);
+					datetime transformedTime = now();
+  					println("methodInvocation : <replacingExpression> transformed : <transformedTime>");
 				}
 			}
 		}
@@ -526,14 +571,29 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 
 		b = top-down visit(b) {
 			case (Statement) `<LeftHandSide id> = Executors.newCachedThreadPool();`: {
+				Statement ste = (Statement) `<LeftHandSide id> = Executors.newCachedThreadPool();`;
+				datetime detectedTime = now();
+  				println("statement : <ste> detected : <detectedTime>");
 				isThreadFacAdded = true;
-				insert((Statement) `<LeftHandSide id> = Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>);`);
+				Statement replacingExpression = (Statement) `<LeftHandSide id> = Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>);`; 
+				insert(replacingExpression);
+				datetime transformedTime = now();
+				println("statement : <replacingExpression> transformed : <transformedTime>");
 			}
 			case (MethodInvocation) `Executors.newCachedThreadPool()`: {
+				MethodInvocation methodInvocation = (MethodInvocation) `Executors.newCachedThreadPool()`;
+				datetime detectedTime = now();
+  				println("methodInvo : <methodInvocation> detected : <detectedTime>");
 				isThreadFacAdded = true;
-				insert((MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`);
+				MethodInvocation replacingExpression = (MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`;
+				insert(replacingExpression);
+				datetime transformedTime = now();
+				println("methodInvo : <replacingExpression> transformed : <transformedTime>");
 			}
 			case (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`: {
+				MethodInvocation methodInvocation = (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`;
+				datetime detectedTime = now();
+  				println("methodInvo : <methodInvocation> detected : <detectedTime>");
 				MethodInvocation methodInv =  (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`;
 				list[ArgumentList] argumentList = [];
 				top-down visit(methodInv) {
@@ -545,7 +605,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					isThreadFacAdded = true;
 					str argumentsForNewMethodInv = variableNameForThreadFac;
 					ArgumentList threadFactoryArgs = parse(#ArgumentList, argumentsForNewMethodInv);
-					insert((MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`);
+					MethodInvocation replacingExpression = (MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`;
+					insert(replacingExpression);
+					datetime transformedTime = now();
+					println("methodInvo : <replacingExpression> transformed : <transformedTime>");
 				}
 			}
 		}
