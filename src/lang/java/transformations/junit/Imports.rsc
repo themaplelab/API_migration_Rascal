@@ -232,9 +232,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		    isReplacement = true;
 		}
 		if (isReplacement == true) {
-			insert(replacingExpression);
 			datetime transformedTime = now();
   			println("blockStatement : <replacingExpression> transformed : <transformedTime>");
+			insert(replacingExpression);
 		}
 	}
 	case (ReturnStatement) `return new Thread(<ArgumentList args>);` : {
@@ -353,9 +353,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		    isReplacement = true;
 		}
 		if (isReplacement == true) {
-			insert(replacingExpression);
 			datetime transformedTime = now();
   			println("returnStatement : <replacingExpression> transformed : <transformedTime>");
+			insert(replacingExpression);
 		}
 	}
 	case (StatementExpression) `<LeftHandSide id> = new Thread(<ArgumentList args>)` : {
@@ -454,9 +454,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		    isReplacement = true;
 		}
 		if (isReplacement == true) {
-			insert(replacingExpression);
 			datetime transformedTime = now();
   			println("returnStatement : <replacingExpression> transformed : <transformedTime>");
+			insert(replacingExpression);
 		}
 	}
 	case (MethodInvocation) `<ExpressionName exp>.getId()` : {
@@ -482,17 +482,17 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			}
 		}
 		if (threadIdUseFound) {
-			insert((MethodInvocation) `<ExpressionName exp>.threadId()`);
 			datetime transformedTime = now();
   			println("methodInvocation : <mi2> transformed : <transformedTime>");
+			insert((MethodInvocation) `<ExpressionName exp>.threadId()`);
 		}	
 	}
 	case (MethodInvocation) `Thread.currentThread().getId()` : { 
 		datetime detectedTime = now();
   		println("methodInvocation : detected : <detectedTime>");
-		insert((MethodInvocation) `Thread.currentThread().threadId()`);
 		datetime transformedTime = now();
   		println("methodInvocation : transformed : <transformedTime>"); 
+		insert((MethodInvocation) `Thread.currentThread().threadId()`);
 	}
 	case MethodBody b: {
 		bool isThreadFacAdded = false;
@@ -511,9 +511,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   				println("statement : <ste> detected : <detectedTime>");
 				isThreadFacAdded = true;
 				Statement replacingExpression = (Statement) `<LeftHandSide id> = Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>);`;
-				insert(replacingExpression);
 				datetime transformedTime = now();
   				println("statement : <replacingExpression> transformed : <transformedTime>");
+				insert(replacingExpression);
 			}
 			case (MethodInvocation) `Executors.newCachedThreadPool()`: {
 				MethodInvocation detection = (MethodInvocation) `Executors.newCachedThreadPool()`;
@@ -521,9 +521,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   				println("methodInvocation : <detection> detected : <detectedTime>");
 				isThreadFacAdded = true;
 				MethodInvocation replacingExpression = (MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`;
-				insert(replacingExpression);
 				datetime transformedTime = now();
   				println("statement : <replacingExpression> transformed : <transformedTime>");
+				insert(replacingExpression);
 			}
 			case (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`: {
 				MethodInvocation methodInv =  (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`;
@@ -540,9 +540,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					str argumentsForNewMethodInv = variableNameForThreadFac;
 					ArgumentList threadFactoryArgs = parse(#ArgumentList, argumentsForNewMethodInv);
 					MethodInvocation replacingExpression = (MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`;
-					insert(replacingExpression);
 					datetime transformedTime = now();
   					println("methodInvocation : <replacingExpression> transformed : <transformedTime>");
+					insert(replacingExpression);
 				}
 			}
 		}
@@ -576,9 +576,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   				println("statement : <ste> detected : <detectedTime>");
 				isThreadFacAdded = true;
 				Statement replacingExpression = (Statement) `<LeftHandSide id> = Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>);`; 
-				insert(replacingExpression);
 				datetime transformedTime = now();
 				println("statement : <replacingExpression> transformed : <transformedTime>");
+				insert(replacingExpression);
 			}
 			case (MethodInvocation) `Executors.newCachedThreadPool()`: {
 				MethodInvocation methodInvocation = (MethodInvocation) `Executors.newCachedThreadPool()`;
@@ -586,9 +586,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   				println("methodInvo : <methodInvocation> detected : <detectedTime>");
 				isThreadFacAdded = true;
 				MethodInvocation replacingExpression = (MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`;
-				insert(replacingExpression);
 				datetime transformedTime = now();
 				println("methodInvo : <replacingExpression> transformed : <transformedTime>");
+				insert(replacingExpression);
 			}
 			case (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`: {
 				MethodInvocation methodInvocation = (MethodInvocation) `Executors.newFixedThreadPool(<ArgumentList args>)`;
@@ -606,9 +606,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					str argumentsForNewMethodInv = variableNameForThreadFac;
 					ArgumentList threadFactoryArgs = parse(#ArgumentList, argumentsForNewMethodInv);
 					MethodInvocation replacingExpression = (MethodInvocation) `Executors.newThreadPerTaskExecutor(<ArgumentList threadFactoryArgs>)`;
-					insert(replacingExpression);
 					datetime transformedTime = now();
 					println("methodInvo : <replacingExpression> transformed : <transformedTime>");
+					insert(replacingExpression);
 				}
 			}
 		}
