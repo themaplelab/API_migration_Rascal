@@ -1,7 +1,7 @@
-## JUnit 5 migrations
+## Loomizer
 
 A set of Rascal transformations for helping
-developers to migrate JUnit 4 test cases to JUnit 5.
+developers to migrate traditional Threading APIs to Loom APIs.
 
 ### Requirements
 
