@@ -10,9 +10,8 @@ developers to migrate traditional Threading APIs to Loom APIs.
 
 ### Build and run
 
-   * Clone this repository (`git clone git@github.com:PAMunb/JUnit5Migration.git`)
+   * Clone this repository (`git clone [https://github.com/themaplelab/API_migration_Rascal.git](https://github.com/themaplelab/API_migration_Rascal.git)`)
    * Change to the JUnit5Migration folder (`cd JUnit5Migration`) 
-   * Download the Rascal shell (`wget https://update.rascal-mpl.org/console/rascal-shell-stable.jar`)
    * Execute the `driver.py` script:
 
 ```shell
