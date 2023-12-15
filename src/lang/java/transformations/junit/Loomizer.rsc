@@ -21,7 +21,7 @@ CompilationUnit compilationUnit;
 loc locFile;
 datetime startedTIme;
 
-public CompilationUnit executeImportsTransformation(CompilationUnit unit, loc file) {
+public CompilationUnit executeTransformation(CompilationUnit unit, loc file) {
 	startedTIme = now();
 	println("startedTIme: <startedTIme>");
 	classVariableNameTypeMap = ( );

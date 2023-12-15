@@ -1,12 +1,11 @@
-## JUnit 5 migrations
+## Loomizer
 
-A set of Rascal transformations for helping
-developers to migrate JUnit 4 test cases to JUnit 5.
+A set of Rascal transformations for helping developers to migrate traditional threads to Loom API Virtual Threads.
 
 ### Requirements
 
    * Python 3
-   * Java 8
+   * Java 19+
 
 ### Build and run
 

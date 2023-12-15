@@ -17,18 +17,17 @@ loc file;
 public void main(str path = "") {
   int startedTime = realTime();
   println("startedTime: <startedTime>");
-    loc base = |file:///| + path; 
-
-    if( (path == "") || (! exists(base)) || (! isDirectory(base)) ) {
-       println("Invalid path <path>"); 
-       return; 
-    }
-	list[loc] allFiles = findAllTestFiles(base, "java", false); 
-
+  loc base = |file:///| + path; 
+  if( (path == "") || (! exists(base)) || (! isDirectory(base)) ) {
+    println("Invalid path <path>"); 
+    return; 
+  }
+	list[loc] allFiles = findAllJavaFiles(base, "java"); 
+  println("allfiles: <allFiles>");
 	int errors = 0; 
 
   list[Transformation] transformations = [
-    transformation("Imports", importsTransform)
+    transformation("Loomizer", loomTransform)
   ];
 
   map[str, int] transformationCount = initTransformationsCount(transformations);
@@ -40,15 +39,6 @@ public void main(str path = "") {
         try {
           str content = readFile(f);  
           file = f;
-          <transformedUnit, totalTransformationCount, transformationCount> = applyTransformations(
-              content, 
-              totalTransformationCount, 
-              transformationCount,
-              transformations
-            );
-          if (unparse(transformedUnit) != "") {
-            writeFile(f, transformedUnit);
-          }
         }
         catch: {
           continue;
@@ -56,7 +46,6 @@ public void main(str path = "") {
       }
   } catch:{
     errors = errors + 1;
-
   }
 
 	for(str transformationName <- transformationCount) {
@@ -90,7 +79,6 @@ public tuple[CompilationUnit, int, map[str, int]] applyTransformations(
     println("caughtException: <unit>");
     return <unit, totalTransformationCount, transformationCount>;
   }
-  println("importsTransformFile: ");
 
   for(Transformation transformation <- transformations) {
     CompilationUnit transformedUnit = transformation.function(unit);
@@ -101,12 +89,11 @@ public tuple[CompilationUnit, int, map[str, int]] applyTransformations(
     }
     unit = transformedUnit;
   }
-
   return <unit, totalTransformationCount, transformationCount>;
 }
 
-private CompilationUnit importsTransform(CompilationUnit c) {
+private CompilationUnit loomTransform(CompilationUnit c) {
   println("fileFound: <file>");
-  c = executeImportsTransformation(c, file);
+  c = executeTransformation(c, file);
   return c;
 }
