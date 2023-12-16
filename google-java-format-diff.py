@@ -32,7 +32,7 @@ import re
 import string
 import subprocess
 import io
-import sys,os
+import sys
 from shutil import which
 
 def main():
@@ -108,9 +108,9 @@ def main():
     binary = which('google-java-format') or '/usr/bin/google-java-format'
     base_command = [binary]
 
-  
   # Reformat files containing changes in place.
   for filename, lines in lines_by_file.items():
+    print("filename", filename)
     if args.i and args.verbose:
       print('Formatting', filename)
     command = base_command[:]
