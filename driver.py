@@ -14,12 +14,14 @@ def main():
     time_stamp = current_time.timestamp()
     print("startedTimestamp:-", time_stamp)
     listOfFiles = []
-    for filename in glob.iglob(root_dir + '**/**', recursive=False):
+    #make recursive False and remove base name is src for tomcat
+    #for wildfly, removed /test/ condition below
+    for filename in glob.iglob(root_dir + '**/**', recursive=True):
         try:
             if filename in listOfFiles:
                 break
             listOfFiles.append(filename)
-            if os.path.isdir(filename) and ("_fat" not in filename) and ("/test/" not in filename) :
+            if os.path.isdir(filename) and ("_fat" not in filename) and ("/test/" not in filename) and os.path.basename(filename) == "src":
                 print(filename)
                 input_dir = filename
 
@@ -40,11 +42,12 @@ def main():
     minutes = c.total_seconds() / 60
     print('Total difference in minutes: ', minutes)
 
-    os.chdir(root_dir)
-    os.system(f"git config --global --add safe.directory '*' ")
-    print("formatting code")
+    ## formatting code
+    #os.chdir(root_dir)
+    #os.system(f"git config --global --add safe.directory '*' ")
+    #print("formatting code")
 
-    os.system(f"git diff -U0 HEAD | python {cwd}\\google-java-format-diff.py -p1 -i --google-java-format-jar {cwd}\\google-java-format-1.17.0.jar")
+    #os.system(f"git diff -U0 HEAD | python {cwd}\\google-java-format-diff.py -p1 -i --google-java-format-jar {cwd}\\google-java-format-1.17.0.jar")
 
 if __name__ == "__main__":
     main()
