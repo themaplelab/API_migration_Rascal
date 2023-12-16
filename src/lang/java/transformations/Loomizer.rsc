@@ -1,4 +1,4 @@
-module lang::java::transformations::junit::Imports
+module lang::java::transformations::Loomizer
 import IO;
 import ParseTree;
 import util::Maybe;
@@ -21,7 +21,7 @@ CompilationUnit compilationUnit;
 loc locFile;
 datetime startedTIme;
 
-public CompilationUnit executeImportsTransformation(CompilationUnit unit, loc file) {
+public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file) {
 	startedTIme = now();
 	println("startedTIme: <startedTIme>");
 	classVariableNameTypeMap = ( );

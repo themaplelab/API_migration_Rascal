@@ -1,17 +1,16 @@
-## JUnit 5 migrations
+## Loomizer
 
-A set of Rascal transformations for helping
-developers to migrate JUnit 4 test cases to JUnit 5.
+A set of Rascal transformations for helping developers to migrate traditional java threads to Loom API virtual threads.
 
 ### Requirements
 
    * Python 3
-   * Java 8
+   * Java 19+
 
 ### Build and run
 
-   * Clone this repository (`git clone git@github.com:PAMunb/JUnit5Migration.git`)
-   * Change to the JUnit5Migration folder (`cd JUnit5Migration`) 
+   * Clone this repository (`git clone git@github.com:themaplelab/Loomizer.git`)
+   * Change to the JUnit5Migration folder (`cd Loomizer`) 
    * Download the Rascal shell (`wget https://update.rascal-mpl.org/console/rascal-shell-stable.jar`)
    * Execute the `driver.py` script:
 
