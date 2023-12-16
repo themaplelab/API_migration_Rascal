@@ -29,7 +29,6 @@ def main():
 
                 os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::MainProgram -path {input_dir}")
 
-                logging.info("Formatting the source code")
                 logging.info("done")
         except FileNotFoundError:
             continue

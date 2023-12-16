@@ -10,16 +10,12 @@ import String;
 list[loc] findAllJavaFiles(loc location, str ext) {
   res = [];
   list[loc] allFiles = []; 
-  
-  bool isSrcFolder = false;
-
   if(isDirectory(location)) {
     allFiles = location.ls;
   }
   else {
     allFiles = [location];
   }
-
 
   for(loc l <- allFiles) {
     if(isDirectory(l)) {
