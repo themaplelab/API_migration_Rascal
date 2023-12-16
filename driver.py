@@ -1,43 +1,30 @@
 #!/usr/bin/python3
 
-import sys, os, getopt
+import os
 import logging 
-# import git
 from datetime import datetime
-# import pomMigration
-import pathlib
 currentDateAndTime = datetime.now()
 import glob
 
-usage = 'migrate.py -i <input_dir> '
-branch = 'junit5-migration'
 
-
-def main(argv):
-    cwd = os.getcwd()
-    # path to the directory with thread usages
-    # D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/com.ibm.ws.channelfw/src
-    # D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/io.openliberty.org.jboss.resteasy.mprestclient/src
-    root_dir = 'D:/Alberta/Thesis/forked_openliberty/open-liberty/dev/'
-
-
+def main():
+    root_dir = 'D:/Alberta/Thesis/codebases/forked_tomcat/tomcat/'
     current_time = datetime.now()
-  
     time_stamp = current_time.timestamp()
     print("startedTimestamp:-", time_stamp)
     listOfFiles = []
-    for filename in glob.iglob(root_dir + '**/**', recursive=True):
+    for filename in glob.iglob(root_dir + '**/**', recursive=False):
         try:
             if filename in listOfFiles:
                 break
             listOfFiles.append(filename)
-            if os.path.isdir(filename) and ("_fat" not in filename) and ("/test/" not in filename) and os.path.basename(filename) == "src":
+            if os.path.isdir(filename) and ("_fat" not in filename) and ("/test/" not in filename) :
                 print(filename)
                 input_dir = filename
 
                 logging.info("Executing the migrations")
 
-                os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::junit::MainProgram -path {input_dir}")
+                os.system(f"java -Xmx4G -Xss1G -jar rascal-shell-stable.jar lang::java::transformations::MainProgram -path {input_dir}")
 
                 logging.info("Formatting the source code")
                 logging.info("done")
@@ -47,17 +34,14 @@ def main(argv):
   
     time_stamp1 = current_time1.timestamp()
     print("endedTimestamp:-", time_stamp1)
-    c = time_stamp1-time_stamp 
+    c = current_time1-current_time 
     print('Difference: ', c)
     
     minutes = c.total_seconds() / 60
     print('Total difference in minutes: ', minutes)
-    
-    # returns the difference of the time of the day
-    minutes = c.seconds / 60
-    print('Difference in minutes: ', minutes)
+
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
 
 
     

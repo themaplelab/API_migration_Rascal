@@ -1,4 +1,4 @@
-module lang::java::transformations::junit::MainProgram
+module lang::java::transformations::MainProgram
 
 import IO; 
 import List; 
@@ -10,7 +10,7 @@ import Set;
 import util::IOUtil;
 import util::Benchmark;
 import lang::java::\syntax::Java18;
-import lang::java::transformations::junit::Imports;
+import lang::java::transformations::Loomizer;
 
 data Transformation = transformation(str name, CompilationUnit (CompilationUnit) function);
 loc file;
@@ -23,12 +23,12 @@ public void main(str path = "") {
        println("Invalid path <path>"); 
        return; 
     }
-	list[loc] allFiles = findAllTestFiles(base, "java", false); 
+	list[loc] allFiles = findAllJavaFiles(base, "java"); 
 
 	int errors = 0; 
 
   list[Transformation] transformations = [
-    transformation("Imports", importsTransform)
+    transformation("Loomizer", loomTransform)
   ];
 
   map[str, int] transformationCount = initTransformationsCount(transformations);
@@ -105,8 +105,8 @@ public tuple[CompilationUnit, int, map[str, int]] applyTransformations(
   return <unit, totalTransformationCount, transformationCount>;
 }
 
-private CompilationUnit importsTransform(CompilationUnit c) {
+private CompilationUnit loomTransform(CompilationUnit c) {
   println("fileFound: <file>");
-  c = executeImportsTransformation(c, file);
+  c = executeLoomTransformation(c, file);
   return c;
 }

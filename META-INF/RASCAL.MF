@@ -1,7 +1,7 @@
 Manifest-Version: 0.0.1
 Main-Function: main
 Courses: courses
-Project-Name: RefactoringJUnit5
+Project-Name: Loomizer
 Require-Libraries: 
 Main-Module: Plugin
 Source: src
