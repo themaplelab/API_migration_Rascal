@@ -8,6 +8,7 @@ import glob
 
 
 def main():
+    cwd = os.getcwd()
     root_dir = 'D:/Alberta/Thesis/codebases/forked_tomcat/tomcat/'
     current_time = datetime.now()
     time_stamp = current_time.timestamp()
@@ -31,7 +32,6 @@ def main():
         except FileNotFoundError:
             continue
     current_time1 = datetime.now()
-  
     time_stamp1 = current_time1.timestamp()
     print("endedTimestamp:-", time_stamp1)
     c = current_time1-current_time 
@@ -39,6 +39,12 @@ def main():
     
     minutes = c.total_seconds() / 60
     print('Total difference in minutes: ', minutes)
+
+    os.chdir(root_dir)
+    os.system(f"git config --global --add safe.directory '*' ")
+    print("formatting code")
+
+    os.system(f"git diff -U0 HEAD | python {cwd}\\google-java-format-diff.py -p1 -i --google-java-format-jar {cwd}\\google-java-format-1.17.0.jar")
 
 if __name__ == "__main__":
     main()
