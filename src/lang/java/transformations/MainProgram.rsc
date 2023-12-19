@@ -31,21 +31,13 @@ public void main(str path = "") {
     transformation("Loomizer", loomTransform)
   ];
 
-  map[str, int] transformationCount = initTransformationsCount(transformations);
-  int totalTransformationCount = 0;
-
   try{
       CompilationUnit transformedUnit;
       for(loc f <- allFiles) {
         try {
           str content = readFile(f);  
           file = f;
-          <transformedUnit, totalTransformationCount, transformationCount> = applyTransformations(
-              content, 
-              totalTransformationCount, 
-              transformationCount,
-              transformations
-            );
+          <transformedUnit> = applyTransformations(content, transformations);
           if (unparse(transformedUnit) != "") {
             writeFile(f, transformedUnit);
           }
@@ -56,30 +48,13 @@ public void main(str path = "") {
       }
   } catch:{
     errors = errors + 1;
-
   }
-
-	for(str transformationName <- transformationCount) {
-    println("<transformationName> rule: <transformationCount[transformationName]> transformation(s)");
-  }
-
-	println("Total transformations applied: <totalTransformationCount>");
 	println("Files with error: <errors>");	
-	println("Number of files: <size(allFiles)>");  
   int endTime = realTime();
   println("endTime: <endTime>");
 }
 
-public map[str, int] initTransformationsCount(list[Transformation] transformations) {
-  return (( ) | it + (t.name : 0) | Transformation t <- transformations);
-}
-
-public tuple[CompilationUnit, int, map[str, int]] applyTransformations(
-    str code,
-    int totalTransformationCount,
-    map[str, int] transformationCount,
-    list[Transformation] transformations
-  ) {
+public tuple[CompilationUnit] applyTransformations(str code, list[Transformation] transformations) {
   println("applyTransformations_started");  
   CompilationUnit unit;
   try{
@@ -88,21 +63,16 @@ public tuple[CompilationUnit, int, map[str, int]] applyTransformations(
   catch: {
     unit = parse(#CompilationUnit, "");
     println("caughtException: <unit>");
-    return <unit, totalTransformationCount, transformationCount>;
+    return <unit>;
   }
-  println("importsTransformFile: ");
-
   for(Transformation transformation <- transformations) {
     CompilationUnit transformedUnit = transformation.function(unit);
     if(unit != transformedUnit) {
       println("Transformed! <transformation.name>");
-      transformationCount[transformation.name] += 1;
-      totalTransformationCount += 1;
     }
     unit = transformedUnit;
   }
-
-  return <unit, totalTransformationCount, transformationCount>;
+  return <unit>;
 }
 
 private CompilationUnit loomTransform(CompilationUnit c) {
