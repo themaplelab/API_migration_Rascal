@@ -21,29 +21,40 @@ CompilationUnit compilationUnit;
 loc locFile;
 datetime startedTIme;
 
+/* executing both detection and transformation 
+*  each compilationUnit corresponding to each java file and location of the file are passed as arguments
+*/
 public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file) {
 	startedTIme = now();
 	println("startedTIme: <startedTIme>");
+	// This map is maintained to add class level declared variables
 	classVariableNameTypeMap = ( );
+	// This map is maintained to add method level variables and arguments passed in
 	variableNameTypeMap = ( );
+	// The following map is responsible to store the method name and the return tpe
 	methodTypeMap = ( );
 	println("transformation started: <file>");
 	compilationUnit = unit;
 	locFile = file;
 	isThreadFacImportNeeded = false;
 	unit = extractMethodsAndPatterns(unit, file);
+	/* If the thread factory is used during the transformations, it needs to be imported */
 	if (isThreadFacImportNeeded) {
 		unit = updateImports(unit);
 	}
 	return unit;
 }
 
+/* core of the loomizer where traversing through all the elements
+*  detection and then transformation happens
+*/
 public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file) {
   datetime methodTime = now();
   println("class file extraction started: <methodTime>");
   MethodDeclaration previousMethodDeclaration; 
   int count = 0;
   unit = top-down visit(unit) {
+	// extracting class variables
 	case FieldDeclaration f: {
 		UnannType vType;
 		VariableDeclaratorId name;
@@ -57,6 +68,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		classVariableNameTypeMap += (name : vType);
 	}
+	// go through each method
 	case MethodDeclaration b : {
 		count += 1;
 		if (count > 1 && contains(unparse(previousMethodDeclaration), unparse(b))) {
@@ -82,6 +94,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 										name = s;
 									}
 								}
+								// store names and types of arguments in each method in the following map
 								variableNameTypeMap += (name : vType);
 							}
 							case Identifier i: {
@@ -96,6 +109,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				}
 				methodTypeMap += (methodName : returnType );
 			}
+			// variables declared within the method are considered
 			case LocalVariableDeclaration lvd: { 
 				UnannType vType;
 				VariableDeclaratorId name;
@@ -120,10 +134,11 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		map[str, Expression] typesOfArguments = ( );
 
 		list[ArgumentList] argumentList = [];
+		// extract argument list
 		top-down visit(blockstatementExp) {
 			case ArgumentList argList : argumentList += argList; 
 		}
-		
+		//get types of arguments
 		typesOfArguments = getTypesOfArguments(argumentList);
 		int numberOfArguments = size(typesOfArguments);
 		list[str] types = toList(typesOfArguments<0>);
@@ -134,8 +149,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		if (numberOfTypes == 1) {
 			if (types[0] == "Runnable") {
 				Expression argument0 = typesOfArguments["Runnable"];
-				str assertAllInvocationArguments = unparse(argument0);
-				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				str expressionArgument = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
 			} else {
@@ -143,8 +158,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				println("typeOfArgFinal2: <typeOfArg>");
 				if (typeOfArg == "Runnable") {
 					Expression argument0 = typesOfArguments[types[0]];
-					str assertAllInvocationArguments = unparse(argument0);
-					ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+					str expressionArgument = unparse(argument0);
+					ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 					replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 					isReplacement = true;
 				}
@@ -176,8 +191,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				for(str tId <- typesOfArguments) {
 					if (tId == "Runnable") {
 						Expression argument0 = typesOfArguments[tId];
-						str assertAllInvocationArguments = unparse(argument0);
-						ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+						str expressionArgument = unparse(argument0);
+						ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 						replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 						isReplacement = true;
 						break;
@@ -185,14 +200,14 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				}
 			} else if (types[0] == "ThreadGroup" && (types[1] != "String" && types[1] != "Runnable")) {
 				Expression argument0 = typesOfArguments[types[1]];
-				str assertAllInvocationArguments = unparse(argument0);
-				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				str expressionArgument = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
 			} else if (types[1] == "ThreadGroup" && (types[0] != "String" && types[0] != "Runnable")) {
 				Expression argument0 = typesOfArguments[types[0]];
-				str assertAllInvocationArguments = unparse(argument0);
-				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				str expressionArgument = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
 			} else if ((types[0] == "Runnable" && (types[1] == "String" || types[1] == "StringBuffer")) || ((types[0] == "String" || types[0] == "StringBuffer") && types[1] == "Runnable")) {
@@ -257,8 +272,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		if (numberOfTypes == 1) {
 			if (types[0] == "Runnable") {
 				Expression argument0 = typesOfArguments["Runnable"];
-				str assertAllInvocationArguments = unparse(argument0);
-				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				str expressionArgument = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
 			} else {
@@ -266,8 +281,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				println("typeOfArgFinal1: <typeOfArg>");
 				if (typeOfArg == "Runnable") {
 					Expression argument0 = typesOfArguments[types[0]];
-					str assertAllInvocationArguments = unparse(argument0);
-					ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+					str expressionArgument = unparse(argument0);
+					ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 					replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 					isReplacement = true;
 				}
@@ -297,8 +312,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				for(str tId <- typesOfArguments) {
 					if (tId == "Runnable") {
 						Expression argument0 = typesOfArguments[tId];
-						str assertAllInvocationArguments = unparse(argument0);
-						ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+						str expressionArgument = unparse(argument0);
+						ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 						replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 						isReplacement = true;
 						break;
@@ -306,14 +321,14 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				}
 			} else if (type0 == "ThreadGroup" && (type1 != "String" && type1 != "Runnable")) {
 				Expression argument0 = typesOfArguments[type1];
-				str assertAllInvocationArguments = unparse(argument0);
-				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				str expressionArgument = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
 			} else if (type1 == "ThreadGroup" && (type0 != "String" && type0 != "Runnable")) {
 				Expression argument0 = typesOfArguments[type0];
-				str assertAllInvocationArguments = unparse(argument0);
-				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				str expressionArgument = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
 			} else if ((type0 == "Runnable" && ( type1 == "String" || type1 == "StringBuffer" )) || ((type0 == "String" || type0 == "StringBuffer") && type1 == "Runnable")) {
@@ -377,8 +392,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		if (numberOfTypes == 1) {
 			if (types[0] == "Runnable") {
 				Expression argument0 = typesOfArguments["Runnable"];
-				str assertAllInvocationArguments = unparse(argument0);
-				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				str expressionArgument = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 				replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
 				isReplacement = true;
 			} else {
@@ -386,8 +401,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				println("typeOfArgFinal: <typeOfArg>");
 				if (typeOfArg == "Runnable") {
 					Expression argument0 = typesOfArguments[types[0]];
-					str assertAllInvocationArguments = unparse(argument0);
-					ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+					str expressionArgument = unparse(argument0);
+					ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 					replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
 					isReplacement = true;
 				}
@@ -398,8 +413,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				for(str tId <- typesOfArguments) {
 					if (tId == "Runnable") {
 						Expression argument0 = typesOfArguments[tId];
-						str assertAllInvocationArguments = unparse(argument0);
-						ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+						str expressionArgument = unparse(argument0);
+						ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 						replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
 						isReplacement = true;
 						break;
@@ -407,14 +422,14 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				}
 			} else if (types[0] == "ThreadGroup" && (types[1] != "String" && types[1] != "Runnable")) {
 				Expression argument0 = typesOfArguments[types[1]];
-				str assertAllInvocationArguments = unparse(argument0);
-				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				str expressionArgument = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 				replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
 				isReplacement = true;
 			} else if (types[1] == "ThreadGroup" && (types[0] != "String" && types[0] != "Runnable")) {
 				Expression argument0 = typesOfArguments[types[0]];
-				str assertAllInvocationArguments = unparse(argument0);
-				ArgumentList lambdas = parse(#ArgumentList, assertAllInvocationArguments);
+				str expressionArgument = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
 				replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>)`;
 				isReplacement = true;
 			} else if ((types[0] == "Runnable" && (types[1] == "String" || types[1] == "StringBuffer")) || ((types[0] == "String" || types[0] == "StringBuffer") && types[1] == "Runnable")) {
@@ -628,12 +643,16 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   return unit;
 }
 
+/* This method goes through the imports and if it has not imported ThreadFactory, we modify the
+*  the imports by adding the specific import statement and then parse all the imports string back to 
+* Imports type.
+*/
 private CompilationUnit updateImports(CompilationUnit unit) {
 	unit = top-down visit(unit) {
 		case Imports imports : {
 			imports = top-down visit(imports) {
 				case (ImportDeclaration) `import java.util.concurrent.ThreadFactory;`: {
-					insert parse(#ImportDeclaration, unparse(imports));
+					return unit;
 				}
 			}
 			str importString = unparse(imports);
@@ -648,25 +667,31 @@ private CompilationUnit updateImports(CompilationUnit unit) {
 	return unit;
 }
 
+/* The following method extracts types of arguments */
 public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList) {
 	map[str, Expression] typesOfArguments = ( );
+	//loop through each argument
 	for(ArgumentList argList <- argumentList) {
-			bool isConcatOfArgs = false;
 			top-down visit(argList) {
 				case Expression e : {
 					str unparsedExp = unparse(e);
+					// the parameter which controls if the type of the argument is found
 					bool isTypeFound = false;
+					// if the argument is a concatenation with any other variable
 					if (contains(unparsedExp, "+")) {
 						list[str] args = split("+", unparsedExp);
 						for (str arg01 <- args) {
 							unparsedExp = trim(arg01);
+							// if there is a string as an argument
 							if(startsWith(unparsedExp,"\"") && endsWith(unparsedExp, "\"") && (isTypeFound == false)) {
 								typesOfArguments += ("String" : e); 
 								isTypeFound = true;
 							}
 							if (isTypeFound == false) {
+								// loop through previously extracted variable map
 								for(VariableDeclaratorId vId <- variableNameTypeMap) {
 									str variableId = trim(unparse(vId));
+									// check if the variable starts with this.
 									if (startsWith(unparsedExp, "this.")) {
 										unparsedExp = substring(unparsedExp, 5);
 									}
@@ -683,6 +708,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									}
 								}
 								if (isTypeFound == false) {
+									// loop through previously extracted class variables
 									for(VariableDeclaratorId vId <- classVariableNameTypeMap) {
 										print("VariableDeclaratorId: <vId>");
 										str variableId = trim(unparse(vId));
@@ -702,6 +728,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 										}
 									}
 								}
+								// check if they are in generic types
 								if (isTypeFound == false) {
 									top-down visit(e) {
 										case IntegerLiteral i : { 
@@ -725,9 +752,12 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									}
 								}
 								if (isTypeFound == false) {
+									// the argument can contain a method call as well.
 									if (endsWith(unparsedExp, "()") || endsWith(unparsedExp, ")")) {
 										indexVal = findFirst(unparsedExp, "(");
+										// extract the method name
 										variableNameExt = substring(unparsedExp, 0, indexVal);
+										// loop through method type map to identify the return type of that method
 										for (str methodName <- methodTypeMap) {
 											print("methodTypeMap: <methodName> : <methodTypeMap[methodName]>: <variableNameExt>");
 											if (trim(methodName) == trim(variableNameExt)) {
@@ -744,6 +774,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 							} 
 						}
 					} else {
+						// sometimes there are arguments as "this", then we need to see interfaces of the class
 						if (trim(unparsedExp) == "this") {
 							top-down visit(compilationUnit) {
 								case NormalClassDeclaration classDec: {
@@ -841,6 +872,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 		return typesOfArguments;
 }
 
+/* this method is used to get number of arguments */
 public int getCountOfArguments(list[ArgumentList] argumentList) {
 	int count = 0;
 	for(ArgumentList argList <- argumentList) {
@@ -853,6 +885,7 @@ public int getCountOfArguments(list[ArgumentList] argumentList) {
 	return count;
 }
 
+/* this method is used to evaluate the equality of two variables */
 private bool equalUnparsed(&A argument, &B literal) {
   return unparse(argument) == unparse(literal);
 }
@@ -887,6 +920,11 @@ private str replaceLastCurlyBrace(str methodBody) {
 	return newMethodBody;
 }
 
+/* This method is used to add the last curly brace at the end of the method body section and if there
+* are comments in the beginning of the next method, rascal confuses in extracting method body and hence
+* it includes those comments as well. So, here we go through the method body in the reverse order and 
+* if it is a comment, we ignore those lines and put the final curly brace appropriately.
+*/
 private str insertLastCurlyBrace(str methodBody) {
 	list[str] lines = split("\n", methodBody);
 	bool isComment = false;
@@ -918,7 +956,12 @@ private str insertLastCurlyBrace(str methodBody) {
 }
 
 
-
+/* The following method is used when the type of argument/variable is not obvious, which is a class
+* of defined and the class itself inherits or implements an obvious known class.
+* If the class is directly inherited or implemented some known class, we use it as the type of the argument,
+* else, we go to parent class and see if it has implemented some known interface by repetitively
+* calling to the same method 5 times. 
+*/
 public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOfArgument) {
 	bool isSubClassPresentInFile = false;
 	bool isSubClassPresentInPackage = false;
