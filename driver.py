@@ -46,7 +46,7 @@ def main():
     os.system(f"git config --global --add safe.directory '*' ")
     print("formatting code")
 
-    os.system(f"git diff -U0 HEAD | python {cwd}/google-java-format-diff.py -p1 -i --google-java-format-jar {cwd}/google-java-format-1.17.0-all-deps.jar")
+    os.system(f"git diff -U0 HEAD | python {cwd}/google-java-format-diff.py -p1 -i -a --google-java-format-jar {cwd}/google-java-format-1.17.0-all-deps.jar")
 
 if __name__ == "__main__":
     main()
