@@ -15,7 +15,8 @@ def main():
     print("startedTimestamp:-", time_stamp)
     listOfFiles = []
     #make recursive parameter False for tomcat
-    #and removed base name is src and  ("/test/" not in filename) for tomcat, undertow, wildfly
+    #os.path.basename(filename) == "src"  used for Open Liberty, Wildfly and Undertow
+    #("/test/" not in filename) present only in open Liberty
     #we considered test folders in tomcat, undertow, wildfly, but not in Open Liberty; 
     #it does not matter for our experiments any how
     for filename in glob.iglob(root_dir + '**/**', recursive=True):
