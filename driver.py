@@ -14,9 +14,10 @@ def main():
     time_stamp = current_time.timestamp()
     print("startedTimestamp:-", time_stamp)
     listOfFiles = []
-    #make recursive False for tomcat
+    #make recursive parameter False for tomcat
     #and removed base name is src and  ("/test/" not in filename) for tomcat, undertow, wildfly
-    #we considered test folders in tomcat, undertow, wildfly, but not in Open Liberty
+    #we considered test folders in tomcat, undertow, wildfly, but not in Open Liberty; 
+    #it does not matter for our experiments any how
     for filename in glob.iglob(root_dir + '**/**', recursive=True):
         try:
             if filename in listOfFiles:
