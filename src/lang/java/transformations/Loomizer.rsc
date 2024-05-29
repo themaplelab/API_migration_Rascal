@@ -61,9 +61,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
 				StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
 				println("ClassInstanceCreationExpression: <exp>");
+				vId="";
+				vType="";
 				top-down visit(exp) {
-					vId="";
-					vType="";
 					case LeftHandSide id: {
 						vId = trim(unparse(id));
 						if (startsWith(vId, "this.")) {
@@ -72,7 +72,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						println("unparsedExpId: <vId>");
 					}
 					case ClassOrInterfaceTypeToInstantiate c: {
-						str vType = trim(unparse(c));
+						vType = trim(unparse(c));
 						println("unparsedExpIdC: <vType>");
 					}
 					constructorVariableNameTypeMap += (vId : vType);
