@@ -63,36 +63,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   MethodDeclaration previousMethodDeclaration; 
   int count = 0;
   unit = top-down visit(unit) {
-	case ConstructorBody b: {	
-		b = top-down visit(b) {
-			case BlockStatements bs: {
-				bs = top-down visit(bs) {
-					case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
-						StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
-						println("ClassInstanceCreationExpression: <exp>");
-						vId = "";
-						vType = "";
-						exp = top-down visit(exp) {
-							case LeftHandSide id: {
-								vId = trim(unparse(id));
-								if (startsWith(vId, "this.")) {
-									vId = substring(vId, 5);
-								}
-							}
-							case ClassOrInterfaceTypeToInstantiate c: {
-								vType = trim(unparse(c));
-							}
-						}
-						varNameAndType+=(vId: vType);
-					}
-				}
-			}
-		}
-		consThisTypeMap = varNameAndType;
-		// println("variableN: <variableN>");
-		// println("variableTy: <variableTy>");
-		//createConstructorMap(variableN, variableTy);
-	}
 	// extracting class variables
 	case FieldDeclaration f: {
 		UnannType vType;
@@ -164,6 +134,36 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			}
 		}
 		previousMethodDeclaration = b;
+	}
+	case ConstructorBody b: {	
+		b = top-down visit(b) {
+			case BlockStatements bs: {
+				bs = top-down visit(bs) {
+					case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
+						StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
+						println("ClassInstanceCreationExpression: <exp>");
+						vId = "";
+						vType = "";
+						exp = top-down visit(exp) {
+							case LeftHandSide id: {
+								vId = trim(unparse(id));
+								if (startsWith(vId, "this.")) {
+									vId = substring(vId, 5);
+								}
+							}
+							case ClassOrInterfaceTypeToInstantiate c: {
+								vType = trim(unparse(c));
+							}
+						}
+						varNameAndType+=(vId: vType);
+					}
+				}
+			}
+		}
+		consThisTypeMap = varNameAndType;
+		// println("variableN: <variableN>");
+		// println("variableTy: <variableTy>");
+		//createConstructorMap(variableN, variableTy);
 	}
 	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);` : {
 		BlockStatement blockstatementExp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);`;
