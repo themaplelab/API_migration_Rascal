@@ -57,7 +57,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   int count = 0;
   unit = top-down visit(unit) {
 	case ConstructorBody b: {
-		b = top-down visit(b) {
+		top-down visit(b) {
 			case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
 				StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
 				println("ClassInstanceCreationExpression: <exp>");
@@ -76,6 +76,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						println("unparsedExpIdC: <vType>");
 					}
 					constructorVariableNameTypeMap += (vId : vType);
+					for(str vId <- constructorVariableNameTypeMap) {
+						println("constructorVariableNameTypeMapVV: <vType> : <vId>");
+					}
 				}
 			}
 		}	
