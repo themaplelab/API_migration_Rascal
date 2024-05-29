@@ -15,6 +15,7 @@ import DateTime;
 data Argument = argument(str argType, Expression expression);
 map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
 map[VariableDeclaratorId, UnannType] classVariableNameTypeMap = ( );
+map[LeftHandSide, ClassOrInterfaceTypeToInstantiate] constructorVariableNameTypeMap = ( );
 map[str, str] methodTypeMap = ( );
 bool isThreadFacImportNeeded = false;
 CompilationUnit compilationUnit;
@@ -27,6 +28,7 @@ datetime startedTIme;
 public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file) {
 	startedTIme = now();
 	println("startedTIme: <startedTIme>");
+	constructorVariableNameTypeMap = ( );
 	// This map is maintained to add class level declared variables
 	classVariableNameTypeMap = ( );
 	// This map is maintained to add method level variables and arguments passed in
@@ -58,8 +60,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		b = top-down visit(b) {
 			case ClassInstanceCreationExpression c: {
 				println("ClassInstanceCreationExpression: <c>");
-				UnannType vType;
-				VariableDeclaratorId name;
+				ClassOrInterfaceTypeToInstantiate vType;
+				LeftHandSide name;
 				case LeftHandSide lid: {
 					name = lid;
 				}
