@@ -66,9 +66,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					   VariableDeclaratorId name;
 					case LeftHandSide id: {
 						str unparsedExp = trim(unparse(id));
-						if (startsWith(unparsedExp, "this.")) {
-							unparsedExp = substring(unparsedExp, 5);
-						}
+						
 						name = parse(#VariableDeclaratorId, unparsedExp);
 						println("unparsedExpId: <name>");
 					}
