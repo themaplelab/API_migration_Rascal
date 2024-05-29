@@ -54,6 +54,23 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   MethodDeclaration previousMethodDeclaration; 
   int count = 0;
   unit = top-down visit(unit) {
+	case ConstructorBody b: {
+		b = top-down visit(b) {
+			case ClassInstanceCreationExpression c: {
+				println("ClassInstanceCreationExpression: <c>");
+				UnannType vType;
+				VariableDeclaratorId name;
+				case LeftHandSide lid: {
+					name = lid;
+				}
+				case ClassOrInterfaceTypeToInstantiate d: {
+					vType = d;
+				}
+				constructorVariableNameTypeMap += (name : vType);
+			}
+		}	
+	}
+	println("constructorVariableNameTypeMap: <constructorVariableNameTypeMap>");
 	// extracting class variables
 	case FieldDeclaration f: {
 		UnannType vType;
