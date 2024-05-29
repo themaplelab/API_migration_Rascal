@@ -57,8 +57,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   int count = 0;
   unit = top-down visit(unit) {
 	case ConstructorBody b: {
-		vId="";
-		vType="";
+    	vId = "";
+    	vType = "";
 		b = top-down visit(b) {
 			case BlockStatements bs: {
 				bs = top-down visit(bs) {
@@ -78,13 +78,13 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 								println("unparsedExpIdC: <vType>");
 							}
 						}
+						constructorVariableNameTypeMap += (vId : vType);
 					}
 				}
-				// constructorVariableNameTypeMap += (vId : vType);	
 			}
-			
 		}
 	}
+
 	// extracting class variables
 	case FieldDeclaration f: {
 		UnannType vType;
