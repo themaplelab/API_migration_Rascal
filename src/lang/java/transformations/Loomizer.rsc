@@ -872,7 +872,8 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 								}
 							}
 							if (isTypeFound == false) {
-								for(str vId <- consThisTypeMap) {
+								int countEle = 0;
+								for(str vId <- variableN) {
 									str variableId = trim(unparse(vId));
 									if (startsWith(unparsedExp, "this.")) {
 										unparsedExp = substring(unparsedExp, 5);
@@ -886,8 +887,9 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									}
 									if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 										isTypeFound = true;
-										typesOfArguments += (trim(unparse(consThisTypeMap[vId])): e);
+										typesOfArguments += (trim(unparse(variableTy[countEle])): e);
 									}
+									countEle+=1;
 								}
 							}
 							if (isTypeFound == false) {
