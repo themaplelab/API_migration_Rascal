@@ -1093,8 +1093,9 @@ public map[str, str] createConstructorMap(list[str] vId, list[str] vType) {
     map[str, str] resultMap = ( );    
     if (size(vId) != size(vType)) {
         throw IllegalArgumentException("The lists must be of the same length");
-    }    
-    for (int i = 0; i < size(vId); i++) {
+    }
+	int numberOfTypes = size(vId);    
+    for (int i <- [0 .. numberOfTypes]) {
         resultMap += (vId[i]: vType[i]);
     }
     return resultMap;
