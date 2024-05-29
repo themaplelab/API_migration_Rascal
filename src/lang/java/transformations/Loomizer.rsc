@@ -89,7 +89,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				// constructorVariableNameTypeMap += (vId : vType);	
 			}
 		}
-		constructorVariableNameTypeMap = createConstructorMap(variableId, variableN);
+		constructorVariableNameTypeMap = createConstructorMap(variableN, variableTy);
 	}
 	// extracting class variables
 	case FieldDeclaration f: {
