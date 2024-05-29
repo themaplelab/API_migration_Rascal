@@ -56,15 +56,16 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   MethodDeclaration previousMethodDeclaration; 
   int count = 0;
   unit = top-down visit(unit) {
-	case ConstructorBody b: {
-		vId="";
-		vType="";
+	case ConstructorBody b: {	
+		list[(str, str)] tempMappings = [];
 		b = top-down visit(b) {
 			case BlockStatements bs: {
 				bs = top-down visit(bs) {
 					case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
 						StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
 						println("ClassInstanceCreationExpression: <exp>");
+						vId="";
+						vType="";
 						exp = top-down visit(exp) {
 							case LeftHandSide id: {
 								vId = trim(unparse(id));
@@ -78,6 +79,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 								println("unparsedExpIdC: <vType>");
 							}
 						}
+						tempMappings += [(vId, vType)];
 					}
 				}
 				// constructorVariableNameTypeMap += (vId : vType);	
