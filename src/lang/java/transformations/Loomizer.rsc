@@ -679,7 +679,7 @@ private CompilationUnit updateImports(CompilationUnit unit) {
 
 public void extractInstanceVariables(CompilationUnit unit) {
 	map[str, str] varNameAndType = ( );
-	unit = top-down visit(unit) {
+	top-down visit(unit) {
 		case ConstructorBody b: {	
 			b = top-down visit(b) {
 				case BlockStatements bs: {
@@ -708,7 +708,6 @@ public void extractInstanceVariables(CompilationUnit unit) {
 			consThisTypeMap = varNameAndType;
 		}
 	}
-	return unit;
 }
 
 /* The following method extracts types of arguments */
