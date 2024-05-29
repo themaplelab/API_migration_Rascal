@@ -67,11 +67,11 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					case LeftHandSide id : {
 						String unparsedExp = unparse(id);
 						unparsedExp = substring(unparsedExp, 5);
-						name = (#VariableDeclaratorId, unparsedExp);
+						name = parse(#VariableDeclaratorId, unparsedExp);
 					}
 					case ClassOrInterfaceTypeToInstantiate c : {
 						String unparsedExp = unparse(c);
-						vType = (#UnannType, unparsedExp);
+						vType = parse(#UnannType, unparsedExp);
 					}
 					constructorVariableNameTypeMap += (name : vType);
 				}
