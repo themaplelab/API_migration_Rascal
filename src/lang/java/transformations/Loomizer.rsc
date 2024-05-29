@@ -812,7 +812,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									} 
 								}
 							}	
-						} else if {
+						} else {
 							for(VariableDeclaratorId vId <- variableNameTypeMap) {
 								str variableId = trim(unparse(vId));
 								if (startsWith(unparsedExp, "this.")) {
@@ -884,24 +884,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									}
 								}
 							}
-						} else {
-							top-down visit(compilationUnit) {
-								case NormalClassDeclaration classDec: {
-									top-down visit(classDec) {
-										case Superinterfaces su: {
-											top-down visit(su) {
-												case InterfaceType interfaceType: {
-													if (trim(unparse(interfaceType)) == "Runnable") {
-														typesOfArguments += ("Runnable" : e); 
-														isTypeFound = true;
-													}
-												}
-											}
-										} 
-									} 
-								}
-							}	
-						} 
+						}
 					}
 				}
 			}
@@ -1014,21 +997,11 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 					if (typeOfArg == "") {
 						top-down visit(classDec) {
 							case Identifier id: {
-								if (startsWith(argName, "this.")) {
-                                    argName = substring(argName, 5);
-                                }
-                                println("NormalClassDeclarationId: <id> : <argName>");
-                                if (trim(unparse(id)) == trim(argName) && count == 0) {
+								if (trim(unparse(id)) == trim(argName) && count == 0) {
                                     isSubClassPresentInFile = true;
                                     break;
                                 }
-                                else if (trim(unparse(id)) == trim(argName) ) {
-                                    isSubClassPresentInFileMulticlass = true;
-                                    break;
-                                }
-                                println("NormalClassDeclarationBool: <isSubClassPresentInFile>");
-                                println("isSubClassPresentInFileMulticlass: <isSubClassPresentInFileMulticlass>");
-								count+=1;
+                                count+=1;
 							}
 							case Superinterfaces su: {
 								if (isSubClassPresentInFile && typeOfArg == "") {
