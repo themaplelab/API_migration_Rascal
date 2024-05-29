@@ -80,7 +80,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						}
 					}
 				}
-				constructorVariableNameTypeMap += (vId : vType);	
+				// constructorVariableNameTypeMap += (vId : vType);	
 			}
 			
 		}
