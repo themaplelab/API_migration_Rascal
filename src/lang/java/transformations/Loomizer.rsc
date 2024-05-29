@@ -77,7 +77,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					}
 					constructorVariableNameTypeMap += (vId : vType);
 				}
-				println("constructorVariableNameTypeMap: <constructorVariableNameTypeMap>");	
 			}
 		}	
 	}
@@ -414,6 +413,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		int numberOfArguments = size(typesOfArguments);
 		list[str] types = toList(typesOfArguments<0>);
 		int numberOfTypes = size(types);
+		println("types: <types>");
 		StatementExpression replacingExpression;
 		bool isReplacement = false;
 		if (numberOfTypes == 1) {
