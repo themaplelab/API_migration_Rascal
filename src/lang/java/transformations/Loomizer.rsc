@@ -1089,16 +1089,14 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 	return typeOfArg;
 }
 
-public map[str, str] createConstructorMap(list[str] vId, list[str] vType) {
-    map[str, str] resultMap = ( );    
+public void createConstructorMap(list[str] vId, list[str] vType) {
     if (size(vId) != size(vType)) {
         throw IllegalArgumentException("The lists must be of the same length");
     }
 	int numberOfTypes = size(vId);    
     for (int i <- [0 .. numberOfTypes]) {
-        resultMap += (vId[i]: vType[i]);
+        constructorVariableNameTypeMap += (vId[i]: vType[i]);
     }
-    return resultMap;
 }
     
 
