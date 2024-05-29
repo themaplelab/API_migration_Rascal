@@ -75,10 +75,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						vType = trim(unparse(c));
 						println("unparsedExpIdC: <vType>");
 					}
-					constructorVariableNameTypeMap += (vId : vType);
-					for(str vId <- constructorVariableNameTypeMap) {
-						println("constructorVariableNameTypeMapVV: <vType> : <vId>");
-					}
+					// constructorVariableNameTypeMap += (vId : vType);
+					// for(str vId <- constructorVariableNameTypeMap) {
+					// 	println("constructorVariableNameTypeMapVV: <vType> : <vId>");
+					// }
 				}
 			}
 		}	
