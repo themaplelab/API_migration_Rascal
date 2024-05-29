@@ -75,11 +75,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 								if (startsWith(vId, "this.")) {
 									vId = substring(vId, 5);
 								}
-								println("unparsedExpId: <vId>");
 							}
 							case ClassOrInterfaceTypeToInstantiate c: {
 								vType = trim(unparse(c));
-								println("unparsedExpIdC: <vType>");
 							}
 						}
 						variableNameTypeMap+=(vId: vType);
