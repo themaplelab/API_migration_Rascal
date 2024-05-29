@@ -62,19 +62,22 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
 				println("ClassInstanceCreationExpression: <exp>");
 				top-down visit(exp) {
+					str vId;
+					str vType;
 					case LeftHandSide id: {
-						str unparsedExp = trim(unparse(id));
-						if (startsWith(unparsedExp, "this.")) {
-							unparsedExp = substring(unparsedExp, 5);
+						vId = trim(unparse(id));
+						if (startsWith(vId, "this.")) {
+							vId = substring(vId, 5);
 						}
-						println("unparsedExpId: <unparsedExp>");
+						println("unparsedExpId: <vId>");
 					}
 					case ClassOrInterfaceTypeToInstantiate c: {
-						str unparsedExp = trim(unparse(c));
-						println("unparsedExpIdC: <unparsedExp>");
+						str vType = trim(unparse(c));
+						println("unparsedExpIdC: <vType>");
 					}
+					constructorVariableNameTypeMap += (vId : vType);
 				}
-				//println("constructorVariableNameTypeMap: <constructorVariableNameTypeMap>");	
+				println("constructorVariableNameTypeMap: <constructorVariableNameTypeMap>");	
 			}
 		}	
 	}
@@ -850,6 +853,25 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 										isTypeFound = true;
 										typesOfArguments += (trim(unparse(classVariableNameTypeMap[vId])): e);
+									}
+								}
+							}
+							if (isTypeFound == false) {
+								for(str vId <- constructorVariableNameTypeMap) {
+									str variableId = trim(unparse(vId));
+									if (startsWith(unparsedExp, "this.")) {
+										unparsedExp = substring(unparsedExp, 5);
+									}
+									if (startsWith(variableId, "this.")) {
+										variableId = substring(variableId, 5);
+									}
+									if (endsWith(unparsedExp, ".toString()")) {
+										typesOfArguments += ("String" : e); 
+										isTypeFound = true;
+									}
+									if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
+										isTypeFound = true;
+										typesOfArguments += (trim(unparse(constructorVariableNameTypeMap[vId])): e);
 									}
 								}
 							}
