@@ -848,8 +848,8 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 								}
 								if (vId == trim(unparsedExp) && (isTypeFound == false)) {
 									isTypeFound = true;
-									println("consVid: <vId> : <unparsedExp> type found");
-									typesOfArguments += (trim(unparse(consThisTypeMap[vId])): e);
+									println("consVid: <consThisTypeMap[vId]> : <unparsedExp> type found");
+									typesOfArguments += (consThisTypeMap[vId]: e);
 								}
 							}
 							if (isTypeFound == false) {
@@ -927,6 +927,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									}
 								}
 							}
+							println("typesOfArguments: <size(typesOfArguments)>");
 						}
 					}
 				}
