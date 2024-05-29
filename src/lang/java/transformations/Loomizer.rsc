@@ -15,7 +15,7 @@ import DateTime;
 data Argument = argument(str argType, Expression expression);
 map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
 map[VariableDeclaratorId, UnannType] classVariableNameTypeMap = ( );
-map[LeftHandSide, ClassOrInterfaceTypeToInstantiate] constructorVariableNameTypeMap = ( );
+map[VariableDeclaratorId, UnannType] constructorVariableNameTypeMap = ( );
 map[str, str] methodTypeMap = ( );
 bool isThreadFacImportNeeded = false;
 CompilationUnit compilationUnit;
@@ -61,7 +61,21 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
 				StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
 				println("ClassInstanceCreationExpression: <exp>");
-	
+				UnannType vType;
+				VariableDeclaratorId name;
+				top-down visit(exp) {
+					case LeftHandSide id : {
+						String unparsedExp = unparse(id);
+						unparsedExp = substring(unparsedExp, 5);
+						name = (#VariableDeclaratorId, unparsedExp);
+					}
+					case ClassOrInterfaceTypeToInstantiate c : {
+						String unparsedExp = unparse(c);
+						vType = (#UnannType, unparsedExp);
+					}
+					constructorVariableNameTypeMap += (name : vType);
+				}
+				println("constructorVariableNameTypeMap: <constructorVariableNameTypeMap>");	
 			}
 		}	
 	}
