@@ -63,16 +63,17 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				ClassOrInterfaceTypeToInstantiate vType;
 				LeftHandSide name;
 				case LeftHandSide lid: {
+					println("lid: <lid>");
 					name = lid;
 				}
 				case ClassOrInterfaceTypeToInstantiate d: {
+					println("liclasd: <d>");
 					vType = d;
 				}
 				constructorVariableNameTypeMap += (name : vType);
 			}
 		}	
 	}
-	println("constructorVariableNameTypeMap: <constructorVariableNameTypeMap>");
 	// extracting class variables
 	case FieldDeclaration f: {
 		UnannType vType;
