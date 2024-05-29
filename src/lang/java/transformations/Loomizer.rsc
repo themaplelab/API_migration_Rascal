@@ -74,13 +74,11 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					case ClassOrInterfaceTypeToInstantiate c: {
 						vType = trim(unparse(c));
 						println("unparsedExpIdC: <vType>");
-						if (vId!="") {
-							constructorVariableNameTypeMap += (vId : vType);
-						}
 					}
 				}
 			}
-		}	
+		}
+		constructorVariableNameTypeMap += (vId : vType);	
 	}
 	// extracting class variables
 	case FieldDeclaration f: {
