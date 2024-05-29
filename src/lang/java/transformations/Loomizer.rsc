@@ -28,6 +28,8 @@ public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file)
 	startedTIme = now();
 	println("startedTIme: <startedTIme>");
 	// This map is maintained to add class level declared variables
+	constructorVariableNameTypeMap = ( );
+	// This map is maintained to add class level declared variables
 	classVariableNameTypeMap = ( );
 	// This map is maintained to add method level variables and arguments passed in
 	variableNameTypeMap = ( );
@@ -54,6 +56,23 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   MethodDeclaration previousMethodDeclaration; 
   int count = 0;
   unit = top-down visit(unit) {
+	case ConstructorBody b: {
+		b = top-down visit(b) {
+			case ClassInstanceCreationExpression c: {
+				println("ClassInstanceCreationExpression: <c>");
+				UnannType vType;
+				VariableDeclaratorId name;
+				case LeftHandSide lid: {
+					name = lid;
+				}
+				case ClassOrInterfaceTypeToInstantiate d: {
+					vType = d;
+				}
+				constructorVariableNameTypeMap += (name : vType);
+			}
+		}	
+	}
+	println("constructorVariableNameTypeMap: <constructorVariableNameTypeMap>");
 	// extracting class variables
 	case FieldDeclaration f: {
 		UnannType vType;
@@ -386,6 +405,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		typesOfArguments = getTypesOfArguments(argumentList);
 		int numberOfArguments = size(typesOfArguments);
 		list[str] types = toList(typesOfArguments<0>);
+		println("types: <types>");
 		int numberOfTypes = size(types);
 		StatementExpression replacingExpression;
 		bool isReplacement = false;
@@ -792,7 +812,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									} 
 								}
 							}	
-						} else {
+						} else if {
 							for(VariableDeclaratorId vId <- variableNameTypeMap) {
 								str variableId = trim(unparse(vId));
 								if (startsWith(unparsedExp, "this.")) {
@@ -864,7 +884,24 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									}
 								}
 							}
-						}
+						} else {
+							top-down visit(compilationUnit) {
+								case NormalClassDeclaration classDec: {
+									top-down visit(classDec) {
+										case Superinterfaces su: {
+											top-down visit(su) {
+												case InterfaceType interfaceType: {
+													if (trim(unparse(interfaceType)) == "Runnable") {
+														typesOfArguments += ("Runnable" : e); 
+														isTypeFound = true;
+													}
+												}
+											}
+										} 
+									} 
+								}
+							}	
+						} 
 					}
 				}
 			}
@@ -965,19 +1002,32 @@ private str insertLastCurlyBrace(str methodBody) {
 public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOfArgument) {
 	bool isSubClassPresentInFile = false;
 	bool isSubClassPresentInPackage = false;
+	bool isSubClassPresentInFileMulticlass = false;
 	bool isImportedType = false;
 	str typeOfArg = typeOfArgument;
 	int count = 0;
 	while ( typeOfArg == "" ) {
 			top-down visit(unit) {
 				case NormalClassDeclaration classDec: {
+					println("NormalClassDeclaration: <classDec>");
 					int count = 0;
 					if (typeOfArg == "") {
 						top-down visit(classDec) {
 							case Identifier id: {
-								if (trim(unparse(id)) == trim(argName) && count == 0) {
-									isSubClassPresentInFile = true;
-								}
+								if (startsWith(argName, "this.")) {
+                                    argName = substring(argName, 5);
+                                }
+                                println("NormalClassDeclarationId: <id> : <argName>");
+                                if (trim(unparse(id)) == trim(argName) && count == 0) {
+                                    isSubClassPresentInFile = true;
+                                    break;
+                                }
+                                else if (trim(unparse(id)) == trim(argName) ) {
+                                    isSubClassPresentInFileMulticlass = true;
+                                    break;
+                                }
+                                println("NormalClassDeclarationBool: <isSubClassPresentInFile>");
+                                println("isSubClassPresentInFileMulticlass: <isSubClassPresentInFileMulticlass>");
 								count+=1;
 							}
 							case Superinterfaces su: {
