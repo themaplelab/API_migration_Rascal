@@ -60,15 +60,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		b = top-down visit(b) {
 			case ClassInstanceCreationExpression c: {
 				println("ClassInstanceCreationExpression: <c>");
-				ClassOrInterfaceTypeToInstantiate vType;
-				LeftHandSide name;
-				case LeftHandSide lid: {
-					name = lid;
-				}
-				case ClassOrInterfaceTypeToInstantiate d: {
-					vType = d;
-				}
-				constructorVariableNameTypeMap += (name : vType);
+	
 			}
 		}	
 	}
