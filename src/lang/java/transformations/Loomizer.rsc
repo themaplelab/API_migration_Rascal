@@ -15,7 +15,7 @@ import DateTime;
 data Argument = argument(str argType, Expression expression);
 map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
 map[VariableDeclaratorId, UnannType] classVariableNameTypeMap = ( );
-map[VariableDeclaratorId, UnannType] constructorVariableNameTypeMap = ( );
+map[str, str] constructorVariableNameTypeMap = ( );
 map[str, str] methodTypeMap = ( );
 bool isThreadFacImportNeeded = false;
 CompilationUnit compilationUnit;
