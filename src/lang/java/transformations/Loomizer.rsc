@@ -82,7 +82,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 								vType = trim(unparse(c));
 							}
 						}
-						variableNameTypeMap+=(vId: vType);
+						varNameAndType+=(vId: vType);
 					}
 				}
 			}
