@@ -700,10 +700,9 @@ public map[str, str] extractInstanceVariables(CompilationUnit unit) {
 		}
 	}
 	// consThisTypeMap = varNameAndType;
-	// for(str vId <- consThisTypeMap) {
-	// 	str variableId = trim(unparse(vId));
-	// 	println("variId: <variableId>");
-	// }
+	for(str vId <- consThisTypeMap) {
+		println("variId: <vId>");
+	}
 	return consThisTypeMap;
 }
 
