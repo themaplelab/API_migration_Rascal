@@ -705,9 +705,9 @@ public void extractInstanceVariables(CompilationUnit unit) {
 					}
 				}
 			}
-			consThisTypeMap = varNameAndType;
 		}
 	}
+	consThisTypeMap = varNameAndType;
 }
 
 /* The following method extracts types of arguments */
