@@ -44,7 +44,7 @@ public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file)
 	compilationUnit = unit;
 	locFile = file;
 	isThreadFacImportNeeded = false;
-	extractInstanceVariables(unit);
+	unit = extractInstanceVariables(unit);
 	unit = extractMethodsAndPatterns(unit, file);
 	/* If the thread factory is used during the transformations, it needs to be imported */
 	if (isThreadFacImportNeeded) {
@@ -677,7 +677,7 @@ private CompilationUnit updateImports(CompilationUnit unit) {
 }
 
 
-public void extractInstanceVariables(CompilationUnit unit) {
+public CompilationUnit extractInstanceVariables(CompilationUnit unit) {
 	println("extractInstanceVariables started");
 	// map[str, str] varNameAndType = ( );
 	unit = top-down visit(unit) {
@@ -705,10 +705,12 @@ public void extractInstanceVariables(CompilationUnit unit) {
 	// 	str variableId = trim(unparse(vId));
 	// 	println("variId: <variableId>");
 	// }
+	return unit;
 }
 
 /* The following method extracts types of arguments */
 public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList) {
+	println("getTypesOfArguments method started");
 	map[str, Expression] typesOfArguments = ( );
 	//loop through each argument
 	for(ArgumentList argList <- argumentList) {
@@ -834,6 +836,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 							}	
 						} else {
 							for(str vId <- consThisTypeMap) {
+								println("consVid: <vId>");
 								str variableId = trim(unparse(vId));
 								if (startsWith(unparsedExp, "this.")) {
 									unparsedExp = substring(unparsedExp, 5);
