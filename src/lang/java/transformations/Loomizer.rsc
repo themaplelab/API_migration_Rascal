@@ -20,7 +20,6 @@ map[str, str] consThisTypeMap = ( );
 list[str] variableN = [];
 list[str] variableTy = [];
 bool isThreadFacImportNeeded = false;
-map[str, str] varNameAndType = ( );
 CompilationUnit compilationUnit;
 loc locFile;
 datetime startedTIme;
@@ -35,7 +34,6 @@ public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file)
 	classVariableNameTypeMap = ( );
 	// This map is maintained to add method level variables and arguments passed in
 	variableNameTypeMap = ( );
-	varNameAndType = ( );
 	// The following map is responsible to store the method name and the return tpe
 	methodTypeMap = ( );
 	// The following map is responsible to store the constructor instance var name and the data tpe
@@ -46,6 +44,7 @@ public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file)
 	compilationUnit = unit;
 	locFile = file;
 	isThreadFacImportNeeded = false;
+	extractInstanceVariables(unit);
 	unit = extractMethodsAndPatterns(unit, file);
 	/* If the thread factory is used during the transformations, it needs to be imported */
 	if (isThreadFacImportNeeded) {
@@ -59,6 +58,7 @@ public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file)
 */
 public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file) {
   datetime methodTime = now();
+  map[str, str] varNameAndType = ( );
   println("class file extraction started: <methodTime>");
   MethodDeclaration previousMethodDeclaration; 
   int count = 0;
@@ -134,36 +134,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			}
 		}
 		previousMethodDeclaration = b;
-	}
-	case ConstructorBody b: {	
-		b = top-down visit(b) {
-			case BlockStatements bs: {
-				bs = top-down visit(bs) {
-					case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
-						StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
-						println("ClassInstanceCreationExpression: <exp>");
-						vId = "";
-						vType = "";
-						exp = top-down visit(exp) {
-							case LeftHandSide id: {
-								vId = trim(unparse(id));
-								if (startsWith(vId, "this.")) {
-									vId = substring(vId, 5);
-								}
-							}
-							case ClassOrInterfaceTypeToInstantiate c: {
-								vType = trim(unparse(c));
-							}
-						}
-						varNameAndType+=(vId: vType);
-					}
-				}
-			}
-		}
-		consThisTypeMap = varNameAndType;
-		// println("variableN: <variableN>");
-		// println("variableTy: <variableTy>");
-		//createConstructorMap(variableN, variableTy);
 	}
 	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);` : {
 		BlockStatement blockstatementExp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);`;
@@ -707,6 +677,40 @@ private CompilationUnit updateImports(CompilationUnit unit) {
 	return unit;
 }
 
+
+public void extractInstanceVariables(CompilationUnit unit) {
+	unit = top-down visit(unit) {
+		case ConstructorBody b: {	
+			b = top-down visit(b) {
+				case BlockStatements bs: {
+					bs = top-down visit(bs) {
+						case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
+							StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
+							println("ClassInstanceCreationExpression: <exp>");
+							vId = "";
+							vType = "";
+							exp = top-down visit(exp) {
+								case LeftHandSide id: {
+									vId = trim(unparse(id));
+									if (startsWith(vId, "this.")) {
+										vId = substring(vId, 5);
+									}
+								}
+								case ClassOrInterfaceTypeToInstantiate c: {
+									vType = trim(unparse(c));
+								}
+							}
+							varNameAndType+=(vId: vType);
+						}
+					}
+				}
+			}
+			consThisTypeMap = varNameAndType;
+		}
+	}
+	return unit;
+}
+
 /* The following method extracts types of arguments */
 public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList) {
 	map[str, Expression] typesOfArguments = ( );
@@ -1089,16 +1093,6 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 	}
 	
 	return typeOfArg;
-}
-
-public void createConstructorMap(list[str] vId, list[str] vType) {
-    if (size(vId) != size(vType)) {
-        throw IllegalArgumentException("The lists must be of the same length");
-    }
-	int numberOfTypes = size(vId);    
-    for (int i <- [0 .. numberOfTypes]) {
-        consThisTypeMap += (vId[i]: vType[i]);
-    }
 }
     
 
