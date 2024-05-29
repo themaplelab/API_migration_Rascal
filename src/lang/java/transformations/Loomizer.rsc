@@ -88,6 +88,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				}
 			}
 		}
+		consThisTypeMap = varNameAndType;
 		// println("variableN: <variableN>");
 		// println("variableTy: <variableTy>");
 		//createConstructorMap(variableN, variableTy);
@@ -832,7 +833,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 								}
 							}	
 						} else {
-							for(str vId <- varNameAndType) {
+							for(str vId <- consThisTypeMap) {
 								str variableId = trim(unparse(vId));
 								if (startsWith(unparsedExp, "this.")) {
 									unparsedExp = substring(unparsedExp, 5);
@@ -846,7 +847,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 								}
 								if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 									isTypeFound = true;
-									typesOfArguments += (trim(unparse(varNameAndType[vId])): e);
+									typesOfArguments += (trim(unparse(consThisTypeMap[vId])): e);
 								}
 							}
 							if (isTypeFound == false) {
