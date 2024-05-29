@@ -57,38 +57,33 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   int count = 0;
   unit = top-down visit(unit) {
 	case ConstructorBody b: {
-		list[(str vId, str vType)] tempMappings = [];	
+		vId="";
+		vType="";
 		b = top-down visit(b) {
 			case BlockStatements bs: {
 				bs = top-down visit(bs) {
 					case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
 						StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
 						println("ClassInstanceCreationExpression: <exp>");
-						str localVId = "";
-						str localVType = "";
 						exp = top-down visit(exp) {
 							case LeftHandSide id: {
-								localVId = trim(unparse(id));
-								if (startsWith(localVId, "this.")) {
-									localVId = substring(localVId, 5);
+								vId = trim(unparse(id));
+								if (startsWith(vId, "this.")) {
+									vId = substring(vId, 5);
 								}
-								println("unparsedExpId: <localVId>");
+								println("unparsedExpId: <vId>");
 							}
 							case ClassOrInterfaceTypeToInstantiate c: {
-								localVType = trim(unparse(c));
-								println("unparsedExpIdC: <localVType>");
+								vType = trim(unparse(c));
+								println("unparsedExpIdC: <vType>");
 							}
 						}
-						tempMappings += [(localVId, localVType)];
 					}
 				}
+				// constructorVariableNameTypeMap += (vId : vType);	
 			}
 		}
-		for ((str id, str type) <- tempMappings) {
-			constructorVariableNameTypeMap += (id: type);
-		}
 	}
-
 	// extracting class variables
 	case FieldDeclaration f: {
 		UnannType vType;
