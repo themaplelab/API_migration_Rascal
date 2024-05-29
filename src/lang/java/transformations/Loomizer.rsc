@@ -15,8 +15,8 @@ import DateTime;
 data Argument = argument(str argType, Expression expression);
 map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
 map[VariableDeclaratorId, UnannType] classVariableNameTypeMap = ( );
-map[str, str] constructorVariableNameTypeMap = ( );
 map[str, str] methodTypeMap = ( );
+map[str, str] consThisTypeMap = ( );
 bool isThreadFacImportNeeded = false;
 CompilationUnit compilationUnit;
 loc locFile;
@@ -28,13 +28,14 @@ datetime startedTIme;
 public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file) {
 	startedTIme = now();
 	println("startedTIme: <startedTIme>");
-	constructorVariableNameTypeMap = ( );
 	// This map is maintained to add class level declared variables
 	classVariableNameTypeMap = ( );
 	// This map is maintained to add method level variables and arguments passed in
 	variableNameTypeMap = ( );
 	// The following map is responsible to store the method name and the return tpe
 	methodTypeMap = ( );
+	// The following map is responsible to store the constructor instance var name and the data tpe
+	consThisTypeMap = ( );
 	println("transformation started: <file>");
 	compilationUnit = unit;
 	locFile = file;
@@ -86,7 +87,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						}
 					}
 				}
-				// constructorVariableNameTypeMap += (vId : vType);	
 			}
 		}
 		createConstructorMap(variableN, variableTy);
@@ -868,7 +868,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 								}
 							}
 							if (isTypeFound == false) {
-								for(str vId <- constructorVariableNameTypeMap) {
+								for(str vId <- consThisTypeMap) {
 									str variableId = trim(unparse(vId));
 									if (startsWith(unparsedExp, "this.")) {
 										unparsedExp = substring(unparsedExp, 5);
@@ -882,7 +882,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									}
 									if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 										isTypeFound = true;
-										typesOfArguments += (trim(unparse(constructorVariableNameTypeMap[vId])): e);
+										typesOfArguments += (trim(unparse(consThisTypeMap[vId])): e);
 									}
 								}
 							}
@@ -1095,7 +1095,7 @@ public void createConstructorMap(list[str] vId, list[str] vType) {
     }
 	int numberOfTypes = size(vId);    
     for (int i <- [0 .. numberOfTypes]) {
-        constructorVariableNameTypeMap += (vId[i]: vType[i]);
+        consThisTypeMap += (vId[i]: vType[i]);
     }
 }
     
