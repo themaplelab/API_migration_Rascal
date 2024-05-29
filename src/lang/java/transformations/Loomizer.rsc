@@ -62,8 +62,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
 				println("ClassInstanceCreationExpression: <exp>");
 				top-down visit(exp) {
-					str vId;
-					str vType;
+					vId="";
+					vType="";
 					case LeftHandSide id: {
 						vId = trim(unparse(id));
 						if (startsWith(vId, "this.")) {
