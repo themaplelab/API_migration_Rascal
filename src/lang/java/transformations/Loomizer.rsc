@@ -58,7 +58,6 @@ public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file)
 */
 public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file) {
   datetime methodTime = now();
-  map[str, str] varNameAndType = ( );
   println("class file extraction started: <methodTime>");
   MethodDeclaration previousMethodDeclaration; 
   int count = 0;
@@ -679,6 +678,7 @@ private CompilationUnit updateImports(CompilationUnit unit) {
 
 
 public void extractInstanceVariables(CompilationUnit unit) {
+	map[str, str] varNameAndType = ( );
 	unit = top-down visit(unit) {
 		case ConstructorBody b: {	
 			b = top-down visit(b) {
