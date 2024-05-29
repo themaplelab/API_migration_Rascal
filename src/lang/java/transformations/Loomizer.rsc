@@ -834,25 +834,25 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 							}	
 						} else {
 							for(str vId <- consThisTypeMap) {
-								println("consVid: <vId>");
-								str variableId = trim(unparse(vId));
+								println("consVid: <vId> : <unparsedExp>");
 								if (startsWith(unparsedExp, "this.")) {
 									unparsedExp = substring(unparsedExp, 5);
 								}
-								if (startsWith(variableId, "this.")) {
-									variableId = substring(variableId, 5);
+								if (startsWith(vId, "this.")) {
+									vId = substring(vId, 5);
 								}
 								if (endsWith(unparsedExp, ".toString()")) {
 									typesOfArguments += ("String" : e); 
 									isTypeFound = true;
 								}
-								if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
+								if (vId == trim(unparsedExp) && (isTypeFound == false)) {
 									isTypeFound = true;
 									typesOfArguments += (trim(unparse(consThisTypeMap[vId])): e);
 								}
 							}
 							if (isTypeFound == false) {
 								for(VariableDeclaratorId vId <- variableNameTypeMap) {
+									println("local: <vId> : <unparsedExp>");
 									str variableId = trim(unparse(vId));
 									if (startsWith(unparsedExp, "this.")) {
 										unparsedExp = substring(unparsedExp, 5);
@@ -872,6 +872,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 							}
 							if (isTypeFound == false) {
 								for(VariableDeclaratorId vId <- classVariableNameTypeMap) {
+									println("class: <vId> : <unparsedExp>");
 									str variableId = trim(unparse(vId));
 									if (startsWith(unparsedExp, "this.")) {
 										unparsedExp = substring(unparsedExp, 5);
