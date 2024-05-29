@@ -17,6 +17,8 @@ map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
 map[VariableDeclaratorId, UnannType] classVariableNameTypeMap = ( );
 map[str, str] methodTypeMap = ( );
 map[str, str] consThisTypeMap = ( );
+list[str] variableN = [];
+list[str] variableTy = [];
 bool isThreadFacImportNeeded = false;
 CompilationUnit compilationUnit;
 loc locFile;
@@ -37,8 +39,8 @@ public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file)
 	// The following map is responsible to store the constructor instance var name and the data tpe
 	consThisTypeMap = ( );
 	println("transformation started: <file>");
-	list[str] variableN = [];
-	list[str] variableTy = [];
+	variableN = [];
+	variableTy = [];
 	compilationUnit = unit;
 	locFile = file;
 	isThreadFacImportNeeded = false;
