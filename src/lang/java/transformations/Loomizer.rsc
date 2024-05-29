@@ -832,8 +832,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 								}
 							}	
 						} else {
-							int countEle = 0;
-							for(str vId <- variableN) {
+							for(str vId <- varNameAndType) {
 								str variableId = trim(unparse(vId));
 								if (startsWith(unparsedExp, "this.")) {
 									unparsedExp = substring(unparsedExp, 5);
@@ -847,9 +846,8 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 								}
 								if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 									isTypeFound = true;
-									typesOfArguments += (trim(unparse(variableTy[countEle])): e);
+									typesOfArguments += (trim(unparse(varNameAndType[vId])): e);
 								}
-								countEle+=1;
 							}
 							if (isTypeFound == false) {
 								for(VariableDeclaratorId vId <- variableNameTypeMap) {
