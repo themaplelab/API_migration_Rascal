@@ -678,16 +678,17 @@ private CompilationUnit updateImports(CompilationUnit unit) {
 
 
 public void extractInstanceVariables(CompilationUnit unit) {
-	map[str, str] varNameAndType = ( );
-	top-down visit(unit) {
+	println("extractInstanceVariables started");
+	// map[str, str] varNameAndType = ( );
+	unit = top-down visit(unit) {
 		case ConstructorBody b: {	
-			top-down visit(b) {
+			b = top-down visit(b) {
 				case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
 					StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
-					// println("ClassInstanceCreationExpression: <exp>");
+					println("ClassInstanceCreationExpression: <exp>");
 					vId = "";
 					vType = "";
-				    top-down visit(exp) {
+				    exp = top-down visit(exp) {
 						case LeftHandSide id: {
 							vId = trim(unparse(id));
 							if (startsWith(vId, "this.")) {
@@ -698,16 +699,16 @@ public void extractInstanceVariables(CompilationUnit unit) {
 							vType = trim(unparse(c));
 						}
 					}
-					varNameAndType+=(vId: vType);
+					consThisTypeMap+=(vId: vType);
 				}
 			}
 		}
 	}
-	consThisTypeMap = varNameAndType;
-	for(str vId <- consThisTypeMap) {
-		str variableId = trim(unparse(vId));
-		println("variId: <variableId>");
-	}
+	// consThisTypeMap = varNameAndType;
+	// for(str vId <- consThisTypeMap) {
+	// 	str variableId = trim(unparse(vId));
+	// 	println("variId: <variableId>");
+	// }
 }
 
 /* The following method extracts types of arguments */
