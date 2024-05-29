@@ -835,7 +835,8 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 								}
 							}	
 						} else {
-							for(VariableDeclaratorId vId <- variableNameTypeMap) {
+							int countEle = 0;
+							for(str vId <- variableN) {
 								str variableId = trim(unparse(vId));
 								if (startsWith(unparsedExp, "this.")) {
 									unparsedExp = substring(unparsedExp, 5);
@@ -849,7 +850,27 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 								}
 								if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 									isTypeFound = true;
-									typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
+									typesOfArguments += (trim(unparse(variableTy[countEle])): e);
+								}
+								countEle+=1;
+							}
+							if (isTypeFound == false) {
+								for(VariableDeclaratorId vId <- variableNameTypeMap) {
+									str variableId = trim(unparse(vId));
+									if (startsWith(unparsedExp, "this.")) {
+										unparsedExp = substring(unparsedExp, 5);
+									}
+									if (startsWith(variableId, "this.")) {
+										variableId = substring(variableId, 5);
+									}
+									if (endsWith(unparsedExp, ".toString()")) {
+										typesOfArguments += ("String" : e); 
+										isTypeFound = true;
+									}
+									if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
+										isTypeFound = true;
+										typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
+									}
 								}
 							}
 							if (isTypeFound == false) {
@@ -869,27 +890,6 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 										isTypeFound = true;
 										typesOfArguments += (trim(unparse(classVariableNameTypeMap[vId])): e);
 									}
-								}
-							}
-							if (isTypeFound == false) {
-								int countEle = 0;
-								for(str vId <- variableN) {
-									str variableId = trim(unparse(vId));
-									if (startsWith(unparsedExp, "this.")) {
-										unparsedExp = substring(unparsedExp, 5);
-									}
-									if (startsWith(variableId, "this.")) {
-										variableId = substring(variableId, 5);
-									}
-									if (endsWith(unparsedExp, ".toString()")) {
-										typesOfArguments += ("String" : e); 
-										isTypeFound = true;
-									}
-									if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
-										isTypeFound = true;
-										typesOfArguments += (trim(unparse(variableTy[countEle])): e);
-									}
-									countEle+=1;
 								}
 							}
 							if (isTypeFound == false) {
