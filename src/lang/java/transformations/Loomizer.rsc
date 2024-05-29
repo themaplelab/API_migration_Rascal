@@ -62,19 +62,19 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
 				println("ClassInstanceCreationExpression: <exp>");
 				top-down visit(exp) {
-					UnannType vType;
-					VariableDeclaratorId name;
-					case LeftHandSide id : {
+					// UnannType vType;
+					// VariableDeclaratorId name;
+					case LeftHandSide id: {
 						String unparsedExp = unparse(id);
 						println("unparsedExpId: <unparsedExp>");
 						//unparsedExp = substring(unparsedExp, 5);
 						//name = parse(#VariableDeclaratorId, unparsedExp);
 					}
-					case ClassOrInterfaceTypeToInstantiate c : {
-						String unparsedExp = unparse(c);
-						println("unparsedExpC: <unparsedExp>");
-						//vType = parse(#UnannType, unparsedExp);
-					}
+					// case ClassOrInterfaceTypeToInstantiate c : {
+					// 	String unparsedExp = unparse(c);
+					// 	println("unparsedExpC: <unparsedExp>");
+					// 	//vType = parse(#UnannType, unparsedExp);
+					// }
 					//constructorVariableNameTypeMap += (name : vType);
 				}
 				//println("constructorVariableNameTypeMap: <constructorVariableNameTypeMap>");	
