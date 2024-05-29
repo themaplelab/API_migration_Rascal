@@ -391,6 +391,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		typesOfArguments = getTypesOfArguments(argumentList);
 		int numberOfArguments = size(typesOfArguments);
+		println("numberOfArgs: <numberOfArguments>");
 		list[str] types = toList(typesOfArguments<0>);
 		int numberOfTypes = size(types);
 		println("types: <types>");
@@ -847,6 +848,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 								}
 								if (vId == trim(unparsedExp) && (isTypeFound == false)) {
 									isTypeFound = true;
+									println("consVid: <vId> : <unparsedExp> type found");
 									typesOfArguments += (trim(unparse(consThisTypeMap[vId])): e);
 								}
 							}
@@ -930,6 +932,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 				}
 			}
 		}
+		println("typesOfArguments: <typesOfArguments>");
 		return typesOfArguments;
 }
 
