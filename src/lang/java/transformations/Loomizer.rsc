@@ -681,27 +681,23 @@ public void extractInstanceVariables(CompilationUnit unit) {
 	println("extractInstanceVariables started");
 	// map[str, str] varNameAndType = ( );
 	unit = top-down visit(unit) {
-		case ConstructorBody b: {	
-			b = top-down visit(b) {
-				case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
-					StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
-					println("ClassInstanceCreationExpression: <exp>");
-					vId = "";
-					vType = "";
-				    exp = top-down visit(exp) {
-						case LeftHandSide id: {
-							vId = trim(unparse(id));
-							if (startsWith(vId, "this.")) {
-								vId = substring(vId, 5);
-							}
-						}
-					    case ClassOrInterfaceTypeToInstantiate c: {
-							vType = trim(unparse(c));
-						}
+		case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
+			StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
+			println("ClassInstanceCreationExpression: <exp>");
+			vId = "";
+			vType = "";
+			exp = top-down visit(exp) {
+				case LeftHandSide id: {
+					vId = trim(unparse(id));
+					if (startsWith(vId, "this.")) {
+						vId = substring(vId, 5);
 					}
-					consThisTypeMap+=(vId: vType);
+				}
+			    case ClassOrInterfaceTypeToInstantiate c: {
+					vType = trim(unparse(c));
 				}
 			}
+			consThisTypeMap+=(vId: vType);
 		}
 	}
 	// consThisTypeMap = varNameAndType;
