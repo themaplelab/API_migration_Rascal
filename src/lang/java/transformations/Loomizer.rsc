@@ -39,12 +39,10 @@ public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file)
 	// The following map is responsible to store the constructor instance var name and the data tpe
 	consThisTypeMap = ( );
 	println("transformation started: <file>");
-	variableN = [];
-	variableTy = [];
 	compilationUnit = unit;
 	locFile = file;
 	isThreadFacImportNeeded = false;
-	unit = extractInstanceVariables(unit);
+	consThisTypeMap = extractInstanceVariables(unit);
 	unit = extractMethodsAndPatterns(unit, file);
 	/* If the thread factory is used during the transformations, it needs to be imported */
 	if (isThreadFacImportNeeded) {
@@ -677,7 +675,7 @@ private CompilationUnit updateImports(CompilationUnit unit) {
 }
 
 
-public CompilationUnit extractInstanceVariables(CompilationUnit unit) {
+public map[str, str] extractInstanceVariables(CompilationUnit unit) {
 	println("extractInstanceVariables started");
 	// map[str, str] varNameAndType = ( );
 	unit = top-down visit(unit) {
@@ -695,9 +693,10 @@ public CompilationUnit extractInstanceVariables(CompilationUnit unit) {
 				}
 			    case ClassOrInterfaceTypeToInstantiate c: {
 					vType = trim(unparse(c));
+					println("vType : <vType>");
 				}
 			}
-			consThisTypeMap+=(vId: vType);
+			consThisTypeMap += (vId : vType);
 		}
 	}
 	// consThisTypeMap = varNameAndType;
@@ -705,7 +704,7 @@ public CompilationUnit extractInstanceVariables(CompilationUnit unit) {
 	// 	str variableId = trim(unparse(vId));
 	// 	println("variId: <variableId>");
 	// }
-	return unit;
+	return consThisTypeMap;
 }
 
 /* The following method extracts types of arguments */
