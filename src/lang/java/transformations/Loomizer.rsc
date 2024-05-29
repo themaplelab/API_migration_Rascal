@@ -57,14 +57,15 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   int count = 0;
   unit = top-down visit(unit) {
 	case ConstructorBody b: {
-    	vId = "";
-    	vType = "";
+		list[(str vId, str vType)] tempMappings = [];
 		b = top-down visit(b) {
 			case BlockStatements bs: {
 				bs = top-down visit(bs) {
 					case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
 						StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
 						println("ClassInstanceCreationExpression: <exp>");
+						vId = "";
+    					vType = "";
 						exp = top-down visit(exp) {
 							case LeftHandSide id: {
 								vId = trim(unparse(id));
@@ -78,7 +79,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 								println("unparsedExpIdC: <vType>");
 							}
 						}
-						constructorVariableNameTypeMap += (vId : vType);
+						tempMappings += [(vId, vType)];
 					}
 				}
 			}
