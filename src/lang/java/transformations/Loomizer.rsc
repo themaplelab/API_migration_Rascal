@@ -37,6 +37,8 @@ public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file)
 	// The following map is responsible to store the constructor instance var name and the data tpe
 	consThisTypeMap = ( );
 	println("transformation started: <file>");
+	list[str] variableN = [];
+	list[str] variableTy = [];
 	compilationUnit = unit;
 	locFile = file;
 	isThreadFacImportNeeded = false;
@@ -58,8 +60,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   int count = 0;
   unit = top-down visit(unit) {
 	case ConstructorBody b: {	
-		list[str] variableN = [];
-		list[str] variableTy = [];
 		b = top-down visit(b) {
 			case BlockStatements bs: {
 				bs = top-down visit(bs) {
@@ -89,7 +89,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				}
 			}
 		}
-		createConstructorMap(variableN, variableTy);
+		println("variableN": <variableN>);
+		println("variableTy": <variableTy>);
+		//createConstructorMap(variableN, variableTy);
 	}
 	// extracting class variables
 	case FieldDeclaration f: {
