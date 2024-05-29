@@ -20,6 +20,7 @@ map[str, str] consThisTypeMap = ( );
 list[str] variableN = [];
 list[str] variableTy = [];
 bool isThreadFacImportNeeded = false;
+map[str, str] varNameAndType = ( );
 CompilationUnit compilationUnit;
 loc locFile;
 datetime startedTIme;
@@ -34,6 +35,7 @@ public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file)
 	classVariableNameTypeMap = ( );
 	// This map is maintained to add method level variables and arguments passed in
 	variableNameTypeMap = ( );
+	varNameAndType = ( );
 	// The following map is responsible to store the method name and the return tpe
 	methodTypeMap = ( );
 	// The following map is responsible to store the constructor instance var name and the data tpe
@@ -60,7 +62,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   println("class file extraction started: <methodTime>");
   MethodDeclaration previousMethodDeclaration; 
   int count = 0;
-  map[str, str] varNameAndType = ( );
   unit = top-down visit(unit) {
 	case ConstructorBody b: {	
 		b = top-down visit(b) {
