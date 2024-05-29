@@ -65,7 +65,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					// UnannType vType;
 					// VariableDeclaratorId name;
 					case LeftHandSide id: {
-						String unparsedExp = unparse(id);
+						str unparsedExp = unparse(id);
 						println("unparsedExpId: <unparsedExp>");
 						//unparsedExp = substring(unparsedExp, 5);
 						//name = parse(#VariableDeclaratorId, unparsedExp);
