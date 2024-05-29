@@ -89,8 +89,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				}
 			}
 		}
-		println("variableN": <variableN>);
-		println("variableTy": <variableTy>);
+		println("variableN: <variableN>");
+		println("variableTy: <variableTy>");
 		//createConstructorMap(variableN, variableTy);
 	}
 	// extracting class variables
