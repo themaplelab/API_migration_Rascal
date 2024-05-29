@@ -89,6 +89,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				// constructorVariableNameTypeMap += (vId : vType);	
 			}
 		}
+		constructorVariableNameTypeMap = createConstructorMap(variableId, variableN);
 	}
 	// extracting class variables
 	case FieldDeclaration f: {
@@ -1086,7 +1087,19 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 	}
 	
 	return typeOfArg;
-} 
+}
+
+public map[str, str] createConstructorMap(list[str] vId, list[str] vType) {
+    map[str, str] resultMap = ( );    
+    if (size(vId) != size(vType)) {
+        throw IllegalArgumentException("The lists must be of the same length");
+    }    
+    for (int i = 0; i < size(vId); i++) {
+        resultMap += (vId[i]: vType[i]);
+    }
+    return resultMap;
+}
+    
 
 
 // assumed Class types can be found within the package
