@@ -57,32 +57,35 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   int count = 0;
   unit = top-down visit(unit) {
 	case ConstructorBody b: {
-		list[(str vId, str vType)] tempMappings = [];
+		list[(str vId, str vType)] tempMappings = [];	
 		b = top-down visit(b) {
 			case BlockStatements bs: {
 				bs = top-down visit(bs) {
 					case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
 						StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
 						println("ClassInstanceCreationExpression: <exp>");
-						vId = "";
-    					vType = "";
+						str localVId = "";
+						str localVType = "";
 						exp = top-down visit(exp) {
 							case LeftHandSide id: {
-								vId = trim(unparse(id));
-								if (startsWith(vId, "this.")) {
-									vId = substring(vId, 5);
+								localVId = trim(unparse(id));
+								if (startsWith(localVId, "this.")) {
+									localVId = substring(localVId, 5);
 								}
-								println("unparsedExpId: <vId>");
+								println("unparsedExpId: <localVId>");
 							}
 							case ClassOrInterfaceTypeToInstantiate c: {
-								vType = trim(unparse(c));
-								println("unparsedExpIdC: <vType>");
+								localVType = trim(unparse(c));
+								println("unparsedExpIdC: <localVType>");
 							}
 						}
-						tempMappings += [(vId, vType)];
+						tempMappings += [(localVId, localVType)];
 					}
 				}
 			}
+		}
+		for ((str id, str type) <- tempMappings) {
+			constructorVariableNameTypeMap += (id: type);
 		}
 	}
 
