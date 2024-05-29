@@ -59,7 +59,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 	case ConstructorBody b: {
 		vId="";
 		vType="";
-		top-down visit(b) {
+		b = top-down visit(b) {
 			case (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
 				StatementExpression exp = (StatementExpression) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
 				println("ClassInstanceCreationExpression: <exp>");
