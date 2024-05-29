@@ -65,17 +65,13 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					// UnannType vType;
 					   VariableDeclaratorId name;
 					case LeftHandSide id: {
-						str unparsedExp = unparse(id);
-						println("unparsedExpId: <unparsedExp>");
-						unparsedExp = substring(unparsedExp, 5);
+						str unparsedExp = trim(unparse(id));
+						if (startsWith(unparsedExp, "this.")) {
+							unparsedExp = substring(unparsedExp, 5);
+						}
 						name = parse(#VariableDeclaratorId, unparsedExp);
+						println("unparsedExpId: <name>");
 					}
-					case ClassOrInterfaceTypeToInstantiate c : {
-						str unparsedExp = unparse(c);
-					 	println("unparsedExpC: <unparsedExp>");
-					// 	//vType = parse(#UnannType, unparsedExp);
-					}
-					//constructorVariableNameTypeMap += (name : vType);
 				}
 				//println("constructorVariableNameTypeMap: <constructorVariableNameTypeMap>");	
 			}
