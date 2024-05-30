@@ -958,7 +958,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 	map[str, Expression] typesOfArguments = ( );
 	list[str] stringArgsList = [];
 	for(ArgumentList argList <- argumentList) {
-		stringArgsList = split(",", argList);
+		stringArgsList = split(",", unparse(argList));
 	}
 	println("stringArgsList: <stringArgsList>");
 	//loop through each argument
