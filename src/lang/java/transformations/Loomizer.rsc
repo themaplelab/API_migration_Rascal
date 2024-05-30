@@ -996,7 +996,7 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 							}
 						}
 					}
-					classTypeMap += (className, interface);
+					classTypeMap += (className : interface);
 				}
 			}
 		}
