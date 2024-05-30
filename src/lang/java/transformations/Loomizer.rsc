@@ -1158,6 +1158,7 @@ private str insertLastCurlyBrace(str methodBody) {
 */
 public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOfArgument) {
 	bool isSubClassPresentInFile = false;
+	bool isMultiClassPresentInFile = false;
 	bool isSubClassPresentInPackage = false;
 	bool isImportedType = false;
 	str typeOfArg = typeOfArgument;
@@ -1169,13 +1170,17 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 					if (typeOfArg == "") {
 						top-down visit(classDec) {
 							case Identifier id: {
+								println("Identifier : <id>");
 								if (trim(unparse(id)) == trim(argName) && count == 0) {
 									isSubClassPresentInFile = true;
+								}
+								if (trim(unparse(id)) == trim(argName)) {
+									isMultiClassPresentInFile = true;
 								}
 								count+=1;
 							}
 							case Superinterfaces su: {
-								if (isSubClassPresentInFile && typeOfArg == "") {
+								if ((isSubClassPresentInFile || isMultiClassPresentInFile) && typeOfArg == "") {
 									top-down visit(su) {
 										case InterfaceType interfaceType: {
 											if (trim(unparse(interfaceType)) == "Runnable") {
@@ -1186,7 +1191,7 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 								}
 							}
 							case Superclass su: {
-								if (isSubClassPresentInFile && typeOfArg == "") {
+								if ((isSubClassPresentInFile || isMultiClassPresentInFile) && typeOfArg == "") {
 									top-down visit(su) {
 										case ClassType classType: {
 											if (typeOfArg == "") {
