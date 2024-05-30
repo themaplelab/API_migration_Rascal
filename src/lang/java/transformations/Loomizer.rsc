@@ -46,6 +46,7 @@ public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file)
 	isThreadFacImportNeeded = false;
 	consThisTypeMap = extractInstanceVariables(unit);
 	classTypeMap = extractClassInterfaces(unit);
+	classTypeMap = extractParallelClassInterfaces(unit);
 	unit = extractMethodsAndPatterns(unit, file);
 	/* If the thread factory is used during the transformations, it needs to be imported */
 	if (isThreadFacImportNeeded) {
@@ -1012,6 +1013,49 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 	}
 	return classTypeMap;
 }
+
+
+public map[str, str] extractParallelClassInterfaces(CompilationUnit unit) {
+	println("extractParallelClassInterfaces started");
+	unit = top-down visit(unit) {
+		case NormalClassDeclaration classDec: {
+			println("ClassInstanceCreationExpressionParallel found");
+			className="";
+			interface="";
+			classDec = top-down visit(classDec) {
+				case Identifier id: {
+					if (/[A-Z].*/ := unparse(id)) {
+						println("ClassInstanceCreationExpressionPara found12: <id>");
+						className = unparse(id);
+						println("ClassInstanceCreationExpressionPara found13: <className>");
+					}
+				}
+				case InterfaceType interfaceType: {
+					println("ClassInstanceCreationExpressionPara interfaceType found12: <interfaceType>");
+					if (trim(unparse(interfaceType)) == "Runnable") {
+						interface = "Runnable";
+					}
+					if (interface != "Runnable") {
+						interface = trim(unparse(interfaceType));
+					}
+					println("ClassInstanceCreationExpressionPara interface found12: <interface>");
+					println("ClassInterfacePara Extracted: <className> : <interface>");
+					if (className != "" && interface != "") {
+						classTypeMap += ( className : interface );
+					}
+				}
+			}		
+			for(str className <- classTypeMap) {
+				println("class-interface type00: <className>");
+			}
+		}
+	}
+	for(str className <- classTypeMap) {
+		println("class-interface type: <className>");
+	}
+	return classTypeMap;
+}
+
 
 /* The following method extracts types of arguments */
 public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList) {
