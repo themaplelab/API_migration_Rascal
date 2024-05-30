@@ -970,9 +970,8 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 					println("ClassInstanceCreationExpression found11");
 					classDec1 = top-down visit(classDec1) {
 						case Identifier id: {
-							if (countI == 0) {
+							if (/[A-Z].*/ := unparse(id)) {
 								println("ClassInstanceCreationExpression found12: <id>");
-								countI+=1;
 							}
 						}
 						case Superinterfaces su: {
