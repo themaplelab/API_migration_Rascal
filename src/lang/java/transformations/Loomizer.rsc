@@ -1079,7 +1079,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 											variableNameExt = substring(unparsedExp, 0, indexVal);
 											// loop through method type map to identify the return type of that method
 											for (str methodName <- methodTypeMap) {
-												print("methodTypeMap: <methodName> : <methodTypeMap[methodName]>: <variableNameExt>");
+												println("methodTypeMap: <methodName> : <methodTypeMap[methodName]>: <variableNameExt>");
 												if (trim(methodName) == trim(variableNameExt)) {
 													isTypeFound = true;
 													typesOfArguments += (trim(unparse(methodTypeMap[methodName])): e);
