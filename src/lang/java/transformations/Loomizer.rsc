@@ -458,12 +458,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 
 		list[ArgumentList] argumentList = [];
 		top-down visit(exp) {
-			case ArgumentList argList : {
-				argumentList += argList; 
-				println("argSize32: <unparse(argList)> ");
-			}
+			case ArgumentList argList : argumentList += argList; 
 		}
-		println("argSize: <size(argumentList)> ");
+		println("argSize: <size(argumentList)>");
 		typesOfArguments = getTypesOfArguments(argumentList);
 		int numberOfArguments = size(typesOfArguments);
 		println("numberOfArgs: <numberOfArguments>");
@@ -966,7 +963,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 				case Expression e : {
 					str unparsedExp = unparse(e);
 					println("unparsedExp: <e>");
-					if (unparsedExp in argList) {
+					if (unparsedExp in unparse(argList)) {
 						// the parameter which controls if the type of the argument is found
 						bool isTypeFound = false;
 						// if the argument is a concatenation with any other variable
