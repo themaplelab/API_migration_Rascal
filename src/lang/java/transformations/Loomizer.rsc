@@ -977,6 +977,7 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 											if (/[A-Z].*/ := unparse(id)) {
 												println("ClassInstanceCreationExpression found12: <id>");
 												className = unparse(id);
+												println("ClassInstanceCreationExpression found13: <className>");
 											}
 										}
 										case InterfaceType interfaceType: {
@@ -988,12 +989,13 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 												interface = trim(unparse(interfaceType));
 											}
 											println("ClassInstanceCreationExpression interface found12: <interface>");
+											println("ClassInterface Extracted: <className> : <interface>");
+											if (className != "" && interface != "") {
+												classTypeMap += ( className : interface );
+											}
 										}
 									}
-									println("ClassInterface Extracted: <className> : <interface>");
-									if (className != "" && interface != "") {
-										classTypeMap += ( className : interface );
-									}
+									
 									for(str className <- classTypeMap) {
 										println("class-interface type00: <className>");
 									}
