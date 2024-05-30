@@ -965,6 +965,30 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 			interface="";
 			println("ClassInstanceCreationExpression found");
 			classDec = top-down visit(classDec) {
+				case NormalClassDeclaration classDec1: {
+					classDec1 = top-down visit(classDec1) {
+						int countI = 0;
+						println("ClassInstanceCreationExpression found11");
+						case Identifier id: {
+							if (countI == 0) {
+								println("ClassInstanceCreationExpression found12: <id>");
+								countI+=1;
+							}
+						}
+						case Superinterfaces su: {
+							top-down visit(su) {
+								case InterfaceType interfaceType: {
+									if (trim(unparse(interfaceType)) == "Runnable") {
+										interface = "Runnable";
+										break;
+									}
+									interface = trim(unparse(interfaceType));
+									println("ClassInstanceCreationExpression interface found12: <interface>");
+								}
+							}
+						}
+					}
+				}
 				case Identifier id: {
 					if (count == 0) {
 						className=unparse(id);
