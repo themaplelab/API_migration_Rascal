@@ -971,6 +971,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 			trimmedStringArgsList += trim(arg);
 		} else if (contains(trim(arg), "(") || contains(trim(arg), ")") || contains(trim(arg), "[") || contains(trim(arg), "]")) {
 			concatenatedStr+=trim(arg);
+			isWaitForArgs = true;
 		} else {
 			trimmedStringArgsList += trim(arg);
 		}
