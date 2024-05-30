@@ -966,9 +966,9 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 			println("ClassInstanceCreationExpression found");
 			classDec = top-down visit(classDec) {
 				case NormalClassDeclaration classDec1: {
+					int countI = 0;
+					println("ClassInstanceCreationExpression found11");
 					classDec1 = top-down visit(classDec1) {
-						int countI = 0;
-						println("ClassInstanceCreationExpression found11");
 						case Identifier id: {
 							if (countI == 0) {
 								println("ClassInstanceCreationExpression found12: <id>");
@@ -989,25 +989,7 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 						}
 					}
 				}
-				case Identifier id: {
-					if (count == 0) {
-						className=unparse(id);
-						count+=1;
-					}
-				}
-			    case Superinterfaces su: {
-					top-down visit(su) {
-						case InterfaceType interfaceType: {
-							if (trim(unparse(interfaceType)) == "Runnable") {
-								interface = "Runnable";
-								break;
-							}
-							interface = trim(unparse(interfaceType));
-						}
-					}
-				}
 			}
-			classTypeMap += (className : interface);
 		}
 	}
 	for(str vId <- classTypeMap) {
