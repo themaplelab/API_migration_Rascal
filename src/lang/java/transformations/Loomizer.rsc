@@ -969,7 +969,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 	bool isWaitForArgs = false;
 	for(str arg <- stringArgsList) {
 		if (isWaitForArgs) {
-			concatenatedStr+=("," + trim(arg));
+			concatenatedStr+=("," + arg);
 			if (contains(trim(arg), ")") || contains(trim(arg), "]")) {
 				isWaitForArgs = false;
 				trimmedStringArgsList += concatenatedStr;
