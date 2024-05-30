@@ -1038,7 +1038,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 		}
 		else if ((contains(trim(arg), "(") && contains(trim(arg), ")")) || (contains(trim(arg), "[") && contains(trim(arg), "]"))) {
 			trimmedStringArgsList += trim(arg);
-		} else if (contains(trim(arg), "(") || contains(trim(arg), ")") || contains(trim(arg), "[") || contains(trim(arg), "]")) {
+		} else if (contains(trim(arg), "(") || contains(trim(arg), ")") || contains(trim(arg), "[") || contains(trim(arg), "]")) { //handle comma separated arguments within brackets
 			concatenatedStr+=trim(arg);
 			isWaitForArgs = true;
 		} else {
@@ -1054,7 +1054,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 					str unparsedExp = unparse(e);
 		
 					println("unparsedExp: <e>");
-					if (trim(unparsedExp) in trimmedStringArgsList) {
+					if (trim(unparsedExp) in trimmedStringArgsList || ("("+trim(unparsedExp)+")") in trimmedStringArgsList) {
 						println("valid arg found: <e>");
 						// the parameter which controls if the type of the argument is found
 						bool isTypeFound = false;
