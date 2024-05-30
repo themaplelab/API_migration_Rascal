@@ -956,6 +956,11 @@ public map[str, str] extractInstanceVariables(CompilationUnit unit) {
 public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList) {
 	println("getTypesOfArguments method started");
 	map[str, Expression] typesOfArguments = ( );
+	list[str] stringArgsList = [];
+	for(ArgumentList argList <- argumentList) {
+		stringArgsList += unparse(argList);
+	}
+	println("stringArgsList: <stringArgsList>");
 	//loop through each argument
 	for(ArgumentList argList <- argumentList) {
 			println("argsss: <argList>");
@@ -963,7 +968,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 				case Expression e : {
 					str unparsedExp = unparse(e);
 					println("unparsedExp: <e>");
-					if (unparsedExp in unparse(argList)) {
+					if (unparsedExp in stringArgsList) {
 						// the parameter which controls if the type of the argument is found
 						bool isTypeFound = false;
 						// if the argument is a concatenation with any other variable
