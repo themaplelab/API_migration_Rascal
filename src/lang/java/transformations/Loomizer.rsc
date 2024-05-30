@@ -778,6 +778,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 			top-down visit(argList) {
 				case Expression e : {
 					str unparsedExp = unparse(e);
+					println("unparsedExp: <e>");
 					// the parameter which controls if the type of the argument is found
 					bool isTypeFound = false;
 					// if the argument is a concatenation with any other variable
@@ -950,6 +951,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									}
 									if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 										isTypeFound = true;
+										println("local: <variableNameTypeMap[vId]> : <unparsedExp> type found");
 										typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
 									}
 								}
@@ -970,7 +972,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									}
 									if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 										isTypeFound = true;
-										println("local: <classVariableNameTypeMap[vId]> : <unparsedExp> type found");
+										println("class: <classVariableNameTypeMap[vId]> : <unparsedExp> type found");
 										typesOfArguments += (trim(unparse(classVariableNameTypeMap[vId])): e);
 									}
 								}
