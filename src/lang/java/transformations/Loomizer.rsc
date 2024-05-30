@@ -957,10 +957,15 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 	println("getTypesOfArguments method started");
 	map[str, Expression] typesOfArguments = ( );
 	list[str] stringArgsList = [];
+	list[str] trimmedStringArgsList = [];
 	for(ArgumentList argList <- argumentList) {
 		stringArgsList = split(",", trim(unparse(argList)));
 	}
+	for(str arg <- stringArgsList) {
+		trimmedStringArgsList += trim(arg);
+	}
 	println("stringArgsList: <stringArgsList>");
+	println("trimmedStringArgsList: <trimmedStringArgsList>");
 	//loop through each argument
 	for(ArgumentList argList <- argumentList) {
 			println("argsss: <argList>");
@@ -968,7 +973,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 				case Expression e : {
 					str unparsedExp = unparse(e);
 					println("unparsedExp: <e>");
-					if (trim(unparsedExp) in stringArgsList) {
+					if (trim(unparsedExp) in trimmedStringArgsList) {
 						println("valid arg found: <e>");
 						// the parameter which controls if the type of the argument is found
 						bool isTypeFound = false;
