@@ -979,24 +979,23 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 												className = unparse(id);
 											}
 										}
-										case Superinterfaces su: {
-											top-down visit(su) {
-												case InterfaceType interfaceType: {
-													if (trim(unparse(interfaceType)) == "Runnable") {
-														interface = "Runnable";
-														break;
-													}
-													interface = trim(unparse(interfaceType));
-													println("ClassInstanceCreationExpression interface found12: <interface>");
-												}
+										case InterfaceType interfaceType: {
+											println("ClassInstanceCreationExpression interfaceType found12: <interfaceType>");
+											if (trim(unparse(interfaceType)) == "Runnable") {
+												interface = "Runnable";
+												break;
 											}
+											interface = trim(unparse(interfaceType));
+											println("ClassInstanceCreationExpression interface found12: <interface>");
 										}
+									}
+									if (className != "" && interface != "") {
+										classTypeMap += (className : interface);
 									}
 								}
 							}
 						}
 					}
-					classTypeMap += (className : interface);
 				}
 			}
 		}
