@@ -282,6 +282,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					isReplacement = true;
 				}
 			}
+			println("numberOfTyp89 :<types[0]>");
+		    println("numberOfTyp87 :<types[1]>");
 		} else if (numberOfTypes == 3) {
 			if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
 				Expression argument0 = typesOfArguments[tId];
