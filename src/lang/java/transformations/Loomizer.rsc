@@ -177,24 +177,26 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 
 			str type0 = unparse(types[0]);
 			str type1 = unparse(types[1]);
-			if ((type0 != "String" && type0 != "Runnable" && type0 != "ThreadGroup")) {
-					str typeOfArg = findTypeOfArg(unit, type0, file, "");
-					println("typeOfArgFinal6: <typeOfArg>");
-					Expression exp = typesOfArguments[type0];
-					delete(typesOfArguments, type0);
-					type0 = typeOfArg;
-					typesOfArguments += (typeOfArg: exp);
-
+			if ((types[0] != "String" && types[0] != "Runnable" && types[0] != "ThreadGroup")) {
+				println("started to find the data type0");
+				str typeOfArg = findTypeOfArg(unit, types[0], file, "");
+		    	println("typeOfArgFinal6: <typeOfArg>");
+				Expression exp = typesOfArguments[types[0]];
+				delete(typesOfArguments, types[0]);
+				types[0] = typeOfArg;
+				typesOfArguments += (typeOfArg: exp);
+				println("typesOfArguments: <typesOfArguments>");
 			}
-			if ((type1 != "String" && type1 != "Runnable" && type1 != "ThreadGroup")) {
-					str typeOfArg = findTypeOfArg(unit, type1, file, "");
-					println("typeOfArgFinal7: <typeOfArg>");
-					Expression exp = typesOfArguments[type1];
-					delete(typesOfArguments, type1);
-					type1 = typeOfArg;
-					typesOfArguments += (typeOfArg: exp);
+			if ((types[1] != "String" && types[1] != "Runnable" && types[1] != "ThreadGroup")) {
+				println("started to find the data type1");
+				str typeOfArg = findTypeOfArg(unit, types[1], file, "");
+				println("typeOfArgFinal7: <typeOfArg>");
+				Expression exp = typesOfArguments[types[1]];
+				delete(typesOfArguments, types[1]);
+				types[1] = typeOfArg;
+				typesOfArguments += (typeOfArg: exp);
+				println("typesOfArguments: <typesOfArguments>");
 			}
-			println("typesOfArguments: <typesOfArguments>");
 			if ((types[0] == "ThreadGroup" && types[1] == "Runnable") || (types[0] == "Runnable" && types[1] == "ThreadGroup")) {
 				for(str tId <- typesOfArguments) {
 					if (tId == "Runnable") {
