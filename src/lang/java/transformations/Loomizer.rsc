@@ -961,8 +961,6 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 	unit = top-down visit(unit) {
 		case NormalClassDeclaration classDec: {
 			int count = 0;
-			className="";
-			interface="";
 			println("ClassInstanceCreationExpression found");
 			classDec = top-down visit(classDec) {
 				case ClassBody classBody: {
@@ -972,6 +970,8 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 						case ClassMemberDeclaration classMemberDeclaration: {
 							classMemberDeclaration = top-down visit(classMemberDeclaration) {
 								case ClassDeclaration classDecl: {
+									className="";
+									interface="";
 									classDecl = top-down visit(classDecl) {
 										case Identifier id: {
 											if (/[A-Z].*/ := unparse(id)) {
@@ -990,8 +990,12 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 											println("ClassInstanceCreationExpression interface found12: <interface>");
 										}
 									}
+									println("ClassInterface Extracted: <className> : <interface>");
 									if (className != "" && interface != "") {
-										classTypeMap += (className : interface);
+										classTypeMap += ( className : interface );
+									}
+									for(str className <- classTypeMap) {
+										println("class-interface type00: <className>");
 									}
 								}
 							}
@@ -1001,8 +1005,8 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 			}
 		}
 	}
-	for(str vId <- classTypeMap) {
-		println("class-interface type: <vId>");
+	for(str className <- classTypeMap) {
+		println("class-interface type: <className>");
 	}
 	return classTypeMap;
 }
