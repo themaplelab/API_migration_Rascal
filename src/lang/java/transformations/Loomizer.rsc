@@ -1203,8 +1203,8 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 											println("methodTypeMap: <methodName> : <methodTypeMap[methodName]>: <variableNameExt>");
 											if (trim(methodName) == trim(variableNameExt)) {
 												isTypeFound = true;
-												println("type found: <methodTypeMap[methodName]>");
-												typesOfArguments += (trim(unparse(methodTypeMap[methodName])): e);
+												println("type found: <trim(methodTypeMap[methodName])>");
+												typesOfArguments += (trim(methodTypeMap[methodName]): e);
 												println("typesOfArgumentshs: <size(typesOfArguments)>");
 												break;
 											}
