@@ -1134,8 +1134,12 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 										for(str vId <- classTypeMap) {
 											print("classTypeMap: <vId>");
 											str variableId = vId;
+											str variableId = vId;
+											if (startsWith(unparsedExp, "new ")) {
+												unparsedExp = substring(unparsedExp, 4);
+											}
 											if (startsWith(unparsedExp, "this.")) {
-												unparsedExp = substring(unparsedExp, 5);
+												variableId = substring(variableId, 5);
 											}
 											if (startsWith(variableId, "this.")) {
 												variableId = substring(variableId, 5);
@@ -1143,6 +1147,15 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 											if (endsWith(unparsedExp, ".toString()")) {
 												typesOfArguments += ("String" : e); 
 												isTypeFound = true;
+											}
+											if (endsWith(unparsedExp, "()") || endsWith(unparsedExp, ")") && (isTypeFound == false)) {
+												indexVal = findFirst(unparsedExp, "(");
+												variableNameExt = substring(unparsedExp, 0, indexVal);
+												if (variableId == trim(variableNameExt) && (isTypeFound == false)) {
+													isTypeFound = true;
+													println("classType21: <classTypeMap[vId]> : <unparsedExp> type found");
+													typesOfArguments += (classTypeMap[vId]: e);
+												}
 											}
 											if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 												isTypeFound = true;
@@ -1280,8 +1293,11 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									for(str vId <- classTypeMap) {
 										println("classType: <vId> : <unparsedExp>");
 										str variableId = vId;
+										if (startsWith(unparsedExp, "new ")) {
+											unparsedExp = substring(unparsedExp, 4);
+										}
 										if (startsWith(unparsedExp, "this.")) {
-											unparsedExp = substring(unparsedExp, 5);
+											variableId = substring(variableId, 5);
 										}
 										if (startsWith(variableId, "this.")) {
 											variableId = substring(variableId, 5);
@@ -1289,6 +1305,15 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 										if (endsWith(unparsedExp, ".toString()")) {
 											typesOfArguments += ("String" : e); 
 											isTypeFound = true;
+										}
+										if (endsWith(unparsedExp, "()") || endsWith(unparsedExp, ")") && (isTypeFound == false)) {
+											indexVal = findFirst(unparsedExp, "(");
+											variableNameExt = substring(unparsedExp, 0, indexVal);
+											if (variableId == trim(variableNameExt) && (isTypeFound == false)) {
+												isTypeFound = true;
+												println("classType21: <classTypeMap[vId]> : <unparsedExp> type found");
+												typesOfArguments += (classTypeMap[vId]: e);
+											}
 										}
 										if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 											isTypeFound = true;
