@@ -17,6 +17,7 @@ map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
 map[VariableDeclaratorId, UnannType] classVariableNameTypeMap = ( );
 map[str, str] methodTypeMap = ( );
 map[str, str] consThisTypeMap = ( );
+map[str, str] classTypeMap = ( );
 list[str] variableN = [];
 list[str] variableTy = [];
 bool isThreadFacImportNeeded = false;
@@ -38,11 +39,13 @@ public CompilationUnit executeLoomTransformation(CompilationUnit unit, loc file)
 	methodTypeMap = ( );
 	// The following map is responsible to store the constructor instance var name and the data tpe
 	consThisTypeMap = ( );
+	classTypeMap = ( );
 	println("transformation started: <file>");
 	compilationUnit = unit;
 	locFile = file;
 	isThreadFacImportNeeded = false;
 	consThisTypeMap = extractInstanceVariables(unit);
+	classTypeMap = extractClassInterfaces(unit);
 	unit = extractMethodsAndPatterns(unit, file);
 	/* If the thread factory is used during the transformations, it needs to be imported */
 	if (isThreadFacImportNeeded) {
@@ -952,6 +955,43 @@ public map[str, str] extractInstanceVariables(CompilationUnit unit) {
 	return consThisTypeMap;
 }
 
+public map[str, str] extractClassInterfaces(CompilationUnit unit) {
+	println("extractClassInterfaces started");
+	// map[str, str] varNameAndType = ( );
+	unit = top-down visit(unit) {
+		case NormalClassDeclaration classDec: {
+			int count = 0;
+			className="";
+			interface="";
+			println("ClassInstanceCreationExpression found");
+			classDec = top-down visit(classDec) {
+				case Identifier id: {
+					if (count == 0) {
+						className=unparse(id);
+						count+=1;
+					}
+				}
+			    case Superinterfaces su: {
+					top-down visit(su) {
+						case InterfaceType interfaceType: {
+							if (trim(unparse(interfaceType)) == "Runnable") {
+								interface = "Runnable";
+								break;
+							}
+							interface = trim(unparse(interfaceType));
+						}
+					}
+				}
+			}
+			classTypeMap += (className : interface);
+		}
+	}
+	for(str vId <- classTypeMap) {
+		println("class-interface type: <vId>");
+	}
+	return classTypeMap;
+}
+
 /* The following method extracts types of arguments */
 public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList) {
 	println("getTypesOfArguments method started");
@@ -1065,6 +1105,28 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 											if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 												isTypeFound = true;
 												typesOfArguments += (trim(unparse(classVariableNameTypeMap[vId])): e);
+											}
+										}
+									}
+									if (isTypeFound == false) {
+										// loop through previously extracted class names
+										for(str vId <- classTypeMap) {
+											print("classTypeMap: <vId>");
+											str variableId = trim(unparse(vId));
+											if (startsWith(unparsedExp, "this.")) {
+												unparsedExp = substring(unparsedExp, 5);
+											}
+											if (startsWith(variableId, "this.")) {
+												variableId = substring(variableId, 5);
+											}
+											if (endsWith(unparsedExp, ".toString()")) {
+												typesOfArguments += ("String" : e); 
+												isTypeFound = true;
+											}
+											if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
+												isTypeFound = true;
+												println("classType: <classTypeMap[vId]> : <unparsedExp> type found");
+												typesOfArguments += (classTypeMap[vId]: e);
 											}
 										}
 									}
@@ -1190,6 +1252,27 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 											isTypeFound = true;
 											println("class: <classVariableNameTypeMap[vId]> : <unparsedExp> type found");
 											typesOfArguments += (trim(unparse(classVariableNameTypeMap[vId])): e);
+										}
+									}
+								}
+								if (isTypeFound == false) {
+									for(str vId <- classTypeMap) {
+										println("classType: <vId> : <unparsedExp>");
+										str variableId = trim(unparse(vId));
+										if (startsWith(unparsedExp, "this.")) {
+											unparsedExp = substring(unparsedExp, 5);
+										}
+										if (startsWith(variableId, "this.")) {
+											variableId = substring(variableId, 5);
+										}
+										if (endsWith(unparsedExp, ".toString()")) {
+											typesOfArguments += ("String" : e); 
+											isTypeFound = true;
+										}
+										if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
+											isTypeFound = true;
+											println("classType: <classTypeMap[vId]> : <unparsedExp> type found");
+											typesOfArguments += (classTypeMap[vId]: e);
 										}
 									}
 								}
