@@ -150,6 +150,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		list[str] types = toList(typesOfArguments<0>);
 		int numberOfTypes = size(types);
 		println("numberOfTypes :<numberOfTypes>");
+		println("types :<types>");
 		BlockStatement replacingExpression;
 		bool isReplacement = false;
 		if (numberOfTypes == 1) {
@@ -174,8 +175,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			println("numberOfTypes44 :<types[0]>");
 		    println("numberOfTypes66 :<types[1]>");
 
-			str type0 = types[0];
-			str type1 = types[1];
+			str type0 = unparse(types[0]);
+			str type1 = unparse(types[1]);
 			if ((type0 != "String" && type0 != "Runnable" && type0 != "ThreadGroup")) {
 					str typeOfArg = findTypeOfArg(unit, type0, file, "");
 					println("typeOfArgFinal6: <typeOfArg>");
