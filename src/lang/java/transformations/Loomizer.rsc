@@ -956,31 +956,43 @@ public map[str, str] extractInstanceVariables(CompilationUnit unit) {
 public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList) {
 	println("getTypesOfArguments method started");
 	map[str, Expression] typesOfArguments = ( );
-	int count = 0; //count to ignore 
-	// list[str] stringArgsList = [];
-	// list[str] trimmedStringArgsList = [];
+	list[str] stringArgsList = [];
+	list[str] trimmedStringArgsList = [];
 	
-	// for(ArgumentList argList <- argumentList) {
-	// 	println("adf: <unparse(argList)>");
-	// 	stringArgsList = split(",", trim(unparse(argList)));
-	// 	break;
-	// }
-	// for(str arg <- stringArgsList) {
-	// 	trimmedStringArgsList += trim(arg);
-	// }
-	// println("stringArgsList: <stringArgsList>");
-	// println("trimmedStringArgsList: <trimmedStringArgsList>");
-	int counter = 0;
+	for(ArgumentList argList <- argumentList) {
+		println("adf: <unparse(argList)>");
+		stringArgsList = split(",", trim(unparse(argList)));
+		break;
+	}
+	str concatenatedStr = "";
+	bool isWaitForArgs = false;
+	for(str arg <- stringArgsList) {
+		if ((contains(trim(arg), "(") && contains(trim(arg), ")")) || (contains(trim(arg), "[") && contains(trim(arg), "]"))) {
+			trimmedStringArgsList += trim(arg);
+		} else if (contains(trim(arg), "(") || contains(trim(arg), ")") || contains(trim(arg), "[") || contains(trim(arg), "]")) {
+			concatenatedStr+=trim(arg);
+		} else {
+			trimmedStringArgsList += trim(arg);
+		}
+		if (isWaitForArgs) {
+			concatenatedStr+=trim(arg);
+			if (contains(trim(arg), ")") || contains(trim(arg), "]")) {
+				isWaitForArgs = false;
+				trimmedStringArgsList += concatenatedStr;
+			}
+		}
+	}
+	println("stringArgsList: <stringArgsList>");
+	println("trimmedStringArgsList: <trimmedStringArgsList>");
 	//loop through each argument
-	bool ignoreNextarg = false;
 	for(ArgumentList argList <- argumentList) {
 			println("argsss: <argList>");
 			top-down visit(argList) {
 				case Expression e : {
 					str unparsedExp = unparse(e);
+		
 					println("unparsedExp: <e>");
-					counter+=1;
-					if (ignoreNextarg == false) {
+					if (trim(unparsedExp) in trimmedStringArgsList) {
 						println("valid arg found: <e>");
 						// the parameter which controls if the type of the argument is found
 						bool isTypeFound = false;
@@ -1222,20 +1234,6 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 								println("typesOfArguments: <size(typesOfArguments)>");
 							}
 						}	
-					}
-					if (contains(unparsedExp, "(") || contains(unparsedExp, ")") || contains(unparsedExp, "[") || contains(unparsedExp, "]")) {
-						indexVal1 = findFirst(unparsedExp, "(");
-						indexVal2 = findFirst(unparsedExp, ")");
-						indexVal3 = findFirst(unparsedExp, "[");
-						indexVal4 = findFirst(unparsedExp, "]");
-						if (indexVal2 - indexVal1 > 1 || indexVal4 - indexVal3 > 1) {
-							ignoreNextarg = true;
-						}
-						str middle = substring(unparsedExp, indexVal1 + 1, indexVal2 );
-						count = size(split(",",middle));
-						if (count == counter) {
-							ignoreNextarg = false;
-						}
 					}
 				}
 			}
