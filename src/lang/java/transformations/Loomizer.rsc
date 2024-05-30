@@ -233,13 +233,26 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
 				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
 				isReplacement = true;
-			} else if ((types[0] != "String" && types[0] != "Runnable" && types[0] != "ThreadGroup" && types[0] != "StringBuffer") && (types[0] == "String" || types[0] == "StringBuffer")) {
+			} else if ((types[0] != "String" && types[0] != "Runnable" && types[0] != "ThreadGroup" && types[0] != "StringBuffer") && (types[1] == "String" || types[1] == "StringBuffer")) {
 				str typeOfArg = findTypeOfArg(unit, types[0], file, "");
 				println("typeOfArgFinal2return3: <typeOfArg>");
 				if (typeOfArg == "Runnable") {
 					Expression argument0 = typesOfArguments[types[0]];
 					str runnableArguments = unparse(argument0);
 					Expression argument1 = typesOfArguments[types[1]];
+					str nameArguments = unparse(argument1);
+					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+					replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+					isReplacement = true;
+				}
+			} else if ((types[1] != "String" && types[1] != "Runnable" && types[1] != "ThreadGroup" && types[1] != "StringBuffer") && (types[0] == "String" || types[0] == "StringBuffer")) {
+				str typeOfArg = findTypeOfArg(unit, types[1], file, "");
+				println("typeOfArgFinal2return3: <typeOfArg>");
+				if (typeOfArg == "Runnable") {
+					Expression argument0 = typesOfArguments[types[1]];
+					str runnableArguments = unparse(argument0);
+					Expression argument1 = typesOfArguments[types[0]];
 					str nameArguments = unparse(argument1);
 					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
@@ -386,6 +399,19 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
 					replacingExpression = (ReturnStatement) `return Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
 					isReplacement = true;
+				} 
+			} else if ((type1 != "String" && type1 != "Runnable" && type1 != "ThreadGroup" && type1 != "StringBuffer") && (type0 == "String" || type0 == "StringBuffer")) {
+				str typeOfArg = findTypeOfArg(unit, type1, file, "");
+				println("typeOfArgFinal2return3: <typeOfArg>");
+				if (typeOfArg == "Runnable") {
+					Expression argument0 = typesOfArguments[type1];
+					str runnableArguments = unparse(argument0);
+					Expression argument1 = typesOfArguments[type0];
+					str nameArguments = unparse(argument1);
+					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+					replacingExpression = (ReturnStatement) `return Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+					isReplacement = true;
 				}
 			}
 		} else if (numberOfTypes == 3) {
@@ -504,6 +530,19 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					Expression argument0 = typesOfArguments[types[0]];
 					str runnableArguments = unparse(argument0);
 					Expression argument1 = typesOfArguments[types[1]];
+					str nameArguments = unparse(argument1);
+					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+					replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+					isReplacement = true;
+				}
+			} else if ((types[1] != "String" && types[1] != "Runnable" && types[1] != "ThreadGroup" && types[1] != "StringBuffer") && (types[0] == "String" || types[0] == "StringBuffer")) {
+				str typeOfArg = findTypeOfArg(unit, types[1], file, "");
+				println("typeOfArgFinal23: <typeOfArg>");
+				if (typeOfArg == "Runnable") {
+					Expression argument0 = typesOfArguments[types[1]];
+					str runnableArguments = unparse(argument0);
+					Expression argument1 = typesOfArguments[types[0]];
 					str nameArguments = unparse(argument1);
 					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
