@@ -964,10 +964,18 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 		stringArgsList = split(",", trim(unparse(argList)));
 		break;
 	}
+	println("stringArgsList: <stringArgsList>");
 	str concatenatedStr = "";
 	bool isWaitForArgs = false;
 	for(str arg <- stringArgsList) {
-		if ((contains(trim(arg), "(") && contains(trim(arg), ")")) || (contains(trim(arg), "[") && contains(trim(arg), "]"))) {
+		if (isWaitForArgs) {
+			concatenatedStr+=("," + trim(arg));
+			if (contains(trim(arg), ")") || contains(trim(arg), "]")) {
+				isWaitForArgs = false;
+				trimmedStringArgsList += concatenatedStr;
+			}
+		}
+		else if ((contains(trim(arg), "(") && contains(trim(arg), ")")) || (contains(trim(arg), "[") && contains(trim(arg), "]"))) {
 			trimmedStringArgsList += trim(arg);
 		} else if (contains(trim(arg), "(") || contains(trim(arg), ")") || contains(trim(arg), "[") || contains(trim(arg), "]")) {
 			concatenatedStr+=trim(arg);
@@ -975,15 +983,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 		} else {
 			trimmedStringArgsList += trim(arg);
 		}
-		if (isWaitForArgs) {
-			concatenatedStr+=trim(arg);
-			if (contains(trim(arg), ")") || contains(trim(arg), "]")) {
-				isWaitForArgs = false;
-				trimmedStringArgsList += concatenatedStr;
-			}
-		}
 	}
-	println("stringArgsList: <stringArgsList>");
 	println("trimmedStringArgsList: <trimmedStringArgsList>");
 	//loop through each argument
 	for(ArgumentList argList <- argumentList) {
