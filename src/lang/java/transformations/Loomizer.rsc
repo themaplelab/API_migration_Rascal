@@ -983,9 +983,10 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 											println("ClassInstanceCreationExpression interfaceType found12: <interfaceType>");
 											if (trim(unparse(interfaceType)) == "Runnable") {
 												interface = "Runnable";
-												break;
 											}
-											interface = trim(unparse(interfaceType));
+											if (interface != "Runnable") {
+												interface = trim(unparse(interfaceType));
+											}
 											println("ClassInstanceCreationExpression interface found12: <interface>");
 										}
 									}
