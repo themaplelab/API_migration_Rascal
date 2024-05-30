@@ -965,28 +965,38 @@ public map[str, str] extractClassInterfaces(CompilationUnit unit) {
 			interface="";
 			println("ClassInstanceCreationExpression found");
 			classDec = top-down visit(classDec) {
-				case NormalClassDeclaration classDec1: {
+				case ClassBody classBody: {
 					int countI = 0;
 					println("ClassInstanceCreationExpression found11");
-					classDec1 = top-down visit(classDec1) {
-						case Identifier id: {
-							if (/[A-Z].*/ := unparse(id)) {
-								println("ClassInstanceCreationExpression found12: <id>");
-							}
-						}
-						case Superinterfaces su: {
-							top-down visit(su) {
-								case InterfaceType interfaceType: {
-									if (trim(unparse(interfaceType)) == "Runnable") {
-										interface = "Runnable";
-										break;
+					classBody = top-down visit(classBody) {
+						case ClassMemberDeclaration classMemberDeclaration: {
+							classMemberDeclaration = top-down visit(classMemberDeclaration) {
+								case ClassDeclaration classDecl: {
+									classDecl = top-down visit(classDecl) {
+										case Identifier id: {
+											if (/[A-Z].*/ := unparse(id)) {
+												println("ClassInstanceCreationExpression found12: <id>");
+												className = unparse(id);
+											}
+										}
+										case Superinterfaces su: {
+											top-down visit(su) {
+												case InterfaceType interfaceType: {
+													if (trim(unparse(interfaceType)) == "Runnable") {
+														interface = "Runnable";
+														break;
+													}
+													interface = trim(unparse(interfaceType));
+													println("ClassInstanceCreationExpression interface found12: <interface>");
+												}
+											}
+										}
 									}
-									interface = trim(unparse(interfaceType));
-									println("ClassInstanceCreationExpression interface found12: <interface>");
 								}
 							}
 						}
 					}
+					classTypeMap += (className, interface);
 				}
 			}
 		}
