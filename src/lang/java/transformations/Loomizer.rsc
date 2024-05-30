@@ -460,6 +460,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		top-down visit(exp) {
 			case ArgumentList argList : argumentList += argList; 
 		}
+		println("argSize: <size(argumentList)>");
 		typesOfArguments = getTypesOfArguments(argumentList);
 		int numberOfArguments = size(typesOfArguments);
 		println("numberOfArgs: <numberOfArguments>");
@@ -957,6 +958,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 	map[str, Expression] typesOfArguments = ( );
 	//loop through each argument
 	for(ArgumentList argList <- argumentList) {
+			println("argsss: <argList>");
 			top-down visit(argList) {
 				case Expression e : {
 					str unparsedExp = unparse(e);
