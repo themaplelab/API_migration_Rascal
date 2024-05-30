@@ -193,6 +193,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					type1 = typeOfArg;
 					typesOfArguments += (typeOfArg: exp);
 			}
+			println("typesOfArguments: <typesOfArguments>");
 			if ((types[0] == "ThreadGroup" && types[1] == "Runnable") || (types[0] == "Runnable" && types[1] == "ThreadGroup")) {
 				for(str tId <- typesOfArguments) {
 					if (tId == "Runnable") {
@@ -233,7 +234,25 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
 				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
 				isReplacement = true;
+			} else if ((type0 == "Runnable" && (type1 == "String" || type1 == "StringBuffer")) || ((type0 == "String" || type0 == "StringBuffer") && type1 == "Runnable")) {
+				str runnableArguments = "";
+				str nameArguments = "";
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						runnableArguments = unparse(argument0);
+					}
+					if (tId == "String" || tId == "StringBuffer") {
+						Expression argument0 = typesOfArguments[tId];
+						nameArguments = unparse(argument0);
+					}
+				}
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+				isReplacement = true;
 			} else if ((types[0] != "String" && types[0] != "Runnable" && types[0] != "ThreadGroup" && types[0] != "StringBuffer") && (types[1] == "String" || types[1] == "StringBuffer")) {
+				println("typeOfArgFinal2return3: <typeOfArg>");
 				str typeOfArg = findTypeOfArg(unit, types[0], file, "");
 				println("typeOfArgFinal2return3: <typeOfArg>");
 				if (typeOfArg == "Runnable") {
