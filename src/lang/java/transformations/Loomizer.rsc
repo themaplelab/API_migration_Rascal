@@ -962,6 +962,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 	for(ArgumentList argList <- argumentList) {
 		println("adf: <unparse(argList)>");
 		stringArgsList = split(",", trim(unparse(argList)));
+		break;
 	}
 	for(str arg <- stringArgsList) {
 		trimmedStringArgsList += trim(arg);
