@@ -1133,7 +1133,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 										// loop through previously extracted class names
 										for(str vId <- classTypeMap) {
 											print("classTypeMap: <vId>");
-											str variableId = trim(unparse(vId));
+											str variableId = vId;
 											if (startsWith(unparsedExp, "this.")) {
 												unparsedExp = substring(unparsedExp, 5);
 											}
@@ -1279,7 +1279,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 								if (isTypeFound == false) {
 									for(str vId <- classTypeMap) {
 										println("classType: <vId> : <unparsedExp>");
-										str variableId = trim(unparse(vId));
+										str variableId = vId;
 										if (startsWith(unparsedExp, "this.")) {
 											unparsedExp = substring(unparsedExp, 5);
 										}
