@@ -1200,9 +1200,10 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 										indexVal = findFirst(unparsedExp, "(");
 										variableNameExt = substring(unparsedExp, 0, indexVal);
 										for (str methodName <- methodTypeMap) {
-											print("methodTypeMap: <methodName> : <methodTypeMap[methodName]>: <variableNameExt>");
+											println("methodTypeMap: <methodName> : <methodTypeMap[methodName]>: <variableNameExt>");
 											if (trim(methodName) == trim(variableNameExt)) {
 												isTypeFound = true;
+												println("type found: <methodTypeMap[methodName]>")
 												typesOfArguments += (trim(unparse(methodTypeMap[methodName])): e);
 											}
 										}
