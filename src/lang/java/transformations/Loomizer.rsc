@@ -458,9 +458,12 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 
 		list[ArgumentList] argumentList = [];
 		top-down visit(exp) {
-			case ArgumentList argList : argumentList += argList; 
+			case ArgumentList argList : {
+				argumentList += argList; 
+				println("argSize32: <unparse(argList)> ");
+			}
 		}
-		println("argSize: <size(argumentList)>");
+		println("argSize: <size(argumentList)> ");
 		typesOfArguments = getTypesOfArguments(argumentList);
 		int numberOfArguments = size(typesOfArguments);
 		println("numberOfArgs: <numberOfArguments>");
@@ -963,19 +966,145 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 				case Expression e : {
 					str unparsedExp = unparse(e);
 					println("unparsedExp: <e>");
-					// the parameter which controls if the type of the argument is found
-					bool isTypeFound = false;
-					// if the argument is a concatenation with any other variable
-					if (contains(unparsedExp, "+")) {
-						list[str] args = split("+", unparsedExp);
-						for (str arg01 <- args) {
-							unparsedExp = trim(arg01);
-							// if there is a string as an argument
-							if(startsWith(unparsedExp,"\"") && endsWith(unparsedExp, "\"") && (isTypeFound == false)) {
-								typesOfArguments += ("String" : e); 
-								isTypeFound = true;
+					if (unparsedExp in argList) {
+						// the parameter which controls if the type of the argument is found
+						bool isTypeFound = false;
+						// if the argument is a concatenation with any other variable
+						if (contains(unparsedExp, "+")) {
+							list[str] args = split("+", unparsedExp);
+							for (str arg01 <- args) {
+								unparsedExp = trim(arg01);
+								// if there is a string as an argument
+								if(startsWith(unparsedExp,"\"") && endsWith(unparsedExp, "\"") && (isTypeFound == false)) {
+									typesOfArguments += ("String" : e); 
+									isTypeFound = true;
+								}
+								if (isTypeFound == false) {
+									for(str vId <- consThisTypeMap) {
+										println("consVid: <vId> : <unparsedExp>");
+										if (startsWith(unparsedExp, "this.")) {
+											unparsedExp = substring(unparsedExp, 5);
+										}
+										if (startsWith(vId, "this.")) {
+											vId = substring(vId, 5);
+										}
+										if (endsWith(unparsedExp, ".toString()")) {
+											typesOfArguments += ("String" : e); 
+											isTypeFound = true;
+										}
+										if (vId == trim(unparsedExp) && (isTypeFound == false)) {
+											isTypeFound = true;
+											println("consVid: <consThisTypeMap[vId]> : <unparsedExp> type found");
+											typesOfArguments += (consThisTypeMap[vId]: e);
+										}
+									}
+									// loop through previously extracted variable map
+									if (isTypeFound == false) {
+										for(VariableDeclaratorId vId <- variableNameTypeMap) {
+											str variableId = trim(unparse(vId));
+											// check if the variable starts with this.
+											if (startsWith(unparsedExp, "this.")) {
+												unparsedExp = substring(unparsedExp, 5);
+											}
+											if (startsWith(variableId, "this.")) {
+												variableId = substring(variableId, 5);
+											}
+											if (endsWith(unparsedExp, ".toString()") && (isTypeFound == false)) {
+												typesOfArguments += ("String" : e); 
+												isTypeFound = true;
+											}
+											if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
+												isTypeFound = true;
+												typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
+											}
+										}
+									}
+									if (isTypeFound == false) {
+										// loop through previously extracted class variables
+										for(VariableDeclaratorId vId <- classVariableNameTypeMap) {
+											print("VariableDeclaratorId: <vId>");
+											str variableId = trim(unparse(vId));
+											if (startsWith(unparsedExp, "this.")) {
+												unparsedExp = substring(unparsedExp, 5);
+											}
+											if (startsWith(variableId, "this.")) {
+												variableId = substring(variableId, 5);
+											}
+											if (endsWith(unparsedExp, ".toString()")) {
+												typesOfArguments += ("String" : e); 
+												isTypeFound = true;
+											}
+											if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
+												isTypeFound = true;
+												typesOfArguments += (trim(unparse(classVariableNameTypeMap[vId])): e);
+											}
+										}
+									}
+									// check if they are in generic types
+									if (isTypeFound == false) {
+										top-down visit(e) {
+											case IntegerLiteral i : { 
+												if(equalUnparsed(e, i)) {
+													typesOfArguments += ("int" : e); 
+													isTypeFound = true;
+												}
+											}
+											case StringLiteral s : { 
+												if(equalUnparsed(e, s)) {
+													typesOfArguments += ("String" : e); 
+													isTypeFound = true;
+												} 
+											}
+											case BooleanLiteral b : { 
+												if(equalUnparsed(e, b)) {
+													typesOfArguments += ("boolean" : e);
+													isTypeFound = true;
+												} 
+											}
+										}
+									}
+									if (isTypeFound == false) {
+										// the argument can contain a method call as well.
+										if (endsWith(unparsedExp, "()") || endsWith(unparsedExp, ")")) {
+											indexVal = findFirst(unparsedExp, "(");
+											// extract the method name
+											variableNameExt = substring(unparsedExp, 0, indexVal);
+											// loop through method type map to identify the return type of that method
+											for (str methodName <- methodTypeMap) {
+												print("methodTypeMap: <methodName> : <methodTypeMap[methodName]>: <variableNameExt>");
+												if (trim(methodName) == trim(variableNameExt)) {
+													isTypeFound = true;
+													typesOfArguments += (trim(unparse(methodTypeMap[methodName])): e);
+												}
+											}
+										}
+									}
+									if (isTypeFound == false) {
+										typesOfArguments += ("String" : e); 
+										isTypeFound = true;
+									}
+								} 
 							}
-							if (isTypeFound == false) {
+						} else {
+							// sometimes there are arguments as "this", then we need to see interfaces of the class
+							if (trim(unparsedExp) == "this") {
+								top-down visit(compilationUnit) {
+									case NormalClassDeclaration classDec: {
+										top-down visit(classDec) {
+											case Superinterfaces su: {
+												top-down visit(su) {
+													case InterfaceType interfaceType: {
+														if (trim(unparse(interfaceType)) == "Runnable") {
+															typesOfArguments += ("Runnable" : e); 
+															isTypeFound = true;
+														}
+													}
+												}
+											} 
+										} 
+									}
+								}	
+							} else {
 								for(str vId <- consThisTypeMap) {
 									println("consVid: <vId> : <unparsedExp>");
 									if (startsWith(unparsedExp, "this.")) {
@@ -994,31 +1123,9 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 										typesOfArguments += (consThisTypeMap[vId]: e);
 									}
 								}
-								// loop through previously extracted variable map
 								if (isTypeFound == false) {
 									for(VariableDeclaratorId vId <- variableNameTypeMap) {
-										str variableId = trim(unparse(vId));
-										// check if the variable starts with this.
-										if (startsWith(unparsedExp, "this.")) {
-											unparsedExp = substring(unparsedExp, 5);
-										}
-										if (startsWith(variableId, "this.")) {
-											variableId = substring(variableId, 5);
-										}
-										if (endsWith(unparsedExp, ".toString()") && (isTypeFound == false)) {
-											typesOfArguments += ("String" : e); 
-											isTypeFound = true;
-										}
-										if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
-											isTypeFound = true;
-											typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
-										}
-									}
-								}
-								if (isTypeFound == false) {
-									// loop through previously extracted class variables
-									for(VariableDeclaratorId vId <- classVariableNameTypeMap) {
-										print("VariableDeclaratorId: <vId>");
+										println("local: <vId> : <unparsedExp>");
 										str variableId = trim(unparse(vId));
 										if (startsWith(unparsedExp, "this.")) {
 											unparsedExp = substring(unparsedExp, 5);
@@ -1032,11 +1139,32 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 										}
 										if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 											isTypeFound = true;
+											println("local: <variableNameTypeMap[vId]> : <unparsedExp> type found");
+											typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
+										}
+									}
+								}
+								if (isTypeFound == false) {
+									for(VariableDeclaratorId vId <- classVariableNameTypeMap) {
+										println("class: <vId> : <unparsedExp>");
+										str variableId = trim(unparse(vId));
+										if (startsWith(unparsedExp, "this.")) {
+											unparsedExp = substring(unparsedExp, 5);
+										}
+										if (startsWith(variableId, "this.")) {
+											variableId = substring(variableId, 5);
+										}
+										if (endsWith(unparsedExp, ".toString()")) {
+											typesOfArguments += ("String" : e); 
+											isTypeFound = true;
+										}
+										if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
+											isTypeFound = true;
+											println("class: <classVariableNameTypeMap[vId]> : <unparsedExp> type found");
 											typesOfArguments += (trim(unparse(classVariableNameTypeMap[vId])): e);
 										}
 									}
 								}
-								// check if they are in generic types
 								if (isTypeFound == false) {
 									top-down visit(e) {
 										case IntegerLiteral i : { 
@@ -1060,12 +1188,9 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									}
 								}
 								if (isTypeFound == false) {
-									// the argument can contain a method call as well.
 									if (endsWith(unparsedExp, "()") || endsWith(unparsedExp, ")")) {
 										indexVal = findFirst(unparsedExp, "(");
-										// extract the method name
 										variableNameExt = substring(unparsedExp, 0, indexVal);
-										// loop through method type map to identify the return type of that method
 										for (str methodName <- methodTypeMap) {
 											print("methodTypeMap: <methodName> : <methodTypeMap[methodName]>: <variableNameExt>");
 											if (trim(methodName) == trim(variableNameExt)) {
@@ -1075,129 +1200,9 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 										}
 									}
 								}
-								if (isTypeFound == false) {
-									typesOfArguments += ("String" : e); 
-									isTypeFound = true;
-								}
-							} 
-						}
-					} else {
-						// sometimes there are arguments as "this", then we need to see interfaces of the class
-						if (trim(unparsedExp) == "this") {
-							top-down visit(compilationUnit) {
-								case NormalClassDeclaration classDec: {
-									top-down visit(classDec) {
-										case Superinterfaces su: {
-											top-down visit(su) {
-												case InterfaceType interfaceType: {
-													if (trim(unparse(interfaceType)) == "Runnable") {
-														typesOfArguments += ("Runnable" : e); 
-														isTypeFound = true;
-													}
-												}
-											}
-										} 
-									} 
-								}
-							}	
-						} else {
-							for(str vId <- consThisTypeMap) {
-								println("consVid: <vId> : <unparsedExp>");
-								if (startsWith(unparsedExp, "this.")) {
-									unparsedExp = substring(unparsedExp, 5);
-								}
-								if (startsWith(vId, "this.")) {
-									vId = substring(vId, 5);
-								}
-								if (endsWith(unparsedExp, ".toString()")) {
-									typesOfArguments += ("String" : e); 
-									isTypeFound = true;
-								}
-								if (vId == trim(unparsedExp) && (isTypeFound == false)) {
-									isTypeFound = true;
-									println("consVid: <consThisTypeMap[vId]> : <unparsedExp> type found");
-									typesOfArguments += (consThisTypeMap[vId]: e);
-								}
+								println("typesOfArguments: <size(typesOfArguments)>");
 							}
-							if (isTypeFound == false) {
-								for(VariableDeclaratorId vId <- variableNameTypeMap) {
-									println("local: <vId> : <unparsedExp>");
-									str variableId = trim(unparse(vId));
-									if (startsWith(unparsedExp, "this.")) {
-										unparsedExp = substring(unparsedExp, 5);
-									}
-									if (startsWith(variableId, "this.")) {
-										variableId = substring(variableId, 5);
-									}
-									if (endsWith(unparsedExp, ".toString()")) {
-										typesOfArguments += ("String" : e); 
-										isTypeFound = true;
-									}
-									if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
-										isTypeFound = true;
-										println("local: <variableNameTypeMap[vId]> : <unparsedExp> type found");
-										typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
-									}
-								}
-							}
-							if (isTypeFound == false) {
-								for(VariableDeclaratorId vId <- classVariableNameTypeMap) {
-									println("class: <vId> : <unparsedExp>");
-									str variableId = trim(unparse(vId));
-									if (startsWith(unparsedExp, "this.")) {
-										unparsedExp = substring(unparsedExp, 5);
-									}
-									if (startsWith(variableId, "this.")) {
-										variableId = substring(variableId, 5);
-									}
-									if (endsWith(unparsedExp, ".toString()")) {
-										typesOfArguments += ("String" : e); 
-										isTypeFound = true;
-									}
-									if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
-										isTypeFound = true;
-										println("class: <classVariableNameTypeMap[vId]> : <unparsedExp> type found");
-										typesOfArguments += (trim(unparse(classVariableNameTypeMap[vId])): e);
-									}
-								}
-							}
-							if (isTypeFound == false) {
-								top-down visit(e) {
-									case IntegerLiteral i : { 
-										if(equalUnparsed(e, i)) {
-											typesOfArguments += ("int" : e); 
-											isTypeFound = true;
-										}
-									}
-									case StringLiteral s : { 
-										if(equalUnparsed(e, s)) {
-											typesOfArguments += ("String" : e); 
-											isTypeFound = true;
-										} 
-									}
-									case BooleanLiteral b : { 
-										if(equalUnparsed(e, b)) {
-											typesOfArguments += ("boolean" : e);
-											isTypeFound = true;
-										} 
-									}
-								}
-							}
-							if (isTypeFound == false) {
-								if (endsWith(unparsedExp, "()") || endsWith(unparsedExp, ")")) {
-									indexVal = findFirst(unparsedExp, "(");
-									variableNameExt = substring(unparsedExp, 0, indexVal);
-									for (str methodName <- methodTypeMap) {
-										print("methodTypeMap: <methodName> : <methodTypeMap[methodName]>: <variableNameExt>");
-										if (trim(methodName) == trim(variableNameExt)) {
-											isTypeFound = true;
-											typesOfArguments += (trim(unparse(methodTypeMap[methodName])): e);
-										}
-									}
-								}
-							}
-							println("typesOfArguments: <size(typesOfArguments)>");
-						}
+						}	
 					}
 				}
 			}
