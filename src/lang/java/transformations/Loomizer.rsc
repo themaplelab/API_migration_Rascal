@@ -487,10 +487,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			println("chck1: <("Runnable" in types)>");
 			println("chck2: <("String" in types)>");
 			if (check == true && check2 == true) {
-				Expression argument0 = typesOfArguments["Runnable"];
-				runnableArguments = unparse(argument0);
-				Expression argument1 = typesOfArguments["String"];
-				nameArguments = unparse(argument1);
+				// Expression argument0 = typesOfArguments["Runnable"];
+				// runnableArguments = unparse(argument0);
+				// Expression argument1 = typesOfArguments["String"];
+				// nameArguments = unparse(argument1);
 				// ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 				// ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
 				// replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
