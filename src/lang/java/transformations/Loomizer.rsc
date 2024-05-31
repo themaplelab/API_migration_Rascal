@@ -719,9 +719,33 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   		println("statementExprClassInstance : <exp> detected : <detectedTime>");
 		map[str, Expression] typesOfArguments = ( );
 
+		bool isArgNewClass = false;
+		bool isLambdaExp = false;
+		bool isAIC = false;
+		str replacingArgument;
+		ClassInstanceCreationExpression cice;
 		list[ArgumentList] argumentList = [];
 		top-down visit(exp) {
-			case ArgumentList argList : argumentList += argList; 
+			case ArgumentList argList : {
+				argumentList += argList; 
+				top-down visit(argList) {
+					case ClassInstanceCreationExpression exp : {
+						isArgNewClass = true;
+						cice = exp;
+						println("blockStatementClass : <exp> detected : <detectedTime>");
+					}
+					case LambdaExpression lambdaExp : {
+						isLambdaExp = true;
+						replacingArgument = unparse(lambdaExp);
+						println("blockStatementLambda : <exp> detected : <detectedTime>");
+					}
+					case AIC aic : {
+						isAIC = true;
+						replacingArgument = unparse(aic);
+						println("blockStatementAIC : <exp> detected : <detectedTime>");
+					}
+				} 
+			}
 		}
 		typesOfArguments = getTypesOfArguments(argumentList);
 		int numberOfArguments = size(typesOfArguments);
@@ -845,6 +869,24 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				}
 			}
 		}
+		else if (isArgNewClass == true) {
+			ArgumentList runnableArgs = parse(#ArgumentList, unparse(cice));
+			replacingExpression = (StatementExpression) `Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
+			isReplacement = true;
+			isArgNewClass = false;
+		}
+		else if (isLambdaExp == true) {
+			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
+			replacingExpression = (StatementExpression) `Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
+			isReplacement = true;
+			isLambdaExp = false;
+		}
+		else if (isAIC == true) {
+			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
+			replacingExpression = (StatementExpression) `Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
+			isReplacement = true;
+			isAIC = false;
+		}
 		if (isReplacement == true) {
 			datetime transformedTime = now();
   			println("statementExp : <replacingExpression> transformed : <transformedTime>");
@@ -856,10 +898,34 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		datetime detectedTime = now();
   		println("statementExprClassInstance : <exp> detected : <detectedTime>");
 		map[str, Expression] typesOfArguments = ( );
-
+		
+		bool isArgNewClass = false;
+		bool isLambdaExp = false;
+		bool isAIC = false;
+		str replacingArgument;
+		ClassInstanceCreationExpression cice;
 		list[ArgumentList] argumentList = [];
 		top-down visit(exp) {
-			case ArgumentList argList : argumentList += argList; 
+			case ArgumentList argList : {
+				argumentList += argList; 
+				top-down visit(argList) {
+					case ClassInstanceCreationExpression exp : {
+						isArgNewClass = true;
+						cice = exp;
+						println("blockStatementClass : <exp> detected : <detectedTime>");
+					}
+					case LambdaExpression lambdaExp : {
+						isLambdaExp = true;
+						replacingArgument = unparse(lambdaExp);
+						println("blockStatementLambda : <exp> detected : <detectedTime>");
+					}
+					case AIC aic : {
+						isAIC = true;
+						replacingArgument = unparse(aic);
+						println("blockStatementAIC : <exp> detected : <detectedTime>");
+					}
+				} 
+			}
 		}
 		typesOfArguments = getTypesOfArguments(argumentList);
 		int numberOfArguments = size(typesOfArguments);
@@ -913,6 +979,24 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				replacingExpression = (StatementExpression) `Thread.startVirtualThread(<ArgumentList lambdas>)`;
 				isReplacement = true;
 			}
+		}
+		else if (isArgNewClass == true) {
+			ArgumentList runnableArgs = parse(#ArgumentList, unparse(cice));
+			replacingExpression = (StatementExpression) `Thread.startVirtualThread(<ArgumentList runnableArgs>);`;
+			isReplacement = true;
+			isArgNewClass = false;
+		}
+		else if (isLambdaExp == true) {
+			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
+			replacingExpression = (StatementExpression) `Thread.startVirtualThread(<ArgumentList runnableArgs>);`;
+			isReplacement = true;
+			isLambdaExp = false;
+		}
+		else if (isAIC == true) {
+			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
+			replacingExpression = (StatementExpression) `Thread.startVirtualThread(<ArgumentList runnableArgs>);`;
+			isReplacement = true;
+			isAIC = false;
 		}
 		if (isReplacement == true) {
 			datetime transformedTime = now();
