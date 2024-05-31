@@ -167,7 +167,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		//get types of arguments
 		typesOfArguments = ( );
-		if (isArgNewClass == false && size(argumentList) > 1) {
+		if (isArgNewClass == false || size(argumentList) > 1) {
+			isArgNewClass = false;
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
@@ -353,7 +354,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			}
 		}
 		typesOfArguments = ( );
-		if (isArgNewClass == false && size(argumentList) > 1) {
+		if (isArgNewClass == false || size(argumentList) > 1) {
+			isArgNewClass = false;
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
@@ -532,7 +534,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		} 
 		println("argSize: <size(argumentList)>");
 		typesOfArguments = ( );
-		if (isArgNewClass == false && size(argumentList) > 1) {
+		if (isArgNewClass == false || size(argumentList) > 1) {
+			isArgNewClass = false;
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
@@ -696,7 +699,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			}
 		}
 		typesOfArguments = ( );
-		if (isArgNewClass == false && size(argumentList) > 1) {
+		if (isArgNewClass == false || size(argumentList) > 1) {
+			isArgNewClass = false;
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
@@ -859,7 +863,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			}
 		} 
 		typesOfArguments = ( );
-		if (isArgNewClass == false && size(argumentList) > 1) {
+		if (isArgNewClass == false || size(argumentList) > 1) {
+			isArgNewClass = false;
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
