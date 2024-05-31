@@ -152,22 +152,32 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		// extract argument list
 		top-down visit(blockstatementExp) {
 			case ArgumentList argList : {
+				int count = 0;
 				argumentList += argList; 
 				top-down visit(argList) {
 					case ClassInstanceCreationExpression exp : {
-						isArgNewClass = true;
-						cice = exp;
-						println("blockStatementClass : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isArgNewClass = true;
+							cice = exp;
+							println("blockStatementClass : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 					case LambdaExpression lambdaExp : {
-						isLambdaExp = true;
-						replacingArgument = unparse(lambdaExp);
-						println("blockStatementLambda : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isLambdaExp = true;
+							replacingArgument = unparse(lambdaExp);
+							println("blockStatementLambda : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 					case AIC aic : {
-						isAIC = true;
-						replacingArgument = unparse(aic);
-						println("blockStatementAIC : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isAIC = true;
+							replacingArgument = unparse(aic);
+							println("blockStatementAIC : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 				}
 			}
@@ -353,22 +363,32 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		list[ArgumentList] argumentList = [];
 		top-down visit(returnSte) {
 			case ArgumentList argList : {
+				int count = 0;
 				argumentList += argList;
 				top-down visit(argList) {
 					case ClassInstanceCreationExpression exp : {
-						isArgNewClass = true;
-						cice = exp;
-						println("blockStatementClass : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isArgNewClass = true;
+							cice = exp;
+							println("blockStatementClass : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 					case LambdaExpression lambdaExp : {
-						isLambdaExp = true;
-						replacingArgument = unparse(lambdaExp);
-						println("blockStatementLambda : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isLambdaExp = true;
+							replacingArgument = unparse(lambdaExp);
+							println("blockStatementLambda : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 					case AIC aic : {
-						isAIC = true;
-						replacingArgument = unparse(aic);
-						println("blockStatementAIC : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isAIC = true;
+							replacingArgument = unparse(aic);
+							println("blockStatementAIC : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 				}
 			} 
@@ -547,21 +567,31 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		top-down visit(exp) {
 			case ArgumentList argList : {
 				argumentList += argList;
+				int count = 0;
 				top-down visit(argList) {
 					case ClassInstanceCreationExpression exp : {
-						isArgNewClass = true;
-						cice = exp;
-						println("blockStatementClass : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isArgNewClass = true;
+							cice = exp;
+							println("blockStatementClass : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 					case LambdaExpression lambdaExp : {
-						isLambdaExp = true;
-						replacingArgument = unparse(lambdaExp);
-						println("blockStatementLambda : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isLambdaExp = true;
+							replacingArgument = unparse(lambdaExp);
+							println("blockStatementLambda : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 					case AIC aic : {
-						isAIC = true;
-						replacingArgument = unparse(aic);
-						println("blockStatementAIC : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isAIC = true;
+							replacingArgument = unparse(aic);
+							println("blockStatementAIC : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 				} 
 			} 
@@ -728,21 +758,31 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		top-down visit(exp) {
 			case ArgumentList argList : {
 				argumentList += argList; 
+				int count = 0;
 				top-down visit(argList) {
 					case ClassInstanceCreationExpression exp : {
-						isArgNewClass = true;
-						cice = exp;
-						println("blockStatementClass : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isArgNewClass = true;
+							cice = exp;
+							println("blockStatementClass : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 					case LambdaExpression lambdaExp : {
-						isLambdaExp = true;
-						replacingArgument = unparse(lambdaExp);
-						println("blockStatementLambda : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isLambdaExp = true;
+							replacingArgument = unparse(lambdaExp);
+							println("blockStatementLambda : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 					case AIC aic : {
-						isAIC = true;
-						replacingArgument = unparse(aic);
-						println("blockStatementAIC : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isAIC = true;
+							replacingArgument = unparse(aic);
+							println("blockStatementAIC : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 				} 
 			}
@@ -907,22 +947,32 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		list[ArgumentList] argumentList = [];
 		top-down visit(exp) {
 			case ArgumentList argList : {
+				int count = 0;
 				argumentList += argList; 
 				top-down visit(argList) {
 					case ClassInstanceCreationExpression exp : {
-						isArgNewClass = true;
-						cice = exp;
-						println("blockStatementClass : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isArgNewClass = true;
+							cice = exp;
+							println("blockStatementClass : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 					case LambdaExpression lambdaExp : {
-						isLambdaExp = true;
-						replacingArgument = unparse(lambdaExp);
-						println("blockStatementLambda : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isLambdaExp = true;
+							replacingArgument = unparse(lambdaExp);
+							println("blockStatementLambda : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 					case AIC aic : {
-						isAIC = true;
-						replacingArgument = unparse(aic);
-						println("blockStatementAIC : <exp> detected : <detectedTime>");
+						if (count == 0) {
+							isAIC = true;
+							replacingArgument = unparse(aic);
+							println("blockStatementAIC : <exp> detected : <detectedTime>");
+						}
+						count+=1;
 					}
 				} 
 			}
