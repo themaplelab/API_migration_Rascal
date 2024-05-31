@@ -136,6 +136,33 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		previousMethodDeclaration = b;
 	}
+	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<LambdaExpression args>)` : {
+		BlockStatement exp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<LambdaExpression args>)`;
+		datetime detectedTime = now();
+  		println("blockStatementExpr with lambda : <exp> detected : <detectedTime>");
+		BlockStatement replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<LambdaExpression args>)`;
+		datetime transformedTime = now();
+  		println("blockStatementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
+		insert(replacingExpression);
+	}
+	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ClassInstanceCreationExpression args>)` : {
+		BlockStatement exp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ClassInstanceCreationExpression args>)`;
+		datetime detectedTime = now();
+  		println("blockStatementExpr with classInstance : <exp> detected : <detectedTime>");
+		BlockStatement replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ClassInstanceCreationExpression args>)`;
+		datetime transformedTime = now();
+  		println("blockStatementExpr with classInstance : <replacingExpression> transformed : <transformedTime>");
+		insert(replacingExpression);
+	}
+	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<AIC aic>)` : {
+		BlockStatement exp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<AIC aic>)`;
+		datetime detectedTime = now();
+  		println("blockStatementExpr with aic : <exp> detected : <detectedTime>");
+		BlockStatement replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<AIC aic>)`;
+		datetime transformedTime = now();
+  		println("blockStatementExpr with aic : <replacingExpression> transformed : <transformedTime>");
+		insert(replacingExpression);
+	}
 	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);` : {
 		BlockStatement blockstatementExp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);`;
 		println("bb: <blockstatementExp>");
@@ -300,31 +327,195 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			insert(replacingExpression);
 		}
 	}
-	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<LambdaExpression args>)` : {
-		BlockStatement exp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<LambdaExpression args>)`;
+	case (BlockStatement) `final Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);` : {
+		BlockStatement blockstatementExp = (BlockStatement) `final Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);`;
+		println("bb: <blockstatementExp>");
 		datetime detectedTime = now();
-  		println("blockStatementExpr with lambda : <exp> detected : <detectedTime>");
-		BlockStatement replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<LambdaExpression args>)`;
+  		println("blockStatement : <blockstatementExp> detected : <detectedTime>");
+		map[str, Expression] typesOfArguments = ( );
+
+		list[ArgumentList] argumentList = [];
+		// extract argument list
+		top-down visit(blockstatementExp) {
+			case ArgumentList argList : argumentList += argList; 
+		}
+		//get types of arguments
+		typesOfArguments = getTypesOfArguments(argumentList);
+		int numberOfArguments = size(typesOfArguments);
+		list[str] types = toList(typesOfArguments<0>);
+		int numberOfTypes = size(types);
+		println("numberOfTypes :<numberOfTypes>");
+		println("types :<types>");
+		BlockStatement replacingExpression;
+		bool isReplacement = false;
+		if (numberOfTypes == 1) {
+			if (types[0] == "Runnable") {
+				Expression argument0 = typesOfArguments["Runnable"];
+				str expressionArgument = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
+				replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				isReplacement = true;
+			} else {
+				str typeOfArg = findTypeOfArg(unit, types[0], file, "");
+				println("typeOfArgFinal2: <typeOfArg>");
+				if (typeOfArg == "Runnable") {
+					Expression argument0 = typesOfArguments[types[0]];
+					str expressionArgument = unparse(argument0);
+					ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
+					replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+					isReplacement = true;
+				}
+			}
+		} else if (numberOfTypes == 2) {
+			println("numberOfTypes44 :<types[0]>");
+		    println("numberOfTypes66 :<types[1]>");
+
+			if ((types[0] != "String" && types[0] != "Runnable" && types[0] != "ThreadGroup")) {
+				println("started to find the data type0");
+				str typeOfArg = findTypeOfArg(unit, types[0], file, "");
+		    	println("typeOfArgFinal6: <typeOfArg>");
+				Expression exp = typesOfArguments[types[0]];
+				delete(typesOfArguments, types[0]);
+				types[0] = typeOfArg;
+				typesOfArguments += (typeOfArg: exp);
+				println("typesOfArguments: <typesOfArguments>");
+			}
+			if ((types[1] != "String" && types[1] != "Runnable" && types[1] != "ThreadGroup")) {
+				println("started to find the data type1");
+				str typeOfArg = findTypeOfArg(unit, types[1], file, "");
+				println("typeOfArgFinal7: <typeOfArg>");
+				Expression exp = typesOfArguments[types[1]];
+				delete(typesOfArguments, types[1]);
+				types[1] = typeOfArg;
+				typesOfArguments += (typeOfArg: exp);
+				println("typesOfArguments: <typesOfArguments>");
+			}
+			if ((types[0] == "ThreadGroup" && types[1] == "Runnable") || (types[0] == "Runnable" && types[1] == "ThreadGroup")) {
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						str expressionArgument = unparse(argument0);
+						ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
+						replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+						isReplacement = true;
+						break;
+					}
+				}
+			} else if (types[0] == "ThreadGroup" && (types[1] != "String" && types[1] != "Runnable")) {
+				Expression argument0 = typesOfArguments[types[1]];
+				str expressionArgument = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
+				replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				isReplacement = true;
+			} else if (types[1] == "ThreadGroup" && (types[0] != "String" && types[0] != "Runnable")) {
+				Expression argument0 = typesOfArguments[types[0]];
+				str expressionArgument = unparse(argument0);
+				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
+				replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				isReplacement = true;
+			} else if ((types[0] == "Runnable" && (types[1] == "String" || types[1] == "StringBuffer")) || ((types[0] == "String" || types[0] == "StringBuffer") && types[1] == "Runnable")) {
+				str runnableArguments = "";
+				str nameArguments = "";
+				for(str tId <- typesOfArguments) {
+					if (tId == "Runnable") {
+						Expression argument0 = typesOfArguments[tId];
+						runnableArguments = unparse(argument0);
+					}
+					if (tId == "String" || tId == "StringBuffer") {
+						Expression argument0 = typesOfArguments[tId];
+						nameArguments = unparse(argument0);
+					}
+				}
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+				isReplacement = true;
+			} else if ((types[0] != "String" && types[0] != "Runnable" && types[0] != "ThreadGroup" && types[0] != "StringBuffer") && (types[1] == "String" || types[1] == "StringBuffer")) {
+				println("typeOfArgFinal2return3: <typeOfArg>");
+				str typeOfArg = findTypeOfArg(unit, types[0], file, "");
+				println("typeOfArgFinal2return3: <typeOfArg>");
+				if (typeOfArg == "Runnable") {
+					Expression argument0 = typesOfArguments[types[0]];
+					str runnableArguments = unparse(argument0);
+					Expression argument1 = typesOfArguments[types[1]];
+					str nameArguments = unparse(argument1);
+					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+					replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+					isReplacement = true;
+				}
+			} else if ((types[1] != "String" && types[1] != "Runnable" && types[1] != "ThreadGroup" && types[1] != "StringBuffer") && (types[0] == "String" || types[0] == "StringBuffer")) {
+				str typeOfArg = findTypeOfArg(unit, types[1], file, "");
+				println("typeOfArgFinal2return3: <typeOfArg>");
+				if (typeOfArg == "Runnable") {
+					Expression argument0 = typesOfArguments[types[1]];
+					str runnableArguments = unparse(argument0);
+					Expression argument1 = typesOfArguments[types[0]];
+					str nameArguments = unparse(argument1);
+					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+					replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+					isReplacement = true;
+				}
+			}
+			println("numberOfTyp89 :<types[0]>");
+		    println("numberOfTyp87 :<types[1]>");
+		} else if (numberOfTypes == 3) {
+			if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
+				Expression argument0 = typesOfArguments[tId];
+				runnableArguments = unparse(argument0);
+				Expression argument0 = typesOfArguments[tId];
+				nameArguments = unparse(argument0);
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+		    	isReplacement = true;
+			} else if (types[1] != "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
+				str typeOfArg = findTypeOfArg(unit, types[1], file, "");
+				println("typeOfArgFinal2113: <typeOfArg>");
+				if (typeOfArg == "Runnable") {
+					Expression argument0 = typesOfArguments[types[1]];
+					runnableArguments = unparse(argument0);
+					Expression argument0 = typesOfArguments[types[2]];
+					nameArguments = unparse(argument0);
+					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+					replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+					isReplacement = true;
+				}
+			}
+		}
+		if (isReplacement == true) {
+			datetime transformedTime = now();
+  			println("blockStatement : <replacingExpression> transformed : <transformedTime>");
+			insert(replacingExpression);
+		}
+	}
+	case (ReturnStatement) `return new Thread(<LambdaExpression args>)` : {
+		ReturnStatement exp = (ReturnStatement) `return new Thread(<LambdaExpression args>)`;
+		datetime detectedTime = now();
+  		println("returnStatementExpr with lambda : <exp> detected : <detectedTime>");
+		ReturnStatement replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<LambdaExpression args>)`;
 		datetime transformedTime = now();
-  		println("blockStatementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
+  		println("returnStatementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
 		insert(replacingExpression);
 	}
-	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ClassInstanceCreationExpression args>)` : {
-		BlockStatement exp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ClassInstanceCreationExpression args>)`;
+	case (ReturnStatement) `return new Thread(<ClassInstanceCreationExpression args>)` : {
+		ReturnStatement exp = (ReturnStatement) `return new Thread(<ClassInstanceCreationExpression args>)`;
 		datetime detectedTime = now();
-  		println("blockStatementExpr with classInstance : <exp> detected : <detectedTime>");
-		BlockStatement replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ClassInstanceCreationExpression args>)`;
+  		println("returnStatementExpr with lambda : <exp> detected : <detectedTime>");
+		ReturnStatement replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ClassInstanceCreationExpression args>)`;
 		datetime transformedTime = now();
-  		println("blockStatementExpr with classInstance : <replacingExpression> transformed : <transformedTime>");
+  		println("returnStatementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
 		insert(replacingExpression);
 	}
-	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<AIC aic>)` : {
-		BlockStatement exp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<AIC aic>)`;
+	case (ReturnStatement) `return new Thread(<AIC args>)` : {
+		ReturnStatement exp = (ReturnStatement) `return new Thread(<AIC args>)`;
 		datetime detectedTime = now();
-  		println("blockStatementExpr with aic : <exp> detected : <detectedTime>");
-		BlockStatement replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<AIC aic>)`;
+  		println("returnStatementExpr with AIC : <exp> detected : <detectedTime>");
+		ReturnStatement replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<AIC args>)`;
 		datetime transformedTime = now();
-  		println("blockStatementExpr with aic : <replacingExpression> transformed : <transformedTime>");
+  		println("returnStatementExpr with AIC : <replacingExpression> transformed : <transformedTime>");
 		insert(replacingExpression);
 	}
 	case (ReturnStatement) `return new Thread(<ArgumentList args>);` : {
@@ -481,31 +672,31 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			insert(replacingExpression);
 		}
 	}
-	case (ReturnStatement) `return new Thread(<LambdaExpression args>)` : {
-		ReturnStatement exp = (ReturnStatement) `return new Thread(<LambdaExpression args>)`;
+	case (StatementExpression) `<LeftHandSide id> = new Thread(<LambdaExpression args>)` : {
+		StatementExpression exp = (StatementExpression) `<LeftHandSide id> = new Thread(<LambdaExpression args>)`;
 		datetime detectedTime = now();
-  		println("returnStatementExpr with lambda : <exp> detected : <detectedTime>");
-		ReturnStatement replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<LambdaExpression args>)`;
+  		println("statementExpr with lambda : <exp> detected : <detectedTime>");
+		StatementExpression replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<LambdaExpression args>)`;
 		datetime transformedTime = now();
-  		println("returnStatementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
+  		println("statementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
 		insert(replacingExpression);
 	}
-	case (ReturnStatement) `return new Thread(<ClassInstanceCreationExpression args>)` : {
-		ReturnStatement exp = (ReturnStatement) `return new Thread(<ClassInstanceCreationExpression args>)`;
+	case (StatementExpression) `<LeftHandSide id> = new Thread(<ClassInstanceCreationExpression args>)` : {
+		StatementExpression exp = (StatementExpression) `<LeftHandSide id> = new Thread(<ClassInstanceCreationExpression args>)`;
 		datetime detectedTime = now();
-  		println("returnStatementExpr with lambda : <exp> detected : <detectedTime>");
-		ReturnStatement replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ClassInstanceCreationExpression args>)`;
+  		println("statementExpr with lambda : <exp> detected : <detectedTime>");
+		StatementExpression replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ClassInstanceCreationExpression args>)`;
 		datetime transformedTime = now();
-  		println("returnStatementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
+  		println("statementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
 		insert(replacingExpression);
 	}
-	case (ReturnStatement) `return new Thread(<AIC args>)` : {
-		ReturnStatement exp = (ReturnStatement) `return new Thread(<AIC args>)`;
+	case (StatementExpression) `<LeftHandSide id> = new Thread(<AIC args>)` : {
+		StatementExpression exp = (StatementExpression) `<LeftHandSide id> = new Thread(<AIC args>)`;
 		datetime detectedTime = now();
-  		println("returnStatementExpr with AIC : <exp> detected : <detectedTime>");
-		ReturnStatement replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<AIC args>)`;
+  		println("statementExpr with aic : <exp> detected : <detectedTime>");
+		StatementExpression replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<AIC args>)`;
 		datetime transformedTime = now();
-  		println("returnStatementExpr with AIC : <replacingExpression> transformed : <transformedTime>");
+  		println("statementExpr with aic : <replacingExpression> transformed : <transformedTime>");
 		insert(replacingExpression);
 	}
 	case (StatementExpression) `<LeftHandSide id> = new Thread(<ArgumentList args>)` : {
@@ -646,33 +837,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   			println("returnStatement : <replacingExpression> transformed : <transformedTime>");
 			insert(replacingExpression);
 		}
-	}
-	case (StatementExpression) `<LeftHandSide id> = new Thread(<LambdaExpression args>)` : {
-		StatementExpression exp = (StatementExpression) `<LeftHandSide id> = new Thread(<LambdaExpression args>)`;
-		datetime detectedTime = now();
-  		println("statementExpr with lambda : <exp> detected : <detectedTime>");
-		StatementExpression replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<LambdaExpression args>)`;
-		datetime transformedTime = now();
-  		println("statementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
-		insert(replacingExpression);
-	}
-	case (StatementExpression) `<LeftHandSide id> = new Thread(<ClassInstanceCreationExpression args>)` : {
-		StatementExpression exp = (StatementExpression) `<LeftHandSide id> = new Thread(<ClassInstanceCreationExpression args>)`;
-		datetime detectedTime = now();
-  		println("statementExpr with lambda : <exp> detected : <detectedTime>");
-		StatementExpression replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ClassInstanceCreationExpression args>)`;
-		datetime transformedTime = now();
-  		println("statementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
-		insert(replacingExpression);
-	}
-	case (StatementExpression) `<LeftHandSide id> = new Thread(<AIC args>)` : {
-		StatementExpression exp = (StatementExpression) `<LeftHandSide id> = new Thread(<AIC args>)`;
-		datetime detectedTime = now();
-  		println("statementExpr with aic : <exp> detected : <detectedTime>");
-		StatementExpression replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<AIC args>)`;
-		datetime transformedTime = now();
-  		println("statementExpr with aic : <replacingExpression> transformed : <transformedTime>");
-		insert(replacingExpression);
 	}
 	case (StatementExpression) `new Thread(<ArgumentList args>)` : {
 		StatementExpression exp = (StatementExpression) `new Thread(<ArgumentList args>)`;
