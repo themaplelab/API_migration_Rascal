@@ -300,6 +300,24 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			insert(replacingExpression);
 		}
 	}
+	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<LambdaExpression args>)` : {
+		BlockStatement exp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<LambdaExpression args>)`;
+		datetime detectedTime = now();
+  		println("blockStatementExpr with lambda : <exp> detected : <detectedTime>");
+		BlockStatement replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<LambdaExpression args>)`;
+		datetime transformedTime = now();
+  		println("blockStatementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
+		insert(replacingExpression);
+	}
+	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<AIC aic>)` : {
+		BlockStatement exp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<AIC aic>)`;
+		datetime detectedTime = now();
+  		println("blockStatementExpr with aic : <exp> detected : <detectedTime>");
+		BlockStatement replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<AIC aic>)`;
+		datetime transformedTime = now();
+  		println("blockStatementExpr with aic : <replacingExpression> transformed : <transformedTime>");
+		insert(replacingExpression);
+	}
 	case (ReturnStatement) `return new Thread(<ArgumentList args>);` : {
 		ReturnStatement returnSte = (ReturnStatement) `return new Thread(<ArgumentList args>);`;
 		datetime detectedTime = now();
@@ -454,6 +472,24 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			insert(replacingExpression);
 		}
 	}
+	case (ReturnStatement) `return new Thread(<LambdaExpression args>)` : {
+		ReturnStatement exp = (ReturnStatement) `return new Thread(<LambdaExpression args>)`;
+		datetime detectedTime = now();
+  		println("returnStatementExpr with lambda : <exp> detected : <detectedTime>");
+		ReturnStatement replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<LambdaExpression args>)`;
+		datetime transformedTime = now();
+  		println("returnStatementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
+		insert(replacingExpression);
+	}
+	case (ReturnStatement) `return new Thread(<AIC args>)` : {
+		ReturnStatement exp = (ReturnStatement) `return new Thread(<AIC args>)`;
+		datetime detectedTime = now();
+  		println("returnStatementExpr with AIC : <exp> detected : <detectedTime>");
+		ReturnStatement replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<AIC args>)`;
+		datetime transformedTime = now();
+  		println("returnStatementExpr with AIC : <replacingExpression> transformed : <transformedTime>");
+		insert(replacingExpression);
+	}
 	case (StatementExpression) `<LeftHandSide id> = new Thread(<ArgumentList args>)` : {
 		StatementExpression exp = (StatementExpression) `<LeftHandSide id> = new Thread(<ArgumentList args>)`;
 		datetime detectedTime = now();
@@ -592,6 +628,24 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   			println("returnStatement : <replacingExpression> transformed : <transformedTime>");
 			insert(replacingExpression);
 		}
+	}
+	case (StatementExpression) `<LeftHandSide id> = new Thread(<LambdaExpression args>)` : {
+		StatementExpression exp = (StatementExpression) `<LeftHandSide id> = new Thread(<LambdaExpression args>)`;
+		datetime detectedTime = now();
+  		println("statementExpr with lambda : <exp> detected : <detectedTime>");
+		StatementExpression replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<LambdaExpression args>)`;
+		datetime transformedTime = now();
+  		println("statementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
+		insert(replacingExpression);
+	}
+	case (StatementExpression) `<LeftHandSide id> = new Thread(<AIC args>)` : {
+		StatementExpression exp = (StatementExpression) `<LeftHandSide id> = new Thread(<AIC args>)`;
+		datetime detectedTime = now();
+  		println("statementExpr with aic : <exp> detected : <detectedTime>");
+		StatementExpression replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<AIC args>)`;
+		datetime transformedTime = now();
+  		println("statementExpr with aic : <replacingExpression> transformed : <transformedTime>");
+		insert(replacingExpression);
 	}
 	case (StatementExpression) `new Thread(<ArgumentList args>)` : {
 		StatementExpression exp = (StatementExpression) `new Thread(<ArgumentList args>)`;
