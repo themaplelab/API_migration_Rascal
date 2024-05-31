@@ -729,7 +729,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			}
 		}
 		else if (isArgNewClass == true) {
-			ArgumentList runnableArgs = parse(#ArgumentList, unparse(cice));
+			println("isArgclass: <isArgNewClass>");
+			Expression argument0 = parse(#Expression , unparse(cice));
+			ArgumentList runnableArgs = parse(#ArgumentList, argument0);
+			println("runnable: <runnableArgs>");
 			replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
 			isReplacement = true;
 			isArgNewClass = false;
