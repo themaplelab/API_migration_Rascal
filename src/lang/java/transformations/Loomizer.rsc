@@ -136,15 +136,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		previousMethodDeclaration = b;
 	}
-	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ClassInstanceCreationExpression args>)` : {
-		BlockStatement exp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ClassInstanceCreationExpression args>)`;
-		datetime detectedTime = now();
-  		println("blockStatementExpr with classInstance : <exp> detected : <detectedTime>");
-		BlockStatement replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ClassInstanceCreationExpression args>)`;
-		datetime transformedTime = now();
-  		println("blockStatementExpr with classInstance : <replacingExpression> transformed : <transformedTime>");
-		insert(replacingExpression);
-	}
 	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);` : {
 		BlockStatement blockstatementExp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);`;
 		println("bb: <blockstatementExp>");
@@ -156,6 +147,9 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		// extract argument list
 		top-down visit(blockstatementExp) {
 			case ArgumentList argList : argumentList += argList; 
+			case ClassInstanceCreationExpression exp : {
+				println("blockStatementClass : <exp> detected : <detectedTime>");
+			}
 		}
 		//get types of arguments
 		typesOfArguments = getTypesOfArguments(argumentList);
