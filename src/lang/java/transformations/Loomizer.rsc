@@ -568,7 +568,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		bool isLambdaExp = false;
 		bool isAIC = false;
 		str replacingArgument;
-		ClassInstanceCreationExpression cice;
+		ArgumentList cice;
 		list[ArgumentList] argumentList = [];
 		top-down visit(exp) {
 			case ArgumentList argList : {
@@ -586,7 +586,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					case ClassInstanceCreationExpression exp : {
 						if (count == 0) {
 							isArgNewClass = true;
-							cice = exp;
+							cice = args;
 							println("blockStatementClass : <exp> detected : <detectedTime>");
 						}
 						count+=1;
@@ -730,10 +730,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		else if (isArgNewClass == true) {
 			println("isArgclass: <isArgNewClass>");
-			Expression argument0 = parse(#Expression , unparse(cice));
-			ArgumentList runnableArgs = parse(#ArgumentList, argument0);
-			println("runnable: <runnableArgs>");
-			replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
+			replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList cice>);`;
 			isReplacement = true;
 			isArgNewClass = false;
 		}
