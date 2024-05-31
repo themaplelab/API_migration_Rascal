@@ -313,6 +313,15 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
 					isReplacement = true;
 				}
+			} else if ("Runnable" in types && "String" in types) {
+				Expression argument0 = typesOfArguments["Runnable"];
+				runnableArguments = unparse(argument0);
+				Expression argument0 = typesOfArguments["String"];
+				nameArguments = unparse(argument0);
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+				isReplacement = true;
 			}
 		} else if (isArgNewClass == true) {
 			ArgumentList runnableArgs = parse(#ArgumentList, unparse(cice));
@@ -503,6 +512,15 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
 					isReplacement = true;
 				}
+			} else if ("Runnable" in types && "String" in types) {
+				Expression argument0 = typesOfArguments["Runnable"];
+				runnableArguments = unparse(argument0);
+				Expression argument0 = typesOfArguments["String"];
+				nameArguments = unparse(argument0);
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+				isReplacement = true;
 			}
 		} else if (isArgNewClass == true) {
 			ArgumentList runnableArgs = parse(#ArgumentList, unparse(cice));
@@ -683,6 +701,15 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					replacingExpression = (ReturnStatement) `return Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
 					isReplacement = true;
 				}
+			} else if ("Runnable" in types && "String" in types) {
+				Expression argument0 = typesOfArguments["Runnable"];
+				runnableArguments = unparse(argument0);
+				Expression argument0 = typesOfArguments["String"];
+				nameArguments = unparse(argument0);
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+				isReplacement = true;
 			}
 		} else if (isArgNewClass == true) {
 			ArgumentList runnableArgs = parse(#ArgumentList, unparse(cice));
@@ -847,6 +874,15 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
 					isReplacement = true;
 				}
+			} else if ("Runnable" in types && "String" in types) {
+				Expression argument0 = typesOfArguments["Runnable"];
+				runnableArguments = unparse(argument0);
+				Expression argument0 = typesOfArguments["String"];
+				nameArguments = unparse(argument0);
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+				isReplacement = true;
 			}
 		}
 		else if (isArgNewClass == true) {
