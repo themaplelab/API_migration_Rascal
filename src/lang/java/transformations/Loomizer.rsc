@@ -487,6 +487,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			println("chck1: <("Runnable" in types)>");
 			println("chck2: <("String" in types)>");
 			if (check == true) {
+				println("chck3: <check>");
 				// Expression argument0 = typesOfArguments["Runnable"];
 				// runnableArguments = unparse(argument0);
 				// Expression argument1 = typesOfArguments["String"];
@@ -495,7 +496,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				// ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
 				// replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
 				isReplacement = true;
-			} else if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
+			} 
+			if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
 				Expression argument0 = typesOfArguments[tId];
 				runnableArguments = unparse(argument0);
 				Expression argument0 = typesOfArguments[tId];
