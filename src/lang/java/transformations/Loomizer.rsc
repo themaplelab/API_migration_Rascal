@@ -146,9 +146,13 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		list[ArgumentList] argumentList = [];
 		// extract argument list
 		top-down visit(blockstatementExp) {
-			case ArgumentList argList : argumentList += argList; 
-			case ClassInstanceCreationExpression exp : {
-				println("blockStatementClass : <exp> detected : <detectedTime>");
+			case ArgumentList argList : {
+				argumentList += argList; 
+				top-down visit(argList) {
+					case ClassInstanceCreationExpression exp : {
+						println("blockStatementClass : <exp> detected : <detectedTime>");
+					}
+				}
 			}
 		}
 		//get types of arguments
