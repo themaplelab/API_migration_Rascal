@@ -144,12 +144,16 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		map[str, Expression] typesOfArguments = ( );
 
 		list[ArgumentList] argumentList = [];
+		bool isArgNewClass = false;
+		ClassInstanceCreationExpression cice;
 		// extract argument list
 		top-down visit(blockstatementExp) {
 			case ArgumentList argList : {
 				argumentList += argList; 
 				top-down visit(argList) {
 					case ClassInstanceCreationExpression exp : {
+						isArgNewClass = true;
+						cice = exp;
 						println("blockStatementClass : <exp> detected : <detectedTime>");
 					}
 				}
@@ -300,6 +304,11 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					isReplacement = true;
 				}
 			}
+		} else if (isArgNewClass == true) {
+			ArgumentList runnableArgs = parse(#ArgumentList, unparse(cice));
+			replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
+			isReplacement = true;
+			isArgNewClass = false;
 		}
 		if (isReplacement == true) {
 			datetime transformedTime = now();
