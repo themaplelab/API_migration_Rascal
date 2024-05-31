@@ -183,7 +183,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			}
 		}
 		//get types of arguments
-		typesOfArguments = getTypesOfArguments(argumentList);
+		typesOfArguments = ( );
+		if (isArgNewClass == false && isAIC == false && isLambdaExp == false) {
+			typesOfArguments = getTypesOfArguments(argumentList);
+		}
 		int numberOfArguments = size(typesOfArguments);
 		list[str] types = toList(typesOfArguments<0>);
 		int numberOfTypes = size(types);
@@ -393,7 +396,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				}
 			} 
 		}
-		typesOfArguments = getTypesOfArguments(argumentList);
+		typesOfArguments = ( );
+		if (isArgNewClass == false && isAIC == false && isLambdaExp == false) {
+			typesOfArguments = getTypesOfArguments(argumentList);
+		}
 		int numberOfArguments = size(typesOfArguments);
 		list[str] types = toList(typesOfArguments<0>);
 		int numberOfTypes = size(types);
@@ -597,7 +603,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			} 
 		}
 		println("argSize: <size(argumentList)>");
-		typesOfArguments = getTypesOfArguments(argumentList);
+		typesOfArguments = ( );
+		if (isArgNewClass == false && isAIC == false && isLambdaExp == false) {
+			typesOfArguments = getTypesOfArguments(argumentList);
+		}
 		int numberOfArguments = size(typesOfArguments);
 		println("numberOfArgs: <numberOfArguments>");
 		list[str] types = toList(typesOfArguments<0>);
@@ -787,7 +796,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				} 
 			}
 		}
-		typesOfArguments = getTypesOfArguments(argumentList);
+		typesOfArguments = ( );
+		if (isArgNewClass == false && isAIC == false && isLambdaExp == false) {
+			typesOfArguments = getTypesOfArguments(argumentList);
+		}
 		int numberOfArguments = size(typesOfArguments);
 		println("numberOfArgs: <numberOfArguments>");
 		list[str] types = toList(typesOfArguments<0>);
@@ -977,7 +989,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				} 
 			}
 		}
-		typesOfArguments = getTypesOfArguments(argumentList);
+		typesOfArguments = ( );
+		if (isArgNewClass == false && isAIC == false && isLambdaExp == false) {
+			typesOfArguments = getTypesOfArguments(argumentList);
+		}
 		int numberOfArguments = size(typesOfArguments);
 		println("numberOfArgs: <numberOfArguments>");
 		list[str] types = toList(typesOfArguments<0>);
