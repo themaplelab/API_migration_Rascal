@@ -150,18 +150,19 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		// extract argument list
 		top-down visit(blockstatementExp) {
 			case ArgumentList argList : {
-				int count = 0;
 				argumentList += argList; 
-				top-down visit(argList) {
-					case ClassInstanceCreationExpression exp : {
-						if (count == 0) {
-							isArgNewClass = true;
-							cice = exp;
-							println("blockStatementClass : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
+			}
+		}
+		println("size of args: <size(argumentList)>");
+		count=0;
+		top-down visit(argumentList) {
+			case ClassInstanceCreationExpression exp : {
+				if (count == 0) {
+					isArgNewClass = true;
+					cice = exp;
+					println("blockStatementClass : <exp> detected : <detectedTime>");
 				}
+				count+=1;
 			}
 		}
 		//get types of arguments
