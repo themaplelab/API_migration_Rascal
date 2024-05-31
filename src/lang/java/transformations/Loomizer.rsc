@@ -486,7 +486,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			println("chck: <check>");
 			println("chck1: <("Runnable" in types)>");
 			println("chck2: <("String" in types)>");
-			if (check == true && check2 == true) {
+			if (check == true) {
 				// Expression argument0 = typesOfArguments["Runnable"];
 				// runnableArguments = unparse(argument0);
 				// Expression argument1 = typesOfArguments["String"];
