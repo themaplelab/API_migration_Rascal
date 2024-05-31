@@ -491,8 +491,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				runnableArguments = unparse(argument0);
 				Expression argument1 = typesOfArguments["String"];
 				nameArguments = unparse(argument1);
-				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
-				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				// ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				// ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
 				// replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
 				isReplacement = true;
 			} else if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
