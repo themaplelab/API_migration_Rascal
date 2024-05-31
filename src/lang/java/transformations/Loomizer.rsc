@@ -492,10 +492,12 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				runnableArguments = unparse(argument0);
 				Expression argument1 = typesOfArguments["String"];
 				nameArguments = unparse(argument1);
+				println("runnable: <runnableArguments>");
+				println("runnable12: <nameArguments>");
 				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
 				replacingExpression = 
-    			(LocalVariableDeclarationStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<Expression nameArgs>).unstarted(<Expression runnableArgs>)`;
+    			(LocalVariableDeclarationStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
 				isReplacement = true;
 			} 
 			else if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
