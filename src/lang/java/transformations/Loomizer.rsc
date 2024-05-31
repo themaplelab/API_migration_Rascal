@@ -145,15 +145,15 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   		println("blockStatementExpr with lambda : <replacingExpression> transformed : <transformedTime>");
 		insert(replacingExpression);
 	}
-	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ClassInstanceCreationExpression args>)` : {
-		BlockStatement exp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ClassInstanceCreationExpression args>)`;
-		datetime detectedTime = now();
-  		println("blockStatementExpr with classInstance : <exp> detected : <detectedTime>");
-		BlockStatement replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ClassInstanceCreationExpression args>)`;
-		datetime transformedTime = now();
-  		println("blockStatementExpr with classInstance : <replacingExpression> transformed : <transformedTime>");
-		insert(replacingExpression);
-	}
+	// case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ClassInstanceCreationExpression args>)` : {
+	// 	BlockStatement exp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<ClassInstanceCreationExpression args>)`;
+	// 	datetime detectedTime = now();
+  	// 	println("blockStatementExpr with classInstance : <exp> detected : <detectedTime>");
+	// 	BlockStatement replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ClassInstanceCreationExpression args>)`;
+	// 	datetime transformedTime = now();
+  	// 	println("blockStatementExpr with classInstance : <replacingExpression> transformed : <transformedTime>");
+	// 	insert(replacingExpression);
+	// }
 	case (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<AIC aic>)` : {
 		BlockStatement exp = (BlockStatement) `Thread <VariableDeclaratorId id> = new Thread(<AIC aic>)`;
 		datetime detectedTime = now();
