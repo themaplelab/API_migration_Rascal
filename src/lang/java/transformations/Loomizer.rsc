@@ -155,6 +155,14 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				int count = 0;
 				argumentList += argList; 
 				top-down visit(argList) {
+					case AIC aic : {
+						if (count == 0) {
+							isAIC = true;
+							replacingArgument = unparse(aic);
+							println("blockStatementAIC : <exp> detected : <detectedTime>");
+						}
+						count+=1;
+					}
 					case ClassInstanceCreationExpression exp : {
 						if (count == 0) {
 							isArgNewClass = true;
@@ -168,14 +176,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 							isLambdaExp = true;
 							replacingArgument = unparse(lambdaExp);
 							println("blockStatementLambda : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
-					case AIC aic : {
-						if (count == 0) {
-							isAIC = true;
-							replacingArgument = unparse(aic);
-							println("blockStatementAIC : <exp> detected : <detectedTime>");
 						}
 						count+=1;
 					}
@@ -366,6 +366,14 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				int count = 0;
 				argumentList += argList;
 				top-down visit(argList) {
+					case AIC aic : {
+						if (count == 0) {
+							isAIC = true;
+							replacingArgument = unparse(aic);
+							println("blockStatementAIC : <exp> detected : <detectedTime>");
+						}
+						count+=1;
+					}
 					case ClassInstanceCreationExpression exp : {
 						if (count == 0) {
 							isArgNewClass = true;
@@ -379,14 +387,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 							isLambdaExp = true;
 							replacingArgument = unparse(lambdaExp);
 							println("blockStatementLambda : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
-					case AIC aic : {
-						if (count == 0) {
-							isAIC = true;
-							replacingArgument = unparse(aic);
-							println("blockStatementAIC : <exp> detected : <detectedTime>");
 						}
 						count+=1;
 					}
@@ -569,6 +569,14 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				argumentList += argList;
 				int count = 0;
 				top-down visit(argList) {
+					case AIC aic : {
+						if (count == 0) {
+							isAIC = true;
+							replacingArgument = unparse(aic);
+							println("blockStatementAIC : <exp> detected : <detectedTime>");
+						}
+						count+=1;
+					}
 					case ClassInstanceCreationExpression exp : {
 						if (count == 0) {
 							isArgNewClass = true;
@@ -582,14 +590,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 							isLambdaExp = true;
 							replacingArgument = unparse(lambdaExp);
 							println("blockStatementLambda : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
-					case AIC aic : {
-						if (count == 0) {
-							isAIC = true;
-							replacingArgument = unparse(aic);
-							println("blockStatementAIC : <exp> detected : <detectedTime>");
 						}
 						count+=1;
 					}
@@ -760,6 +760,14 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				argumentList += argList; 
 				int count = 0;
 				top-down visit(argList) {
+					case AIC aic : {
+						if (count == 0) {
+							isAIC = true;
+							replacingArgument = unparse(aic);
+							println("blockStatementAIC : <exp> detected : <detectedTime>");
+						}
+						count+=1;
+					}
 					case ClassInstanceCreationExpression exp : {
 						if (count == 0) {
 							isArgNewClass = true;
@@ -773,14 +781,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 							isLambdaExp = true;
 							replacingArgument = unparse(lambdaExp);
 							println("blockStatementLambda : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
-					case AIC aic : {
-						if (count == 0) {
-							isAIC = true;
-							replacingArgument = unparse(aic);
-							println("blockStatementAIC : <exp> detected : <detectedTime>");
 						}
 						count+=1;
 					}
@@ -950,6 +950,14 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				int count = 0;
 				argumentList += argList; 
 				top-down visit(argList) {
+					case AIC aic : {
+						if (count == 0) {
+							isAIC = true;
+							replacingArgument = unparse(aic);
+							println("blockStatementAIC : <exp> detected : <detectedTime>");
+						}
+						count+=1;
+					}
 					case ClassInstanceCreationExpression exp : {
 						if (count == 0) {
 							isArgNewClass = true;
@@ -963,14 +971,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 							isLambdaExp = true;
 							replacingArgument = unparse(lambdaExp);
 							println("blockStatementLambda : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
-					case AIC aic : {
-						if (count == 0) {
-							isAIC = true;
-							replacingArgument = unparse(aic);
-							println("blockStatementAIC : <exp> detected : <detectedTime>");
 						}
 						count+=1;
 					}
