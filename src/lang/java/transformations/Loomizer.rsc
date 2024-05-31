@@ -145,8 +145,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 
 		list[ArgumentList] argumentList = [];
 		bool isArgNewClass = false;
-		bool isLambdaExp = false;
-		bool isAIC = false;
 		ClassInstanceCreationExpression cice;
 		str replacingArgument;
 		// extract argument list
@@ -155,14 +153,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				int count = 0;
 				argumentList += argList; 
 				top-down visit(argList) {
-					case AIC aic : {
-						if (count == 0) {
-							isAIC = true;
-							replacingArgument = unparse(aic);
-							println("blockStatementAIC : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
 					case ClassInstanceCreationExpression exp : {
 						if (count == 0) {
 							isArgNewClass = true;
@@ -171,20 +161,12 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						}
 						count+=1;
 					}
-					case LambdaExpression lambdaExp : {
-						if (count == 0) {
-							isLambdaExp = true;
-							replacingArgument = unparse(lambdaExp);
-							println("blockStatementLambda : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
 				}
 			}
 		}
 		//get types of arguments
 		typesOfArguments = ( );
-		if (isArgNewClass == false && isAIC == false && isLambdaExp == false) {
+		if (isArgNewClass == false) {
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
@@ -335,16 +317,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
 			isReplacement = true;
 			isArgNewClass = false;
-		} else if (isLambdaExp == true) {
-			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
-			replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
-			isReplacement = true;
-			isLambdaExp = false;
-		} else if (isAIC == true) {
-			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
-			replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
-			isReplacement = true;
-			isAIC = false;
 		}
 		if (isReplacement == true) {
 			datetime transformedTime = now();
@@ -359,8 +331,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		map[str, Expression] typesOfArguments = ( );
 
 		bool isArgNewClass = false;
-		bool isLambdaExp = false;
-		bool isAIC = false;
 		str replacingArgument;
 		ClassInstanceCreationExpression cice;
 		list[ArgumentList] argumentList = [];
@@ -369,14 +339,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				int count = 0;
 				argumentList += argList;
 				top-down visit(argList) {
-					case AIC aic : {
-						if (count == 0) {
-							isAIC = true;
-							replacingArgument = unparse(aic);
-							println("blockStatementAIC : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
 					case ClassInstanceCreationExpression exp : {
 						if (count == 0) {
 							isArgNewClass = true;
@@ -385,19 +347,11 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						}
 						count+=1;
 					}
-					case LambdaExpression lambdaExp : {
-						if (count == 0) {
-							isLambdaExp = true;
-							replacingArgument = unparse(lambdaExp);
-							println("blockStatementLambda : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
 				}
 			} 
 		}
 		typesOfArguments = ( );
-		if (isArgNewClass == false && isAIC == false && isLambdaExp == false) {
+		if (isArgNewClass == false) {
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
@@ -541,16 +495,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
 			isReplacement = true;
 			isArgNewClass = false;
-		} else if (isLambdaExp == true) {
-			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
-			replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
-			isReplacement = true;
-			isLambdaExp = false;
-		} else if (isAIC == true) {
-			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
-			replacingExpression = (ReturnStatement) `return Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
-			isReplacement = true;
-			isAIC = false;
 		}
 		if (isReplacement == true) {
 			datetime transformedTime = now();
@@ -565,24 +509,14 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		map[str, Expression] typesOfArguments = ( );
 
 		bool isArgNewClass = false;
-		bool isLambdaExp = false;
-		bool isAIC = false;
 		str replacingArgument;
-		ArgumentList cice;
+		ClassInstanceCreationExpression cice;
 		list[ArgumentList] argumentList = [];
 		top-down visit(exp) {
 			case ArgumentList argList : {
 				argumentList += argList;
 				int count = 0;
 				top-down visit(argList) {
-					case AIC aic : {
-						if (count == 0) {
-							isAIC = true;
-							replacingArgument = unparse(aic);
-							println("blockStatementAIC : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
 					case ClassInstanceCreationExpression exp : {
 						if (count == 0) {
 							isArgNewClass = true;
@@ -591,20 +525,12 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						}
 						count+=1;
 					}
-					case LambdaExpression lambdaExp : {
-						if (count == 0) {
-							isLambdaExp = true;
-							replacingArgument = unparse(lambdaExp);
-							println("blockStatementLambda : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
 				} 
 			} 
 		}
 		println("argSize: <size(argumentList)>");
 		typesOfArguments = ( );
-		if (isArgNewClass == false && isAIC == false && isLambdaExp == false) {
+		if (isArgNewClass == false) {
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
@@ -730,21 +656,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		else if (isArgNewClass == true) {
 			println("isArgclass: <isArgNewClass>");
-			replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList cice>);`;
+			ArgumentList runnableArgs = parse(#ArgumentList, unparse(cice));
+			replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
 			isReplacement = true;
 			isArgNewClass = false;
-		}
-		else if (isLambdaExp == true) {
-			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
-			replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
-			isReplacement = true;
-			isLambdaExp = false;
-		}
-		else if (isAIC == true) {
-			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
-			replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
-			isReplacement = true;
-			isAIC = false;
 		}
 		if (isReplacement == true) {
 			datetime transformedTime = now();
@@ -759,8 +674,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		map[str, Expression] typesOfArguments = ( );
 
 		bool isArgNewClass = false;
-		bool isLambdaExp = false;
-		bool isAIC = false;
 		str replacingArgument;
 		ClassInstanceCreationExpression cice;
 		list[ArgumentList] argumentList = [];
@@ -769,14 +682,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				argumentList += argList; 
 				int count = 0;
 				top-down visit(argList) {
-					case AIC aic : {
-						if (count == 0) {
-							isAIC = true;
-							replacingArgument = unparse(aic);
-							println("blockStatementAIC : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
 					case ClassInstanceCreationExpression exp : {
 						if (count == 0) {
 							isArgNewClass = true;
@@ -785,19 +690,11 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						}
 						count+=1;
 					}
-					case LambdaExpression lambdaExp : {
-						if (count == 0) {
-							isLambdaExp = true;
-							replacingArgument = unparse(lambdaExp);
-							println("blockStatementLambda : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
 				} 
 			}
 		}
 		typesOfArguments = ( );
-		if (isArgNewClass == false && isAIC == false && isLambdaExp == false) {
+		if (isArgNewClass == false) {
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
@@ -927,18 +824,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			isReplacement = true;
 			isArgNewClass = false;
 		}
-		else if (isLambdaExp == true) {
-			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
-			replacingExpression = (StatementExpression) `Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
-			isReplacement = true;
-			isLambdaExp = false;
-		}
-		else if (isAIC == true) {
-			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
-			replacingExpression = (StatementExpression) `Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
-			isReplacement = true;
-			isAIC = false;
-		}
 		if (isReplacement == true) {
 			datetime transformedTime = now();
   			println("statementExp : <replacingExpression> transformed : <transformedTime>");
@@ -952,8 +837,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		map[str, Expression] typesOfArguments = ( );
 		
 		bool isArgNewClass = false;
-		bool isLambdaExp = false;
-		bool isAIC = false;
 		str replacingArgument;
 		ClassInstanceCreationExpression cice;
 		list[ArgumentList] argumentList = [];
@@ -962,14 +845,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				int count = 0;
 				argumentList += argList; 
 				top-down visit(argList) {
-					case AIC aic : {
-						if (count == 0) {
-							isAIC = true;
-							replacingArgument = unparse(aic);
-							println("blockStatementAIC : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
 					case ClassInstanceCreationExpression exp : {
 						if (count == 0) {
 							isArgNewClass = true;
@@ -978,19 +853,11 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						}
 						count+=1;
 					}
-					case LambdaExpression lambdaExp : {
-						if (count == 0) {
-							isLambdaExp = true;
-							replacingArgument = unparse(lambdaExp);
-							println("blockStatementLambda : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
 				} 
 			}
 		}
 		typesOfArguments = ( );
-		if (isArgNewClass == false && isAIC == false && isLambdaExp == false) {
+		if (isArgNewClass == false) {
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
@@ -1050,18 +917,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			replacingExpression = (StatementExpression) `Thread.startVirtualThread(<ArgumentList runnableArgs>);`;
 			isReplacement = true;
 			isArgNewClass = false;
-		}
-		else if (isLambdaExp == true) {
-			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
-			replacingExpression = (StatementExpression) `Thread.startVirtualThread(<ArgumentList runnableArgs>);`;
-			isReplacement = true;
-			isLambdaExp = false;
-		}
-		else if (isAIC == true) {
-			ArgumentList runnableArgs = parse(#ArgumentList, replacingArgument);
-			replacingExpression = (StatementExpression) `Thread.startVirtualThread(<ArgumentList runnableArgs>);`;
-			isReplacement = true;
-			isAIC = false;
 		}
 		if (isReplacement == true) {
 			datetime transformedTime = now();
