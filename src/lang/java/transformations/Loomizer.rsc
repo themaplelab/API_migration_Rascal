@@ -1448,6 +1448,10 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 											typesOfArguments += ("String" : e); 
 											isTypeFound = true;
 										}
+										if (startsWith(unparsedExp, "String.valueOf(")) {
+											typesOfArguments += ("String" : e); 
+											isTypeFound = true;
+										}
 										if (vId == trim(unparsedExp) && (isTypeFound == false)) {
 											isTypeFound = true;
 											println("consVid: <consThisTypeMap[vId]> : <unparsedExp> type found");
@@ -1469,6 +1473,10 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 												typesOfArguments += ("String" : e); 
 												isTypeFound = true;
 											}
+											if (startsWith(unparsedExp, "String.valueOf(") && (isTypeFound == false)) {
+												typesOfArguments += ("String" : e); 
+												isTypeFound = true;
+											}
 											if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 												isTypeFound = true;
 												typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
@@ -1487,6 +1495,10 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 												variableId = substring(variableId, 5);
 											}
 											if (endsWith(unparsedExp, ".toString()")) {
+												typesOfArguments += ("String" : e); 
+												isTypeFound = true;
+											}
+											if (startsWith(unparsedExp, "String.valueOf(") && (isTypeFound == false)) {
 												typesOfArguments += ("String" : e); 
 												isTypeFound = true;
 											}
@@ -1512,6 +1524,10 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 												variableId = substring(variableId, 5);
 											}
 											if (endsWith(unparsedExp, ".toString()")) {
+												typesOfArguments += ("String" : e); 
+												isTypeFound = true;
+											}
+											if (startsWith(unparsedExp, "String.valueOf(") && (isTypeFound == false)) {
 												typesOfArguments += ("String" : e); 
 												isTypeFound = true;
 											}
@@ -1608,6 +1624,10 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 										typesOfArguments += ("String" : e); 
 										isTypeFound = true;
 									}
+									if (startsWith(unparsedExp, "String.valueOf(") && (isTypeFound == false)) {
+										typesOfArguments += ("String" : e); 
+										isTypeFound = true;
+									}
 									if (vId == trim(unparsedExp) && (isTypeFound == false)) {
 										isTypeFound = true;
 										println("consVid: <consThisTypeMap[vId]> : <unparsedExp> type found");
@@ -1625,6 +1645,10 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 											variableId = substring(variableId, 5);
 										}
 										if (endsWith(unparsedExp, ".toString()")) {
+											typesOfArguments += ("String" : e); 
+											isTypeFound = true;
+										}
+										if (startsWith(unparsedExp, "String.valueOf(") && (isTypeFound == false)) {
 											typesOfArguments += ("String" : e); 
 											isTypeFound = true;
 										}
@@ -1649,6 +1673,10 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 											typesOfArguments += ("String" : e); 
 											isTypeFound = true;
 										}
+										if (startsWith(unparsedExp, "String.valueOf(") && (isTypeFound == false)) {
+											typesOfArguments += ("String" : e); 
+											isTypeFound = true;
+										}
 										if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 											isTypeFound = true;
 											println("class: <classVariableNameTypeMap[vId]> : <unparsedExp> type found");
@@ -1670,6 +1698,10 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 											variableId = substring(variableId, 5);
 										}
 										if (endsWith(unparsedExp, ".toString()")) {
+											typesOfArguments += ("String" : e); 
+											isTypeFound = true;
+										}
+										if (startsWith(unparsedExp, "String.valueOf(") && (isTypeFound == false)) {
 											typesOfArguments += ("String" : e); 
 											isTypeFound = true;
 										}
