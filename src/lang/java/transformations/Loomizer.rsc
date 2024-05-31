@@ -481,6 +481,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			println("numberOfTyp89 :<types[0]>");
 		    println("numberOfTyp87 :<types[1]>");
 		} else if (numberOfTypes == 3) {
+			bool check = "Runnable" in types;
+			println("chck: <check>");
+			println("chck1: <("Runnable" in types)>");
+			println("chck2: <("String" in types)>");
 			// if (("Runnable" in types) && ("String" in types)) {
 			// 	Expression argument0 = typesOfArguments["Runnable"];
 			// 	runnableArguments = unparse(argument0);
