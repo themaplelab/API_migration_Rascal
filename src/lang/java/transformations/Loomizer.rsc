@@ -167,7 +167,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		//get types of arguments
 		typesOfArguments = ( );
-		if (isArgNewClass == false) {
+		if (isArgNewClass == false && size(argumentList) > 1) {
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
@@ -337,22 +337,23 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		list[ArgumentList] argumentList = [];
 		top-down visit(returnSte) {
 			case ArgumentList argList : {
-				int count = 0;
 				argumentList += argList;
-				top-down visit(argList) {
-					case ClassInstanceCreationExpression exp : {
-						if (count == 0) {
-							isArgNewClass = true;
-							cice = exp;
-							println("blockStatementClass : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
-				}
 			} 
 		}
+		println("size of args: <size(argumentList)>");
+		count=0;
+		top-down visit(argumentList) {
+			case ClassInstanceCreationExpression exp : {
+				if (count == 0) {
+					isArgNewClass = true;
+					cice = exp;
+					println("breturnStatementClass : <exp> detected : <detectedTime>");
+				}
+				count+=1;
+			}
+		}
 		typesOfArguments = ( );
-		if (isArgNewClass == false) {
+		if (isArgNewClass == false && size(argumentList) > 1) {
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
@@ -516,22 +517,22 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		top-down visit(exp) {
 			case ArgumentList argList : {
 				argumentList += argList;
-				int count = 0;
-				top-down visit(argList) {
-					case ClassInstanceCreationExpression exp : {
-						if (count == 0) {
-							isArgNewClass = true;
-							cice = argList;
-							println("blockStatementClass : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
-				} 
 			} 
 		}
+		count = 0;
+		top-down visit(argList) {
+			case ClassInstanceCreationExpression exp : {
+				if (count == 0) {
+					isArgNewClass = true;
+					cice = argList;
+					println("SteExpressionClass : <exp> detected : <detectedTime>");
+				}
+				count+=1;
+			}
+		} 
 		println("argSize: <size(argumentList)>");
 		typesOfArguments = ( );
-		if (isArgNewClass == false) {
+		if (isArgNewClass == false && size(argumentList) > 1) {
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
@@ -680,22 +681,22 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		list[ArgumentList] argumentList = [];
 		top-down visit(exp) {
 			case ArgumentList argList : {
-				argumentList += argList; 
-				int count = 0;
-				top-down visit(argList) {
-					case ClassInstanceCreationExpression exp : {
-						if (count == 0) {
-							isArgNewClass = true;
-							cice = exp;
-							println("blockStatementClass : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
-				} 
+				argumentList += argList;  
+			}
+		}
+		count = 0;
+		top-down visit(argList) {
+			case ClassInstanceCreationExpression exp : {
+				if (count == 0) {
+					isArgNewClass = true;
+					cice = exp;
+					println("steiClass : <exp> detected : <detectedTime>");
+				}
+				count+=1;
 			}
 		}
 		typesOfArguments = ( );
-		if (isArgNewClass == false) {
+		if (isArgNewClass == false && size(argumentList) > 1) {
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
@@ -843,22 +844,22 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		list[ArgumentList] argumentList = [];
 		top-down visit(exp) {
 			case ArgumentList argList : {
-				int count = 0;
 				argumentList += argList; 
-				top-down visit(argList) {
-					case ClassInstanceCreationExpression exp : {
-						if (count == 0) {
-							isArgNewClass = true;
-							cice = exp;
-							println("blockStatementClass : <exp> detected : <detectedTime>");
-						}
-						count+=1;
-					}
-				} 
 			}
 		}
+		count=0;
+		top-down visit(argList) {
+			case ClassInstanceCreationExpression exp : {
+				if (count == 0) {
+					isArgNewClass = true;
+					cice = exp;
+					println("StatementExpStartClass : <exp> detected : <detectedTime>");
+				}
+				count+=1;
+			}
+		} 
 		typesOfArguments = ( );
-		if (isArgNewClass == false) {
+		if (isArgNewClass == false && size(argumentList) > 1) {
 			typesOfArguments = getTypesOfArguments(argumentList);
 		}
 		int numberOfArguments = size(typesOfArguments);
