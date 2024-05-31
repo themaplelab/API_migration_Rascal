@@ -586,7 +586,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					case ClassInstanceCreationExpression exp : {
 						if (count == 0) {
 							isArgNewClass = true;
-							cice = args;
+							cice = argList;
 							println("blockStatementClass : <exp> detected : <detectedTime>");
 						}
 						count+=1;
