@@ -506,9 +506,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			insert(replacingExpression);
 		}
 	}
-	case (StatementExpression) `<LeftHandSide id> = new Thread(<LambdaExpression args>)` : {
-		println("statementExprLambda : <exp> detected : <detectedTime>");
-	}
 	case (StatementExpression) `<LeftHandSide id> = new Thread(<ArgumentList args>)` : {
 		StatementExpression exp = (StatementExpression) `<LeftHandSide id> = new Thread(<ArgumentList args>)`;
 		datetime detectedTime = now();
