@@ -366,7 +366,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		int numberOfTypes = size(types);
 		println("numberOfTypes :<numberOfTypes>");
 		println("types :<types>");
-		BlockStatement replacingExpression;
+		LocalVariableDeclarationStatement replacingExpression;
 		bool isReplacement = false;
 		if (numberOfTypes == 1) {
 			if (types[0] == "Runnable") {
@@ -494,7 +494,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				nameArguments = unparse(argument1);
 				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
-				replacingExpression = (LocalVariableDeclarationStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+				replacingExpression = 
+    			(LocalVariableDeclarationStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<Expression nameArgs>).unstarted(<Expression runnableArgs>)`;
 				isReplacement = true;
 			} 
 			else if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
