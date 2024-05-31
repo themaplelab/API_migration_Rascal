@@ -1479,6 +1479,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 											}
 											if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 												isTypeFound = true;
+												println("variableId: <variableNameTypeMap[vId]> : <unparsedExp> type found");
 												typesOfArguments += (trim(unparse(variableNameTypeMap[vId])): e);
 											}
 										}
@@ -1486,7 +1487,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									if (isTypeFound == false) {
 										// loop through previously extracted class variables
 										for(VariableDeclaratorId vId <- classVariableNameTypeMap) {
-											print("VariableDeclaratorId: <vId>");
+											println("ClassVariableDeclaratorId: <vId>");
 											str variableId = trim(unparse(vId));
 											if (startsWith(unparsedExp, "this.")) {
 												unparsedExp = substring(unparsedExp, 5);
@@ -1504,6 +1505,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 											}
 											if (variableId == trim(unparsedExp) && (isTypeFound == false)) {
 												isTypeFound = true;
+												println("classVariableNameTypeMap: <classVariableNameTypeMap[vId]> : <unparsedExp> type found");
 												typesOfArguments += (trim(unparse(classVariableNameTypeMap[vId])): e);
 											}
 										}
@@ -1511,7 +1513,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									if (isTypeFound == false) {
 										// loop through previously extracted class names
 										for(str vId <- classTypeMap) {
-											print("classTypeMap: <vId>");
+											println("classTypeMap: <vId>");
 											str variableId = vId;
 											str variableId = vId;
 											if (startsWith(unparsedExp, "new ")) {
@@ -1914,7 +1916,12 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 				
 				str originalFilePath = file.path[1..];
 				str replacingFileName = file.file;
-				str replacementFile = trim(argName) + ".java";
+				int indexOfBracket = findFirst(trim(argName), "<");
+				str className = trim(argName);
+				if (indexOfBracket > 0) {
+					className = substring(className, 0, indexOfBracket);
+				}
+				str replacementFile = className + ".java";
 				str modifiedPath = replaceLast(originalFilePath, replacingFileName, replacementFile);
 				loc subClassLocation = |file:///| + modifiedPath;
 				str content = readFile(subClassLocation);
