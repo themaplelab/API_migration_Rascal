@@ -1916,11 +1916,11 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 				
 				str originalFilePath = file.path[1..];
 				str replacingFileName = file.file;
-				int indexOfBracket = findFirst(trim(argName), "<");
+				// int indexOfBracket = findFirst(trim(argName), "<");
 				str className = trim(argName);
-				if (indexOfBracket > 0) {
-					className = substring(className, 0, indexOfBracket);
-				}
+				// if (indexOfBracket > 0) {
+				// 	className = substring(className, 0, indexOfBracket);
+				// }
 				str replacementFile = className + ".java";
 				str modifiedPath = replaceLast(originalFilePath, replacingFileName, replacementFile);
 				loc subClassLocation = |file:///| + modifiedPath;
