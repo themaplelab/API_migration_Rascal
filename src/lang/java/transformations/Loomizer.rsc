@@ -2005,10 +2005,8 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 				str replacingFileName = file.file;
 				str className = trim(argName);
 				println("className: <className>");
-  				// str pattern = "[\\(\\)\\{\\}\\[\\]\\<\\>]";
-				// str output = replaceAll(pattern, "", className);
-				str output = replaceAll("<>", "", className);
-				str replacementFile = className + ".java";
+				str output = replaceAll("[<>]", "", className);
+				str replacementFile = output + ".java";
 				println("replacementFile: <replacementFile>");
 				str modifiedPath = replaceLast(originalFilePath, replacingFileName, replacementFile);
 				loc subClassLocation = |file:///| + modifiedPath;
