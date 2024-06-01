@@ -341,8 +341,8 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 	}
 	//final keyword detection worked; transformation had parse errors
-	case (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);` : {
-		BlockStatement blockstatementExp = (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);`;
+	case (BlockStatement) `final Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);` : {
+		BlockStatement blockstatementExp = (BlockStatement) `final Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);`;
 		println("bb: <blockstatementExp>");
 		datetime detectedTime = now();
   		println("blockStatement : <blockstatementExp> detected : <detectedTime>");
@@ -388,7 +388,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				Expression argument0 = typesOfArguments["Runnable"];
 				str expressionArgument = unparse(argument0);
 				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
-				replacingExpression = (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
 			} else {
 				str typeOfArg = findTypeOfArg(unit, types[0], file, "");
@@ -397,7 +397,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					Expression argument0 = typesOfArguments[types[0]];
 					str expressionArgument = unparse(argument0);
 					ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
-					replacingExpression = (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+					replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 					isReplacement = true;
 				}
 			}
@@ -431,7 +431,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 						Expression argument0 = typesOfArguments[tId];
 						str expressionArgument = unparse(argument0);
 						ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
-						replacingExpression = (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+						replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 						isReplacement = true;
 						break;
 					}
@@ -440,13 +440,13 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				Expression argument0 = typesOfArguments[types[1]];
 				str expressionArgument = unparse(argument0);
 				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
-				replacingExpression = (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
 			} else if (types[1] == "ThreadGroup" && (types[0] != "String" && types[0] != "Runnable")) {
 				Expression argument0 = typesOfArguments[types[0]];
 				str expressionArgument = unparse(argument0);
 				ArgumentList lambdas = parse(#ArgumentList, expressionArgument);
-				replacingExpression = (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
+				replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList lambdas>);`;
 				isReplacement = true;
 			} else if ((types[0] == "Runnable" && (types[1] == "String" || types[1] == "StringBuffer")) || ((types[0] == "String" || types[0] == "StringBuffer") && types[1] == "Runnable")) {
 				str runnableArguments = "";
@@ -463,7 +463,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				}
 				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
-				replacingExpression = (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+				replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
 				isReplacement = true;
 			} else if ((types[0] != "String" && types[0] != "Runnable" && types[0] != "ThreadGroup" && types[0] != "StringBuffer") && (types[1] == "String" || types[1] == "StringBuffer")) {
 				println("typeOfArgFinal2return3: <typeOfArg>");
@@ -476,7 +476,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					str nameArguments = unparse(argument1);
 					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
-					replacingExpression = (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+					replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
 					isReplacement = true;
 				}
 			} else if ((types[1] != "String" && types[1] != "Runnable" && types[1] != "ThreadGroup" && types[1] != "StringBuffer") && (types[0] == "String" || types[0] == "StringBuffer")) {
@@ -489,7 +489,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					str nameArguments = unparse(argument1);
 					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
-					replacingExpression = (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+					replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
 					isReplacement = true;
 				}
 			}
@@ -511,7 +511,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				println("runnable12: <nameArguments>");
 				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
-				replacingExpression = (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+				replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
 				isReplacement = true;
 			} else if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
 				Expression argument0 = typesOfArguments[tId];
@@ -520,7 +520,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				nameArguments = unparse(argument0);
 				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
-				replacingExpression = (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+				replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
 		    	isReplacement = true;
 			} else if (types[1] != "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
 				str typeOfArg = findTypeOfArg(unit, types[1], file, "");
@@ -532,13 +532,13 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					nameArguments = unparse(argument0);
 					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
-					replacingExpression = (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
+					replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
 					isReplacement = true;
 				}
 			}
 		} else if (isArgNewClass == true) {
 			ArgumentList runnableArgs = parse(#ArgumentList, unparse(cice));
-			replacingExpression = (BlockStatement) `<VariableModifier vm> Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
+			replacingExpression = (BlockStatement) `final Thread <VariableDeclaratorId id> = Thread.ofVirtual().unstarted(<ArgumentList runnableArgs>);`;
 			isReplacement = true;
 			isArgNewClass = false;
 		}
