@@ -2007,6 +2007,7 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 				println("className: <className>");
   				// str pattern = "[\\(\\)\\{\\}\\[\\]\\<\\>]";
 				// str output = replaceAll(pattern, "", className);
+				str output = replaceAll("<>", "", className);
 				str replacementFile = className + ".java";
 				println("replacementFile: <replacementFile>");
 				str modifiedPath = replaceLast(originalFilePath, replacingFileName, replacementFile);
