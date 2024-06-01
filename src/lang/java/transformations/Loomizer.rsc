@@ -761,7 +761,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		println("statementExprPrint : <exp> detected : <size(argumentList)>");
 		count = 0;
-		top-down visit(argList) {
+		top-down visit(argumentList) {
 			case ClassInstanceCreationExpression exp : {
 				if (count == 0) {
 					isArgNewClass = true;
@@ -944,7 +944,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			}
 		}
 		count = 0;
-		top-down visit(argList) {
+		top-down visit(argumentList) {
 			case ClassInstanceCreationExpression exp : {
 				if (count == 0) {
 					isArgNewClass = true;
@@ -1108,7 +1108,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			}
 		}
 		count=0;
-		top-down visit(argList) {
+		top-down visit(argumentList) {
 			case ClassInstanceCreationExpression exp : {
 				if (count == 0) {
 					isArgNewClass = true;
