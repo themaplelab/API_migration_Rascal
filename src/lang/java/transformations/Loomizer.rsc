@@ -1412,6 +1412,7 @@ public map[str, str] extractInstanceVariables(CompilationUnit unit) {
 			exp = top-down visit(exp) {
 				case VariableDeclaratorId id: {
 					vId = trim(unparse(id));
+					println("vId : <vId>");
 					if (startsWith(vId, "this.")) {
 						vId = substring(vId, 5);
 					}
