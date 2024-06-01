@@ -271,7 +271,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					str nameArguments = unparse(argument1);
 					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
-					replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+					replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
 					isReplacement = true;
 				}
 			} else if ((types[1] != "String" && types[1] != "Runnable" && types[1] != "ThreadGroup" && types[1] != "StringBuffer") && (types[0] == "String" || types[0] == "StringBuffer")) {
@@ -284,7 +284,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					str nameArguments = unparse(argument1);
 					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
-					replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+					replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
 					isReplacement = true;
 				}
 			}
@@ -311,7 +311,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				nameArguments = unparse(argument1);
 				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
-				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
 		    	isReplacement = true;
 			} else if (indexRunnable == -1 && indexString != -1) {
 				int indexOfRUnnable = 6 - (indexGroup + indexString);
@@ -324,7 +324,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					nameArguments = unparse(argument0);
 					ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 					ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
-					replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+					replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>);`;
 					isReplacement = true;
 				}
 			}
