@@ -1404,9 +1404,9 @@ public map[str, str] extractInstanceVariables(CompilationUnit unit) {
 			}
 			consThisTypeMap += (vId : vType);
 		}
-		case (BlockStatement) `<UnannType un> <VariableDeclaratorId id> = <ClassInstanceCreationExpression c>;`: {
-			BlockStatement exp = (BlockStatement) `<UnannType un> <VariableDeclaratorId id> = <ClassInstanceCreationExpression c>;`;
-			println("ClassInstanceCreationExpressionBlockStatement: <exp>");
+		case (BlockStatement) `<UnannType un> <VariableDeclaratorId id> = <Expression c>;`: {
+			BlockStatement exp = (BlockStatement) `<UnannType un> <VariableDeclaratorId id> = <Expression c>;`;
+			println("Expression: <exp>");
 			vId = "";
 			vType = "";
 			exp = top-down visit(exp) {
