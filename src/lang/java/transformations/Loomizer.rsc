@@ -340,7 +340,6 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			insert(replacingExpression);
 		}
 	}
-	//final keyword detection worked; transformation had parse errors
 	case (BlockStatement) `final Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);` : {
 		BlockStatement blockstatementExp = (BlockStatement) `final Thread <VariableDeclaratorId id> = new Thread(<ArgumentList args>);`;
 		println("bb: <blockstatementExp>");
