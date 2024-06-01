@@ -16,7 +16,7 @@ data Transformation = transformation(str name, CompilationUnit (CompilationUnit)
 loc file;
 public void main(str path = "") {
   int startedTime = realTime();
-  println("startedTime: <startedTime>: <name>");
+  println("startedTime: <startedTime>: <path>");
     loc base = |file:///| + path; 
 
     if( (path == "") || (! exists(base)) || (! isDirectory(base)) ) {
