@@ -2005,10 +2005,12 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 				str replacingFileName = file.file;
 				// int indexOfBracket = findFirst(trim(argName), "<");
 				str className = trim(argName);
-				// if (indexOfBracket > 0) {
-				// 	className = substring(className, 0, indexOfBracket);
-				// }
+				if (contains(className, "<") && contains(className,">")) {
+					indexOfBracket = findFirst(className, "<");
+					className = substring(className, 0, indexOfBracket);
+				}
 				str replacementFile = className + ".java";
+				println("replacementFile: <replacementFile>");
 				str modifiedPath = replaceLast(originalFilePath, replacingFileName, replacementFile);
 				loc subClassLocation = |file:///| + modifiedPath;
 				str content = readFile(subClassLocation);
