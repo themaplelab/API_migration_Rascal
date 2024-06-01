@@ -759,6 +759,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				argumentList += argList;
 			} 
 		}
+		println("statementExprPrint : <exp> detected : <size(argumentList)>");
 		count = 0;
 		top-down visit(argList) {
 			case ClassInstanceCreationExpression exp : {
