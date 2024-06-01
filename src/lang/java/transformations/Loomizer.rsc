@@ -291,7 +291,24 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			println("numberOfTyp89 :<types[0]>");
 		    println("numberOfTyp87 :<types[1]>");
 		} else if (numberOfTypes == 3) {
-			if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
+			bool check = "Runnable" in types;
+			bool check2 = "String" in types;
+			println("chck: <check>");
+			println("chck1: <("Runnable" in types)>");
+			println("chck2: <("String" in types)>");
+			if (check == true && check2 == true) {
+				println("chck3: <check>");
+				Expression argument0 = typesOfArguments["Runnable"];
+				runnableArguments = unparse(argument0);
+				Expression argument1 = typesOfArguments["String"];
+				nameArguments = unparse(argument1);
+				println("runnable: <runnableArguments>");
+				println("runnable12: <nameArguments>");
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+				isReplacement = true;
+			} else if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
 				Expression argument0 = typesOfArguments[tId];
 				runnableArguments = unparse(argument0);
 				Expression argument0 = typesOfArguments[tId];
@@ -679,7 +696,24 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				}
 			}
 		} else if (numberOfTypes == 3) {
-			if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
+			bool check = "Runnable" in types;
+			bool check2 = "String" in types;
+			println("chck21: <check>");
+			println("chck121: <("Runnable" in types)>");
+			println("chck212: <("String" in types)>");
+			if (check == true && check2 == true) {
+				println("chck23: <check>");
+				Expression argument0 = typesOfArguments["Runnable"];
+				runnableArguments = unparse(argument0);
+				Expression argument1 = typesOfArguments["String"];
+				nameArguments = unparse(argument1);
+				println("runnable1212: <runnableArguments>");
+				println("runnable1122: <nameArguments>");
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (ReturnStatement) `return Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+				isReplacement = true;
+			} else if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
 				Expression argument0 = typesOfArguments[tId];
 				runnableArguments = unparse(argument0);
 				Expression argument0 = typesOfArguments[tId];
@@ -843,7 +877,24 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		} else if (numberOfTypes == 3) {
 			str runnableArguments = "";
 			str nameArguments = "";
-			if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
+			bool check = "Runnable" in types;
+			bool check2 = "String" in types;
+			println("chck21: <check>");
+			println("chck121: <("Runnable" in types)>");
+			println("chck212: <("String" in types)>");
+			if (check == true && check2 == true) {
+				println("chck23: <check>");
+				Expression argument0 = typesOfArguments["Runnable"];
+				runnableArguments = unparse(argument0);
+				Expression argument1 = typesOfArguments["String"];
+				nameArguments = unparse(argument1);
+				println("runnable1212: <runnableArguments>");
+				println("runnable1122: <nameArguments>");
+				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
+				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
+				replacingExpression = (StatementExpression) `<LeftHandSide id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
+				isReplacement = true;
+			} else if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
 				Expression argument0 = typesOfArguments[tId];
 				runnableArguments = unparse(argument0);
 				Expression argument0 = typesOfArguments[tId];
