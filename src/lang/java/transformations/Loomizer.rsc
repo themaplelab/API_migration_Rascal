@@ -1259,7 +1259,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 				top-down visit(methodInv) {
 					case ArgumentList argList : argumentList += argList; 
 				}
-				int numberOfArguments = getCountOfArguments(argumentList);
+				int numberOfArguments = size(argumentList);
 				
 				if (numberOfArguments == 1 ) {
 					isThreadFacAdded = true;
