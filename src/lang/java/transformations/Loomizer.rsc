@@ -296,18 +296,18 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			println("chck: <check>");
 			println("chck1: <("Runnable" in types)>");
 			println("chck2: <("String" in types)>");
-			if (check == true && check2 == true) {
-				println("chck3: <check>");
+			if ((types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) || (types[0] == "Runnable" && ( types[1] == "String" || types[1] == "StringBuffer")) || 
+			(types[0] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) || (types[2] == "Runnable" && ( types[1] == "String" || types[1] == "StringBuffer")) ||
+			 (types[2] == "Runnable" && ( types[0] == "String" || types[0] == "StringBuffer")) || (types[0] == "Runnable" && ( types[1] == "String" || types[1] == "StringBuffer")) || 
+			 (types[1] == "Runnable" && ( types[0] == "String" || types[0] == "StringBuffer"))) {
 				Expression argument0 = typesOfArguments["Runnable"];
 				runnableArguments = unparse(argument0);
 				Expression argument1 = typesOfArguments["String"];
 				nameArguments = unparse(argument1);
-				println("runnable: <runnableArguments>");
-				println("runnable12: <nameArguments>");
 				ArgumentList runnableArgs = parse(#ArgumentList, runnableArguments);
 				ArgumentList nameArgs = parse(#ArgumentList, nameArguments);
 				replacingExpression = (BlockStatement) `Thread <VariableDeclaratorId id> = Thread.ofVirtual().name(<ArgumentList nameArgs>).unstarted(<ArgumentList runnableArgs>)`;
-				isReplacement = true;
+		    	isReplacement = true;
 			} else if (types[1] == "Runnable" && ( types[2] == "String" || types[2] == "StringBuffer")) {
 				Expression argument0 = typesOfArguments[tId];
 				runnableArguments = unparse(argument0);
@@ -1095,7 +1095,7 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			insert(replacingExpression);
 		}
 	}
-		case (StatementExpression) `new Thread(<ArgumentList args>).start()` : {
+	case (StatementExpression) `new Thread(<ArgumentList args>).start()` : {
 		StatementExpression exp = (StatementExpression) `new Thread(<ArgumentList args>).start()`;
 		datetime detectedTime = now();
   		println("statementExprClassInstance : <exp> detected : <detectedTime>");
