@@ -2011,10 +2011,12 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 						className = unparse(id); 
 					}
 				}
+				argName = className;
 				str replacementFile = className + ".java";
 				println("replacementFile: <replacementFile>");
 				str modifiedPath = replaceLast(originalFilePath, replacingFileName, replacementFile);
 				loc subClassLocation = |file:///| + modifiedPath;
+				println("replacementFileloc: <subClassLocation>");
 				str content = readFile(subClassLocation);
 				CompilationUnit unit2 = parse(#CompilationUnit, content);
 				unit = unit2;
