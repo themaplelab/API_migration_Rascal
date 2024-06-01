@@ -1410,19 +1410,21 @@ public map[str, str] extractInstanceVariables(CompilationUnit unit) {
 			vId = "";
 			vType = "";
 			exp = top-down visit(exp) {
+				case UnannType un: {
+					vType = trim(unparse(un));
+					println("vType : <vType>");
+				}
 				case VariableDeclaratorId id: {
 					vId = trim(unparse(id));
 					println("vId : <vId>");
 					if (startsWith(vId, "this.")) {
 						vId = substring(vId, 5);
 					}
-				}
-			    case UnannType un: {
-					vType = trim(unparse(un));
-					println("vType : <vType>");
+					if (vId != "" && vType != "") {
+						consThisTypeMap += (vId : vType);
+					}
 				}
 			}
-			consThisTypeMap += (vId : vType);
 		}
 	}
 	// consThisTypeMap = varNameAndType;
