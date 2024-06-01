@@ -2005,6 +2005,7 @@ public str findTypeOfArg(CompilationUnit unit, str argName, loc file, str typeOf
 				str replacingFileName = file.file;
 				// int indexOfBracket = findFirst(trim(argName), "<");
 				str className = trim(argName);
+				println("className: <className>");
 				if (contains(className, "<") && contains(className,">")) {
 					indexOfBracket = findFirst(className, "<");
 					className = substring(className, 0, indexOfBracket);
