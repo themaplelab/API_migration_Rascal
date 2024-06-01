@@ -295,11 +295,11 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			bool check2 = "String" in types;
 			println("chck: <check>: <check2>");
 			
-			int indexRunnable = indexOf(typesOfArguments, "Runnable");
-			int indexString = indexOf(typesOfArguments, "String");
-			int indexGroup = indexOf(typesOfArguments, "ThreadGroup");
+			int indexRunnable = indexOf(types, "Runnable");
+			int indexString = indexOf(types, "String");
+			int indexGroup = indexOf(types, "ThreadGroup");
 			if (indexString == -1) {
-				indexString = indexOf(typesOfArguments, "StringBuffer");
+				indexString = indexOf(types, "StringBuffer");
 			}
 			println("chck13: <indexRunnable>");
 			println("chck23: <indexString>");
