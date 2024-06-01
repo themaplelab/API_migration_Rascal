@@ -1414,15 +1414,19 @@ public map[str, str] extractInstanceVariables(CompilationUnit unit) {
 					vType = trim(unparse(un));
 					println("vType : <vType>");
 				}
+				int count = 0;
 				case VariableDeclaratorId id: {
-					vId = trim(unparse(id));
-					println("vId : <vId>");
-					if (startsWith(vId, "this.")) {
-						vId = substring(vId, 5);
+					if (count == 0){
+						vId = trim(unparse(id));
+						println("vId : <vId>");
+						if (startsWith(vId, "this.")) {
+							vId = substring(vId, 5);
+						}
+						if (vId != "" && vType != "") {
+							consThisTypeMap += (vId : vType);
+						}
 					}
-					if (vId != "" && vType != "") {
-						consThisTypeMap += (vId : vType);
-					}
+					count+=1;
 				}
 			}
 		}
