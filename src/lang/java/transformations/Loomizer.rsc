@@ -1404,25 +1404,25 @@ public map[str, str] extractInstanceVariables(CompilationUnit unit) {
 			}
 			consThisTypeMap += (vId : vType);
 		}
-		// case (BlockStatement) `<UnannType un> <LeftHandSide id> = <Expression c>`: {
-		// 	BlockStatement exp = (BlockStatement) `<UnannType un> <LeftHandSide id> = <Expression c>`;
-		// 	println("ClassInstanceCreationExpressionBlockStatement: <exp>");
-		// 	vId = "";
-		// 	vType = "";
-		// 	exp = top-down visit(exp) {
-		// 		case LeftHandSide id: {
-		// 			vId = trim(unparse(id));
-		// 			if (startsWith(vId, "this.")) {
-		// 				vId = substring(vId, 5);
-		// 			}
-		// 		}
-		// 	    case UnannType un: {
-		// 			vType = trim(unparse(un));
-		// 			println("vType : <vType>");
-		// 		}
-		// 	}
-		// 	consThisTypeMap += (vId : vType);
-		// }
+		case (BlockStatement) `<UnannType un> <VariableDeclaratorId id> = <ClassInstanceCreationExpression c>;`: {
+			BlockStatement exp = (BlockStatement) `<UnannType un> <VariableDeclaratorId id> = <ClassInstanceCreationExpression c>;`;
+			println("ClassInstanceCreationExpressionBlockStatement: <exp>");
+			vId = "";
+			vType = "";
+			exp = top-down visit(exp) {
+				case VariableDeclaratorId id: {
+					vId = trim(unparse(id));
+					if (startsWith(vId, "this.")) {
+						vId = substring(vId, 5);
+					}
+				}
+			    case UnannType un: {
+					vType = trim(unparse(un));
+					println("vType : <vType>");
+				}
+			}
+			consThisTypeMap += (vId : vType);
+		}
 	}
 	// consThisTypeMap = varNameAndType;
 	for(str vId <- consThisTypeMap) {
