@@ -13,8 +13,8 @@ import lang::java::\syntax::Java18;
 import DateTime;
 
 data Argument = argument(str argType, Expression expression);
-map[VariableDeclaratorId, UnannType] variableNameTypeMap = ( );
-map[VariableDeclaratorId, UnannType] classVariableNameTypeMap = ( );
+map[VariableDeclaratorId, Identifier] variableNameTypeMap = ( );
+map[VariableDeclaratorId, Identifier] classVariableNameTypeMap = ( );
 map[str, str] methodTypeMap = ( );
 map[str, str] consThisTypeMap = ( );
 map[str, str] classTypeMap = ( );
@@ -66,10 +66,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
   unit = top-down visit(unit) {
 	// extracting class variables
 	case FieldDeclaration f: {
-		UnannType vType;
+		Identifier vType;
 		VariableDeclaratorId name;
 		f = top-down visit(f) {
-			case UnannType s: { 
+			case Identifier s: { 
 				vType = s;
 			}
 			case VariableDeclaratorId s: {
@@ -94,10 +94,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 					case MethodDeclarator md: {
 						md = top-down visit(md) {
 							case FormalParameter f : { 
-								UnannType vType;
+								Identifier vType;
 								VariableDeclaratorId name;
 								f = top-down visit(f) {
-									case UnannType s: { 
+									case Identifier s: { 
 										vType = s;
 									}
 									case VariableDeclaratorId s: {
@@ -121,10 +121,10 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 			}
 			// variables declared within the method are considered
 			case LocalVariableDeclaration lvd: { 
-				UnannType vType;
+				Identifier vType;
 				VariableDeclaratorId name;
 				lvd = top-down visit(lvd) {
-					case UnannType s: { 
+					case Identifier s: { 
 						vType = s;
 					}
 					case VariableDeclaratorId s: {
