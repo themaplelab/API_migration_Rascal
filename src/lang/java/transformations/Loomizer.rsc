@@ -1621,6 +1621,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 											if (endsWith(unparsedExp, "()") || endsWith(unparsedExp, ")") && (isTypeFound == false)) {
 												indexVal = findFirst(unparsedExp, "(");
 												variableNameExt = substring(unparsedExp, 0, indexVal);
+												println("classType2211: <variableNameExt> : <unparsedExp>");
 												if (variableId == trim(variableNameExt) && (isTypeFound == false)) {
 													isTypeFound = true;
 													println("classType21: <classTypeMap[vId]> : <unparsedExp> type found");
@@ -1662,6 +1663,7 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 										if (endsWith(unparsedExp, "()") || endsWith(unparsedExp, ")")) {
 											indexVal = findFirst(unparsedExp, "(");
 											// extract the method name
+											println("finding from methods <unparsedExp>");
 											variableNameExt = substring(unparsedExp, 0, indexVal);
 											// loop through method type map to identify the return type of that method
 											for (str methodName <- methodTypeMap) {
@@ -1675,8 +1677,10 @@ public map[str, Expression] getTypesOfArguments(list[ArgumentList] argumentList)
 									}
 									if (isTypeFound == false) {
 										typesOfArguments += ("String" : e); 
+										println("type of arg found: String");
 										isTypeFound = true;
 									}
+									println("type of arg found: <typesOfArguments>");
 								} 
 							}
 						} else {
