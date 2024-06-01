@@ -1407,6 +1407,25 @@ public map[str, str] extractInstanceVariables(CompilationUnit unit) {
 			}
 			consThisTypeMap += (vId : vType);
 		}
+		case (BlockStatement) `<UnannType un> <LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
+			BlockStatement exp = (BlockStatement) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
+			println("ClassInstanceCreationExpressionBlockStatement: <exp>");
+			vId = "";
+			vType = "";
+			exp = top-down visit(exp) {
+				case LeftHandSide id: {
+					vId = trim(unparse(id));
+					if (startsWith(vId, "this.")) {
+						vId = substring(vId, 5);
+					}
+				}
+			    case UnannType c: {
+					vType = trim(unparse(c));
+					println("vType : <vType>");
+				}
+			}
+			consThisTypeMap += (vId : vType);
+		}
 	}
 	// consThisTypeMap = varNameAndType;
 	for(str vId <- consThisTypeMap) {
