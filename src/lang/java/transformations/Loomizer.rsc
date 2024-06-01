@@ -1408,7 +1408,7 @@ public map[str, str] extractInstanceVariables(CompilationUnit unit) {
 			consThisTypeMap += (vId : vType);
 		}
 		case (BlockStatement) `<UnannType un> <LeftHandSide id> = <ClassInstanceCreationExpression c>`: {
-			BlockStatement exp = (BlockStatement) `<LeftHandSide id> = <ClassInstanceCreationExpression c>`;
+			BlockStatement exp = (BlockStatement) `<UnannType un> <LeftHandSide id> = <ClassInstanceCreationExpression c>`;
 			println("ClassInstanceCreationExpressionBlockStatement: <exp>");
 			vId = "";
 			vType = "";
@@ -1419,8 +1419,8 @@ public map[str, str] extractInstanceVariables(CompilationUnit unit) {
 						vId = substring(vId, 5);
 					}
 				}
-			    case UnannType c: {
-					vType = trim(unparse(c));
+			    case UnannType un: {
+					vType = trim(unparse(un));
 					println("vType : <vType>");
 				}
 			}
