@@ -761,12 +761,18 @@ public CompilationUnit extractMethodsAndPatterns(CompilationUnit unit, loc file)
 		}
 		println("statementExprPrint : <exp> detected : <size(argumentList)>");
 		count = 0;
+		println("statementExprPri");
 		top-down visit(argumentList) {
 			case ClassInstanceCreationExpression exp : {
+				println("statementExprPri1");
 				try {
+					println("statementExprPri2");
 					if (count == 0) {
+						println("statementExprPri3");
 						isArgNewClass = true;
-						cice = argList;
+						println("statementExprPri4");
+						cice = exp;
+						println("statementExprPri5");
 						println("SteExpressionClass : <exp> detected : <detectedTime>");
 					}
 				}
