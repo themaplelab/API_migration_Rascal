@@ -16,7 +16,7 @@ data Transformation = transformation(str name, CompilationUnit (CompilationUnit)
 loc file;
 public void main(str path = "") {
   int startedTime = realTime();
-  println("startedTime: <startedTime>");
+  println("startedTime: <startedTime>: <path>");
     loc base = |file:///| + path; 
 
     if( (path == "") || (! exists(base)) || (! isDirectory(base)) ) {
@@ -35,6 +35,7 @@ public void main(str path = "") {
       CompilationUnit transformedUnit;
       for(loc f <- allFiles) {
         try {
+          println("reading file: <f>");
           str content = readFile(f);  
           file = f;
           <transformedUnit> = applyTransformations(content, transformations);
