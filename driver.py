@@ -9,7 +9,7 @@ import glob
 
 def main():
     cwd = os.getcwd()
-    root_dir = 'D:/Alberta/Thesis/codebases/forked_tomcat/tomcat/'
+    root_dir = '/home/hewage/data/repositories/open-liberty/open-liberty/dev/'
     current_time = datetime.now()
     time_stamp = current_time.timestamp()
     print("startedTimestamp:-", time_stamp)
