@@ -10,7 +10,7 @@ A set of Rascal transformations for helping developers to migrate traditional ja
 ### Build and run
 
    * Clone this repository (`git clone git@github.com:themaplelab/Loomizer.git`)
-   * Change to the JUnit5Migration folder (`cd Loomizer`) 
+   * Change to the Loomizer folder (`cd Loomizer`) 
    * Download the Rascal shell (`wget https://update.rascal-mpl.org/console/rascal-shell-stable.jar`)
    * Execute the `driver.py` script:
 
