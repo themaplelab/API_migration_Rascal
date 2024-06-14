@@ -1,9 +1,9 @@
 mkdir /home/hewage/data/experiments/scripts/Data/tomcat/$1
-i=3
-while [ $i -ne 4 ];
+i=1
+while [ $i -ne 21 ];
 do
         echo $i
-	for PORT in 8085
+	for PORT in 8085 8086
         do
 		if [ $PORT -eq 8086 ]
 		then 
