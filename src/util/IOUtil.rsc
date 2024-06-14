@@ -27,6 +27,5 @@ list[loc] findAllJavaFiles(loc location, str ext) {
       };
     };
   };
-  
   return res; 
 }

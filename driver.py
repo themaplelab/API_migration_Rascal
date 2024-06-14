@@ -9,16 +9,13 @@ import glob
 
 def main():
     cwd = os.getcwd()
-    root_dir = 'D:/Alberta/Thesis/codebases/forked_tomcat/tomcat/'
+    root_dir = '/home/hewage/data/repositories/open-liberty/open-liberty/dev/'
     current_time = datetime.now()
     time_stamp = current_time.timestamp()
     print("startedTimestamp:-", time_stamp)
     listOfFiles = []
     #make recursive parameter False for tomcat
     #os.path.basename(filename) == "src"  used for Open Liberty, Wildfly and Undertow
-    #("/test/" not in filename) present only in open Liberty
-    #we considered test folders in tomcat, undertow, wildfly, but not in Open Liberty; 
-    #it does not matter for our experiments any how
     for filename in glob.iglob(root_dir + '**/**', recursive=True):
         try:
             if filename in listOfFiles:
