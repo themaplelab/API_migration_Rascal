@@ -1,6 +1,6 @@
 mkdir /home/hewage/data/experiments/scripts/Data/undertow/$1
 i=1
-while [ $i -ne 13 ];
+while [ $i -ne 21 ];
 do
         echo $i
         for PORT in 1 2
