@@ -1,5 +1,6 @@
 ## Loomizer
 
+![LOOMIZER-6-13-2024 (1)](https://github.com/themaplelab/Loomizer/assets/56334497/1fdb5df6-950f-4edb-a57f-ed1539840daf)
 A set of Rascal transformations for helping developers to migrate traditional java threads to Loom API virtual threads.
 
 ### Requirements
