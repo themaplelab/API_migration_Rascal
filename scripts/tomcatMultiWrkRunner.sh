@@ -1,5 +1,5 @@
 mkdir /home/hewage/data/experiments/scripts/Data/tomcat/$1
-i=20
+i=1
 while [ $i -ne 21 ];
 do
         echo $i
