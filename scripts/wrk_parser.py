@@ -121,12 +121,12 @@ def parse_wrk_output(wrk_output):
 
 
 def readFile(n, fileName):
-    file1 = open("/home/hewage/data/experiments/scripts/Data/" + n + "/" + fileName, "r+")
+    file1 = open("/home/data/experiments/scripts/Data/" + n + "/" + fileName, "r+")
     return file1.read()
 
 
 def writeFile(n, data):
-    file1 = open("/home/hewage/data/experiments/scripts/Data/" + n + "/original_final_output_" + n +".csv", "w+")
+    file1 = open("/home/data/experiments/scripts/Data/" + n + "/original_final_output_" + n +".csv", "w+")
     return file1.write(data)
 
 
