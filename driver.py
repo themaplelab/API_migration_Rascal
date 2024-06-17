@@ -9,7 +9,7 @@ import glob
 
 def main():
     cwd = os.getcwd()
-    root_dir = '/home/hewage/data/repositories/open-liberty/open-liberty/dev/'
+    root_dir = '/home/data/repositories/open-liberty/open-liberty/dev/'
     current_time = datetime.now()
     time_stamp = current_time.timestamp()
     print("startedTimestamp:-", time_stamp)
