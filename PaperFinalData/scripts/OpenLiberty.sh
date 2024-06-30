@@ -1,7 +1,7 @@
 mkdir /home/hewage/data/experiments/scripts/Data/$1
 delay=$2
-i=11
-while [ $i -ne 21 ];
+i=1
+while [ $i -ne 11 ];
 do
         echo $i
 	for PORT in 9092 9093
