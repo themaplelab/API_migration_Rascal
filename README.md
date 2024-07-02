@@ -10,7 +10,7 @@ A set of Rascal transformations for helping developers to migrate traditional ja
 
 ### Build and run
 
-   * Clone this repository (`git clone git@github.com:themaplelab/Loomizer.git`)
+   * Clone this repository
    * Change to the Loomizer folder (`cd Loomizer`) 
    * Download the Rascal shell (`wget https://update.rascal-mpl.org/console/rascal-shell-stable.jar`)
    * Change the root directory path (Sometimes, if your java application does not have "src" folder, you need to remove "and os.path.basename(filename) == "src"" in line 24 in `driver.py` and change the recursive property in glob() function accordingly)
